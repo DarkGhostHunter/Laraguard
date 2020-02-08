@@ -117,31 +117,31 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_makes_code()
     {
-        $tfa = factory(twofactorauthentication::class)->states('with recovery', 'with safe devices')->make([
-            'shared_secret' => $secret = 'ks72xbtn5pebgx2iwbmvw44lxhpaq7l3',
+        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+            'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
         ]);
 
-        carbon::settestnow(carbon::create(2020, 1, 1, 20, 29, 59));
-        $this->assertequals('493537', $tfa->makecode());
-        $this->assertequals('389766', $tfa->makecode('now', 1));
+        Carbon::setTestNow(Carbon::create(2020, 1, 1, 20, 29, 59));
+        $this->assertEquals('493537', $tfa->makeCode());
+        $this->assertEquals('389766', $tfa->makeCode('now', 1));
 
-        carbon::settestnow(carbon::create(2020, 1, 1, 20, 30, 0));
-        $this->assertequals('389766', $tfa->makecode());
-        $this->assertequals('493537', $tfa->makecode('now', -1));
+        Carbon::setTestNow(Carbon::create(2020, 1, 1, 20, 30, 0));
+        $this->assertEquals('389766', $tfa->makeCode());
+        $this->assertEquals('493537', $tfa->makeCode('now', -1));
 
         for ($i = 0 ; $i < 30 ; ++$i) {
-            carbon::settestnow(carbon::create(2020, 1, 1, 20, 30, $i));
-            $this->assertequals('389766', $tfa->makecode());
+            Carbon::setTestNow(Carbon::create(2020, 1, 1, 20, 30, $i));
+            $this->assertEquals('389766', $tfa->makeCode());
         }
 
-        carbon::settestnow(carbon::create(2020, 1, 1, 20, 30, 31));
-        $this->assertequals('629101', $tfa->makecode());
+        Carbon::setTestNow(Carbon::create(2020, 1, 1, 20, 30, 31));
+        $this->assertEquals('629101', $tfa->makeCode());
 
-        $this->assertequals('495085', $tfa->makecode(
-            carbon::create(2020, 1, 1, 1, 1, 1))
+        $this->assertEquals('495085', $tfa->makeCode(
+            Carbon::create(2020, 1, 1, 1, 1, 1))
         );
 
-        $this->assertequals('461236', $tfa->makecode('4th february 2020'));
+        $this->assertEquals('461236', $tfa->makeCode('4th february 2020'));
     }
 
     public function test_validate_code()
