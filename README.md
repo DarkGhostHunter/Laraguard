@@ -152,7 +152,7 @@ This package hooks into the `Validated` event (or `Attempting` if it doesn't exi
 
 This is done transparently without intervening your application with guards, routes, controllers or middleware.
 
-Additionally, **ensure [protect your login route](#protecting-the-login)**.
+Additionally, **ensure you [protect your login route](#protecting-the-login)**.
 
 > If you're using a custom Authentication Guard that doesn't fire events, this package won't work, like the `TokenGuard` and the `RequestGuard`.
 
