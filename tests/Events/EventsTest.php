@@ -6,7 +6,6 @@ use Tests\RegistersPackage;
 use Illuminate\Support\Str;
 use Tests\CreatesTwoFactorUser;
 use Orchestra\Testbench\TestCase;
-use Tests\Stubs\UserTwoFactorStub;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -79,7 +78,7 @@ class EventsTest extends TestCase
     {
         $event = Event::fake();
 
-        $this->user->generateRecoveryCodes(10, 10);
+        $this->user->generateRecoveryCodes();
 
         $event->assertDispatched(TwoFactorRecoveryCodesGenerated::class, function (TwoFactorRecoveryCodesGenerated $event) {
             return $this->user->is($event->user);

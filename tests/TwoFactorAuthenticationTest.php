@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Orchestra\Testbench\TestCase;
 use Tests\Stubs\UserTwoFactorStub;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Database\Eloquent\Relations\MorphOne;

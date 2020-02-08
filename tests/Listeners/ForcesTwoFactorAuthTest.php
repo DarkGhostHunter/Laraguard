@@ -293,7 +293,7 @@ class ForcesTwoFactorAuthTest extends TestCase
 
     public function test_auth_request_receives_recovery_code_without_recovery_enabled_shows_form()
     {
-        $code = $this->user->generateRecoveryCodes(10, 10)->first()['code'];
+        $code = $this->user->generateRecoveryCodes()->first()['code'];
 
         config(['laraguard.recovery.enabled' => false]);
 
@@ -307,7 +307,7 @@ class ForcesTwoFactorAuthTest extends TestCase
 
     public function test_auth_request_receives_recovery_code_without_recovery_codes_available_shows_form()
     {
-        $code = $this->user->generateRecoveryCodes(10, 10)->first()['code'];
+        $code = $this->user->generateRecoveryCodes()->first()['code'];
 
         $this->user->twoFactorAuth->setAttribute('recovery_codes', null)->save();
 
@@ -321,7 +321,7 @@ class ForcesTwoFactorAuthTest extends TestCase
 
     public function test_auth_request_receives_recovery_code_succeeds()
     {
-        $code = $this->user->generateRecoveryCodes(10, 10)->first()['code'];
+        $code = $this->user->generateRecoveryCodes()->first()['code'];
 
         $this->post('login', [
             'email'    => 'foo@test.com',
@@ -368,7 +368,7 @@ class ForcesTwoFactorAuthTest extends TestCase
 
         $this->assertCount(1, $this->user->twoFactorAuth->safe_devices);
 
-        $code = $this->user->generateRecoveryCodes(10, 10)->first()['code'];
+        $code = $this->user->generateRecoveryCodes()->first()['code'];
 
         $this->post('login', [
             'email'    => 'foo@test.com',
