@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Input name
+    |--------------------------------------------------------------------------
+    |
+    | When using the Listener, it will automatically check the Request for the
+    | input name containing the Two Factor Code. A safe default is set here,
+    | but you can override the value if it collides with other form input.
+    |
+    */
+
+    'input' => '2fa_code',
+
+    /*
+    |--------------------------------------------------------------------------
     | Recovery Codes
     |--------------------------------------------------------------------------
     |

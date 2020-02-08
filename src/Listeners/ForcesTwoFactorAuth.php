@@ -44,14 +44,13 @@ class ForcesTwoFactorAuth
      * @param  \Illuminate\Auth\AuthManager  $auth
      * @param  \Illuminate\Contracts\Config\Repository  $config
      * @param  \Illuminate\Http\Request  $request
-     * @param  string  $input
      */
-    public function __construct(AuthManager $auth, Repository $config, Request $request, string $input = '2fa_code')
+    public function __construct(AuthManager $auth, Repository $config, Request $request)
     {
         $this->auth = $auth;
         $this->config = $config;
         $this->request = $request;
-        $this->input = $input;
+        $this->input = $config->get('laraguard.input');
     }
 
     /**
