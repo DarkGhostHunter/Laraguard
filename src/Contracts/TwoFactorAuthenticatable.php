@@ -70,11 +70,9 @@ interface TwoFactorAuthenticatable
     /**
      * Generates a new set of Recovery Codes.
      *
-     * @param  int  $amount
-     * @param  int  $length
      * @return \Illuminate\Support\Collection
      */
-    public function generateRecoveryCodes(int $amount, int $length) : Collection;
+    public function generateRecoveryCodes() : Collection;
 
     /**
      * Return all the Safe Devices that bypass Two Factor Authentication.

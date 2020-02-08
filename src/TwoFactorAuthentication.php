@@ -2,7 +2,6 @@
 
 namespace DarkGhostHunter\Laraguard;
 
-use LogicException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -52,10 +51,8 @@ trait TwoFactorAuthentication
     {
         $this->twoFactorAuth->enabled_at = now();
 
-        [$enabled, $amount, $length] = array_values(config('laraguard.recovery'));
-
-        if ($enabled) {
-            $this->generateRecoveryCodes($amount, $length);
+        if (config('laraguard.recovery.enabled')) {
+            $this->generateRecoveryCodes();
         }
 
         $this->twoFactorAuth->save();
@@ -181,12 +178,12 @@ trait TwoFactorAuthentication
     /**
      * Generates a new set of Recovery Codes.
      *
-     * @param  int  $amount
-     * @param  int  $length
      * @return \Illuminate\Support\Collection
      */
-    public function generateRecoveryCodes(int $amount, int $length) : Collection
+    public function generateRecoveryCodes() : Collection
     {
+        [$enabled, $amount, $length] = array_values(config('laraguard.recovery'));
+
         $this->twoFactorAuth->recovery_codes = Eloquent\TwoFactorAuthentication::generateRecoveryCodes($amount, $length);
         $this->twoFactorAuth->recovery_codes_generated_at = now();
         $this->twoFactorAuth->save();
