@@ -64,7 +64,7 @@ trait HandlesRecoveryCodes
     {
         return Collection::times($amount, function () use ($length) {
             return [
-                'code'    => Str::random($length),
+                'code'    => strtoupper(Str::random($length)),
                 'used_at' => null,
             ];
         });
