@@ -2,10 +2,10 @@
 
 # Laraguard
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/darkghosthunter/laraguard.svg?style=flat-square)](https://packagist.org/packages/darkghosthunter/laraguard)
-[![Build Status](https://img.shields.io/travis/darkghosthunter/laraguard/master.svg?style=flat-square)](https://travis-ci.org/darkghosthunter/laraguard)
-[![Quality Score](https://img.shields.io/scrutinizer/g/darkghosthunter/laraguard.svg?style=flat-square)](https://scrutinizer-ci.com/g/darkghosthunter/laraguard)
-[![Total Downloads](https://img.shields.io/packagist/dt/darkghosthunter/laraguard.svg?style=flat-square)](https://packagist.org/packages/darkghosthunter/laraguard)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/darkghosthunter/laraguard.svg?style=flat-square)](https://packagist.org/packages/darkghosthunter/laraguard) [![License](https://poser.pugx.org/darkghosthunter/laraguard/license)](https://packagist.org/packages/darkghosthunter/laraguard)
+![](https://img.shields.io/packagist/php-v/darkghosthunter/laraguard.svg)
+ ![](https://github.com/DarkGhostHunter/Laraguard/workflows/PHP%20Composer/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/DarkGhostHunter/Laraguard/badge.svg?branch=master)](https://coveralls.io/github/DarkGhostHunter/Laraguard?branch=master)
 
 Two Factor Authentication via TOTP for all your Users out-of-the-box.
 
@@ -152,7 +152,7 @@ This package hooks into the `Validated` event (or `Attempting` if it doesn't exi
 
 This is done transparently without intervening your application with guards, routes, controllers or middleware.
 
-Additionally, **ensure [protect your login route](#protecting-the-login)**.
+Additionally, **ensure you [protect your login route](#protecting-the-login)**.
 
 > If you're using a custom Authentication Guard that doesn't fire events, this package won't work, like the `TokenGuard` and the `RequestGuard`.
 
