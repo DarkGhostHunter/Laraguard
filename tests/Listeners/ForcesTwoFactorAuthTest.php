@@ -50,6 +50,21 @@ class ForcesTwoFactorAuthTest extends TestCase
         $this->assertStringContainsString(__('The Code is invalid or has expired.'), $view);
     }
 
+    public function test_login_with_no_valid_credentials_no_2fa_fails()
+    {
+        $user = UserStub::create([
+            'name'     => 'test',
+            'email'    => 'bar@test.com',
+            'password' => '$2y$10$EicEv29xyMt/AbuWc0AIkeWb8Ip0fdhAYqgiXUaoG8Klu43521jQW',
+        ]);
+
+        $this->post('login', [
+            'email'    => $user->email,
+            'password' => 'invalid',
+            'remember' => 'on',
+        ])->assertSee('authenticated');
+    }
+
     public function test_login_with_no_2fa_no_code_succeeds()
     {
         $user = UserStub::create([
@@ -90,6 +105,15 @@ class ForcesTwoFactorAuthTest extends TestCase
             'password' => '12345678',
             'remember' => 'on',
         ])->assertOk()->assertSee('authenticated');
+    }
+
+    public function test_login_request_with_2fa_but_invalid_credentials_fails()
+    {
+        $this->post('login', [
+            'email'    => 'foo@test.com',
+            'password' => 'invalid',
+            'remember' => 'on',
+        ])->assertSee('unauthenticated');
     }
 
     public function test_login_request_with_2fa_no_code_shows_form()

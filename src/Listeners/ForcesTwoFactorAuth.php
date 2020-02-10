@@ -11,13 +11,6 @@ use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
 class ForcesTwoFactorAuth
 {
     /**
-     * Authentication Guard manager.
-     *
-     * @var \Illuminate\Auth\AuthManager
-     */
-    protected $auth;
-
-    /**
      * Config repository.
      *
      * @var \Illuminate\Contracts\Config\Repository
@@ -41,13 +34,11 @@ class ForcesTwoFactorAuth
     /**
      * Create a new ForcesTwoFactorAuth instance.
      *
-     * @param  \Illuminate\Auth\AuthManager  $auth
      * @param  \Illuminate\Contracts\Config\Repository  $config
      * @param  \Illuminate\Http\Request  $request
      */
-    public function __construct(AuthManager $auth, Repository $config, Request $request)
+    public function __construct(Repository $config, Request $request)
     {
-        $this->auth = $auth;
         $this->config = $config;
         $this->request = $request;
         $this->input = $config->get('laraguard.input');
@@ -61,9 +52,7 @@ class ForcesTwoFactorAuth
      */
     public function handle($event)
     {
-        $user = $this->retrieveUser($event);
-
-        if ($this->shouldUseTwoFactorAuth($user)) {
+        if ($this->shouldUseTwoFactorAuth($user = $this->retrieveUser($event))) {
 
             if ($this->isSafeDevice($user) || ($this->hasCode() && $invalid = $this->hasValidCode($user))) {
                 return $this->addSafeDevice($user);
@@ -98,7 +87,7 @@ class ForcesTwoFactorAuth
         // Since we only have the credentials from the event, we will try to retrieve the currently
         // used User Provider from the application configuration. For that, we will call the auth
         // manager and just ask to get the provider being used for the currently active guard.
-        $provider = $this->auth->createUserProvider($this->config["auth.guards.$guard.provider"]);
+        $provider = app(AuthManager::class)->createUserProvider($this->config["auth.guards.$guard.provider"]);
 
         $user = $provider->retrieveByCredentials($credentials);
 

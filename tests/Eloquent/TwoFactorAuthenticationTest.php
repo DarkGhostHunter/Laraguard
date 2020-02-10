@@ -145,6 +145,16 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertEquals('461236', $tfa->makeCode('4th february 2020'));
     }
 
+    public function test_makes_code_for_timestamp()
+    {
+        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+            'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
+        ]);
+
+        $this->assertEquals('356058', $tfa->makeCode(1581300000));
+        $this->assertTrue($tfa->validateCode('356058', 1581300000));
+    }
+
     public function test_validate_code()
     {
         $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
