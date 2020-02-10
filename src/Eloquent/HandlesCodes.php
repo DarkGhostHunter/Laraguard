@@ -30,7 +30,19 @@ trait HandlesCodes
     {
         ['store' => $store, 'prefix' => $this->prefix] = config('laraguard.cache');
 
-        $this->cache = cache()->store($store);
+        $this->cache = $this->useCacheStore($store);
+    }
+
+    /**
+     * Returns the Cache Store to use.
+     *
+     * @param  string  $store
+     * @return \Illuminate\Contracts\Cache\Repository
+     * @throws \Exception
+     */
+    protected function useCacheStore(string $store = null)
+    {
+        return cache()->store($store);
     }
 
     /**
@@ -51,7 +63,7 @@ trait HandlesCodes
 
         for ($i = 0; $i <= $window; ++$i) {
             if (hash_equals($this->makeCode($at, -$i), $code)) {
-                $this->setCodeHasUsed($code);
+                $this->setCodeHasUsed($code, $at);
                 return true;
             }
         }
@@ -84,7 +96,7 @@ trait HandlesCodes
         $hmac = hash_hmac(
             $this->algorithm,
             $this->timestampToBinary($timestamp),
-            $this->attributes['shared_secret'],
+            $this->getBinarySecret(),
             true
         );
 
@@ -109,6 +121,16 @@ trait HandlesCodes
     protected function timestampToBinary(int $timestamp)
     {
         return pack('N*', 0) . pack('N*', $timestamp);
+    }
+
+    /**
+     * Returns the Shared Secret as a raw binary string.
+     *
+     * @return string
+     */
+    protected function getBinarySecret()
+    {
+        return $this->attributes['shared_secret'];
     }
 
     /**
@@ -170,13 +192,14 @@ trait HandlesCodes
      * Sets the Code has used so it can't be used again.
      *
      * @param  string  $code
+     * @param  int|string|\Datetime|\Illuminate\Support\Carbon  $at
      * @return bool
      */
-    protected function setCodeHasUsed(string $code)
+    protected function setCodeHasUsed(string $code, $at)
     {
         // We will safely set the cache key for the whole lifetime plus window just to be safe.
         return $this->cache->set($this->cacheKey($code), true,
-            Carbon::createFromTimestamp($this->getTimestampFromPeriod('now', $this->window))
+            Carbon::createFromTimestamp($this->getTimestampFromPeriod($at, $this->window + 1))
         );
     }
 }

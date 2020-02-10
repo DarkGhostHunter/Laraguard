@@ -451,26 +451,43 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_unique_code_works_only_one_time()
     {
-        config(['laraguard.unique' => true]);
-
-        Carbon::setTestNow($now = Carbon::create(2020, 01, 01, 18, 30, 0));
+        Carbon::setTestNow(Carbon::create(2020, 01, 01, 18, 30, 0));
 
         $code = $this->user->makeTwoFactorCode();
 
         $this->assertTrue($this->user->validateTwoFactorCode($code));
         $this->assertFalse($this->user->validateTwoFactorCode($code));
 
-        Carbon::setTestNow($now = Carbon::create(2020, 01, 01, 18, 30, 59));
+        Carbon::setTestNow(Carbon::create(2020, 01, 01, 18, 30, 59));
 
         $new_code = $this->user->makeTwoFactorCode();
+
         $this->assertTrue($this->user->validateTwoFactorCode($new_code));
         $this->assertFalse($this->user->validateTwoFactorCode($code));
     }
 
+    public function test_unique_code_works_only_one_time_with_extended_window()
+    {
+        $this->user->twoFactorAuth->window = 5;
+        $this->user->twoFactorAuth->save();
+
+        Carbon::setTestNow(Carbon::create(2020, 01, 01, 18, 30, 0));
+
+        $old = $this->user->makeTwoFactorCode();
+
+        $this->assertTrue($this->user->validateTwoFactorCode($old));
+        $this->assertFalse($this->user->validateTwoFactorCode($old));
+
+        Carbon::setTestNow(Carbon::create(2020, 01, 01, 18, 32, 29));
+
+        $new = $this->user->makeTwoFactorCode();
+
+        $this->assertTrue($this->user->validateTwoFactorCode($new));
+        $this->assertFalse($this->user->validateTwoFactorCode($new));
+    }
+
     public function test_unique_code_works_only_one_time_in_extended_time()
     {
-        config(['laraguard.unique' => true]);
-
         Carbon::setTestNow($now = Carbon::create(2020, 01, 01, 18, 30, 20));
 
         $code = $this->user->makeTwoFactorCode();
