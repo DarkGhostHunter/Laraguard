@@ -81,8 +81,6 @@ class LaraguardServiceProvider extends ServiceProvider
      */
     protected function getEventName()
     {
-        return class_exists('Illuminate\Auth\Events\Validated')
-            ? 'Illuminate\Auth\Events\Validated'
-            : 'Illuminate\Auth\Events\Attempting';
+        return class_exists('Illuminate\Auth\Events\Validated') ? 'Illuminate\Auth\Events\Validated' : 'Illuminate\Auth\Events\Attempting';
     }
 }
