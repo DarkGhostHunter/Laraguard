@@ -30,6 +30,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Cache Store
+    |--------------------------------------------------------------------------
+    |
+    | Codes can only be used one time, so we will hold them in the cache for
+    | the period it shouldn't be used again. You can customize the default
+    | cache store to use. Using "null" will use the default cache store.
+    |
+    */
+
+    'cache' => [
+        'store' => null,
+        'prefix' => '2fa.code'
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Recovery Codes
     |--------------------------------------------------------------------------
     |

@@ -4,6 +4,7 @@ namespace DarkGhostHunter\Laraguard\Http\Middleware;
 
 use Closure;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
+use DarkGhostHunter\Laraguard\Http\Controllers\TwoFactorAuthenticationController;
 
 class EnsureTwoFactorEnabled
 {
@@ -15,7 +16,7 @@ class EnsureTwoFactorEnabled
      * @param  string  $redirectToRoute
      * @return void|\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle($request, Closure $next, $redirectToRoute = '2fa.notice')
+    public function handle($request, Closure $next, $redirectToRoute = null)
     {
         $user = $request->user();
 
@@ -23,8 +24,14 @@ class EnsureTwoFactorEnabled
             return $next($request);
         }
 
-        return $request->expectsJson()
-            ? abort(403, __('Two Factor Authentication is not enabled.'))
-            : redirect()->route($redirectToRoute);
+        if ($request->expectsJson()) {
+            return abort(403, __('Two Factor Authentication is not enabled.'));
+        }
+
+        if ($redirectToRoute) {
+            return redirect()->route($redirectToRoute);
+        }
+
+        return redirect()->action(TwoFactorAuthenticationController::class . '@notice');
     }
 }
