@@ -3,7 +3,6 @@
 namespace DarkGhostHunter\Laraguard;
 
 use Illuminate\Routing\Router;
-use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Config\Repository;
 
@@ -24,13 +23,12 @@ class LaraguardServiceProvider extends ServiceProvider
      *
      * @param  \Illuminate\Contracts\Config\Repository  $config
      * @param  \Illuminate\Routing\Router  $router
-     * @param  \Illuminate\Foundation\Http\Kernel  $http
      * @return void
      */
-    public function boot(Repository $config, Router $router, Kernel $http)
+    public function boot(Repository $config, Router $router)
     {
         $this->registerListener($config);
-        $this->registerMiddleware($router, $http);
+        $this->registerMiddleware($router);
 
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laraguard');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
@@ -51,13 +49,10 @@ class LaraguardServiceProvider extends ServiceProvider
      * Register the middleware.
      *
      * @param  \Illuminate\Routing\Router  $router
-     * @param  \Illuminate\Foundation\Http\Kernel  $http
      */
-    protected function registerMiddleware(Router $router, Kernel $http)
+    protected function registerMiddleware(Router $router)
     {
         $router->aliasMiddleware('2fa', Http\Middleware\EnsureTwoFactorEnabled::class);
-
-        $http->pushMiddleware(Http\Middleware\ResolveTwoFactorAuthenticatable::class);
     }
 
     /**
