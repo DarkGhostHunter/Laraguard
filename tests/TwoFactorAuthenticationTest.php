@@ -7,6 +7,7 @@ use Illuminate\Support\Carbon;
 use Orchestra\Testbench\TestCase;
 use Tests\Stubs\UserTwoFactorStub;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -162,7 +163,11 @@ class TwoFactorAuthenticationTest extends TestCase
 
         $this->assertTrue($user->confirmTwoFactorAuth($code));
         $this->assertTrue($user->hasTwoFactorEnabled());
+        $this->assertFalse($user->validateTwoFactorCode($code));
+
+        Cache::getStore()->flush();
         $this->assertTrue($user->validateTwoFactorCode($code));
+
         $this->assertEquals($now, $user->twoFactorAuth->enabled_at);
 
         $event->assertDispatched(TwoFactorRecoveryCodesGenerated::class, function ($event) use ($user) {
@@ -222,9 +227,11 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($this->user->confirmTwoFactorAuth($old_code));
         $this->assertFalse($this->user->hasTwoFactorEnabled());
 
+        Cache::getStore()->flush();
         $this->assertTrue($this->user->confirmTwoFactorAuth($new_code));
         $this->assertTrue($this->user->hasTwoFactorEnabled());
 
+        Cache::getStore()->flush();
         $this->assertFalse($this->user->validateTwoFactorCode($old_code));
         $this->assertTrue($this->user->validateTwoFactorCode($new_code));
 
@@ -440,5 +447,54 @@ class TwoFactorAuthenticationTest extends TestCase
 
         $this->assertTrue($this->user->isNotSafeDevice($request));
         $this->assertFalse($this->user->isSafeDevice($request));
+    }
+
+    public function test_unique_code_works_only_one_time()
+    {
+        Carbon::setTestNow(Carbon::create(2020, 01, 01, 18, 30, 0));
+
+        $code = $this->user->makeTwoFactorCode();
+
+        $this->assertTrue($this->user->validateTwoFactorCode($code));
+        $this->assertFalse($this->user->validateTwoFactorCode($code));
+
+        Carbon::setTestNow(Carbon::create(2020, 01, 01, 18, 30, 59));
+
+        $new_code = $this->user->makeTwoFactorCode();
+
+        $this->assertTrue($this->user->validateTwoFactorCode($new_code));
+        $this->assertFalse($this->user->validateTwoFactorCode($code));
+    }
+
+    public function test_unique_code_works_only_one_time_with_extended_window()
+    {
+        $this->user->twoFactorAuth->window = 5;
+        $this->user->twoFactorAuth->save();
+
+        Carbon::setTestNow(Carbon::create(2020, 01, 01, 18, 30, 0));
+
+        $old = $this->user->makeTwoFactorCode();
+
+        $this->assertTrue($this->user->validateTwoFactorCode($old));
+        $this->assertFalse($this->user->validateTwoFactorCode($old));
+
+        Carbon::setTestNow(Carbon::create(2020, 01, 01, 18, 32, 29));
+
+        $new = $this->user->makeTwoFactorCode();
+
+        $this->assertTrue($this->user->validateTwoFactorCode($new));
+        $this->assertFalse($this->user->validateTwoFactorCode($new));
+    }
+
+    public function test_unique_code_works_only_one_time_in_extended_time()
+    {
+        Carbon::setTestNow($now = Carbon::create(2020, 01, 01, 18, 30, 20));
+
+        $code = $this->user->makeTwoFactorCode();
+
+        Carbon::setTestNow($now = Carbon::create(2020, 01, 01, 18, 30, 59));
+
+        $this->assertTrue($this->user->validateTwoFactorCode($code));
+        $this->assertFalse($this->user->validateTwoFactorCode($code));
     }
 }

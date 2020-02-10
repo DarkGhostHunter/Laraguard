@@ -26,6 +26,7 @@ This package _silently_ enables authentication using 6 digits codes, without Int
 * [Configuration](#configuration)
     + [Listener](#listener)
     + [Input name](#input-name)
+    + [Cache Store](#cache-store)
     + [Recovery](#recovery)
     + [Safe devices](#safe-devices)
     + [Secret length](#secret-bytes)
@@ -275,6 +276,21 @@ return [
 By default, the input name that must contain the Two Factor Authentication Code is called `2fa_code`, which is a good default value to avoid collisions with other inputs names.
 
 This allows to seamlessly intercept the log in attempt and proceed with Two Factor Authentication or bypass it. Change it if it collides with other login form inputs.
+
+### Cache Store
+
+```php
+return [
+    'cache' => [
+        'store' => null,
+        'prefix' => '2fa.code'
+    ],
+];
+```
+
+[RFC 6238](https://tools.ietf.org/html/rfc6238#section-5) states that one-time passwords shouldn't be able to be usable again, even if inside the time window. For this, we need to use the Cache to save code for a given period of time.
+
+You can change the store to use, which it's the default used by your application, and the prefix to use as cache keys, in case of collisions.
 
 ### Recovery
 

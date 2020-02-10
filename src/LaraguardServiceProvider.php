@@ -28,8 +28,7 @@ class LaraguardServiceProvider extends ServiceProvider
     public function boot(Repository $config, Router $router)
     {
         $this->registerListener($config);
-
-        $router->aliasMiddleware('2fa', Http\Middleware\EnsureTwoFactorEnabled::class);
+        $this->registerMiddleware($router);
 
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laraguard');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
@@ -44,6 +43,16 @@ class LaraguardServiceProvider extends ServiceProvider
                 __DIR__ . '/../resources/views' => resource_path('views/vendor/laraguard'),
             ], 'views');
         }
+    }
+
+    /**
+     * Register the middleware.
+     *
+     * @param  \Illuminate\Routing\Router  $router
+     */
+    protected function registerMiddleware(Router $router)
+    {
+        $router->aliasMiddleware('2fa', Http\Middleware\EnsureTwoFactorEnabled::class);
     }
 
     /**
@@ -72,8 +81,6 @@ class LaraguardServiceProvider extends ServiceProvider
      */
     protected function getEventName()
     {
-        return class_exists('Illuminate\Auth\Events\Validated')
-            ? 'Illuminate\Auth\Events\Validated'
-            : 'Illuminate\Auth\Events\Attempting';
+        return class_exists('Illuminate\Auth\Events\Validated') ? 'Illuminate\Auth\Events\Validated' : 'Illuminate\Auth\Events\Attempting';
     }
 }

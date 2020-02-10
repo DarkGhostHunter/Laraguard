@@ -2,7 +2,6 @@
 
 namespace Tests\Listeners;
 
-use OTPHP\TOTP;
 use Tests\Stubs\UserStub;
 use Tests\RegistersPackage;
 use Illuminate\Support\Str;

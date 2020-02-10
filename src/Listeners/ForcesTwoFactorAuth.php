@@ -95,11 +95,12 @@ class ForcesTwoFactorAuth
      */
     protected function getUserFromProvider(string $guard, array $credentials = [])
     {
-        $provider = $this->auth->createUserProvider($this->getProviderFromGuard($guard));
+        // Since we only have the credentials from the event, we will try to retrieve the currently
+        // used User Provider from the application configuration. For that, we will call the auth
+        // manager and just ask to get the provider being used for the currently active guard.
+        $provider = $this->auth->createUserProvider($this->config["auth.guards.$guard.provider"]);
 
-        $user = $this->auth
-            ->createUserProvider($this->getProviderFromGuard($guard))
-            ->retrieveByCredentials($credentials);
+        $user = $provider->retrieveByCredentials($credentials);
 
         return $user && $provider->validateCredentials($user, $credentials) ? $user : null;
     }
@@ -123,17 +124,6 @@ class ForcesTwoFactorAuth
         }
 
         return $shouldUse;
-    }
-
-    /**
-     * Returns the provider being used for the guard.
-     *
-     * @param  string  $guard
-     * @return mixed
-     */
-    protected function getProviderFromGuard(string $guard)
-    {
-        return $this->config["auth.guards.$guard.provider"];
     }
 
     /**

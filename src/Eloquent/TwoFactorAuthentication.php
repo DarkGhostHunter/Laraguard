@@ -34,7 +34,7 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
     use HandlesCodes;
     use HandlesRecoveryCodes;
     use HandlesSafeDevices;
-    use Serialization;
+    use SerializesSharedSecret;
 
     /**
      * The attributes that should be cast to native types.

@@ -8,6 +8,44 @@ use Illuminate\Support\Carbon;
 trait HandlesCodes
 {
     /**
+     * Current instance of the Cache Repository.
+     *
+     * @var \Illuminate\Contracts\Cache\Repository
+     */
+    protected $cache;
+
+    /**
+     * String to prefix the Cache key.
+     *
+     * @var string
+     */
+    protected $prefix;
+
+    /**
+     * Initializes the current trait.
+     *
+     * @throws \Exception
+     */
+    protected function initializeHandlesCodes()
+    {
+        ['store' => $store, 'prefix' => $this->prefix] = config('laraguard.cache');
+
+        $this->cache = $this->useCacheStore($store);
+    }
+
+    /**
+     * Returns the Cache Store to use.
+     *
+     * @param  string  $store
+     * @return \Illuminate\Contracts\Cache\Repository
+     * @throws \Exception
+     */
+    protected function useCacheStore(string $store = null)
+    {
+        return cache()->store($store);
+    }
+
+    /**
      * Validates a given code, optionally for a given timestamp and future window.
      *
      * @param  string  $code
@@ -17,10 +55,15 @@ trait HandlesCodes
      */
     public function validateCode(string $code, $at = 'now', int $window = null) : bool
     {
+        if ($this->codeHasBeenUsed($code)) {
+            return false;
+        }
+
         $window = $window ?? $this->window;
 
         for ($i = 0; $i <= $window; ++$i) {
             if (hash_equals($this->makeCode($at, -$i), $code)) {
+                $this->setCodeHasUsed($code, $at);
                 return true;
             }
         }
@@ -53,7 +96,7 @@ trait HandlesCodes
         $hmac = hash_hmac(
             $this->algorithm,
             $this->timestampToBinary($timestamp),
-            $this->attributes['shared_secret'],
+            $this->getBinarySecret(),
             true
         );
 
@@ -78,6 +121,16 @@ trait HandlesCodes
     protected function timestampToBinary(int $timestamp)
     {
         return pack('N*', 0) . pack('N*', $timestamp);
+    }
+
+    /**
+     * Returns the Shared Secret as a raw binary string.
+     *
+     * @return string
+     */
+    protected function getBinarySecret()
+    {
+        return $this->attributes['shared_secret'];
     }
 
     /**
@@ -111,5 +164,42 @@ trait HandlesCodes
         }
 
         return $at;
+    }
+
+    /**
+     * Returns the cache key string to save the codes into the cache.
+     *
+     * @param  string  $code
+     * @return string
+     */
+    protected function cacheKey(string $code)
+    {
+        return "{$this->prefix}|{$this->getKey()}|$code";
+    }
+
+    /**
+     * Checks if the code has been used.
+     *
+     * @param  string  $code
+     * @return bool
+     */
+    protected function codeHasBeenUsed(string $code)
+    {
+        return $this->cache->has($this->cacheKey($code));
+    }
+
+    /**
+     * Sets the Code has used so it can't be used again.
+     *
+     * @param  string  $code
+     * @param  int|string|\Datetime|\Illuminate\Support\Carbon  $at
+     * @return bool
+     */
+    protected function setCodeHasUsed(string $code, $at)
+    {
+        // We will safely set the cache key for the whole lifetime plus window just to be safe.
+        return $this->cache->set($this->cacheKey($code), true,
+            Carbon::createFromTimestamp($this->getTimestampFromPeriod($at, $this->window + 1))
+        );
     }
 }

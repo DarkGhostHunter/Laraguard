@@ -7,6 +7,7 @@ use Tests\RegistersPackage;
 use Orchestra\Testbench\TestCase;
 use ParagonIE\ConstantTime\Base32;
 use Tests\Stubs\UserTwoFactorStub;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication;
@@ -175,15 +176,19 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertEquals('389766', $code = $tfa->makeCode());
         $this->assertTrue($tfa->validateCode($tfa->makeCode()));
 
+        Cache::getStore()->flush();
         Carbon::setTestNow($time = Carbon::create(2020, 1, 1, 20, 29, 59));
         $this->assertFalse($tfa->validateCode($code));
 
+        Cache::getStore()->flush();
         Carbon::setTestNow($time = Carbon::create(2020, 1, 1, 20, 30, 31));
         $this->assertTrue($tfa->validateCode($code));
 
+        Cache::getStore()->flush();
         Carbon::setTestNow($time = Carbon::create(2020, 1, 1, 20, 30, 59));
         $this->assertTrue($tfa->validateCode($code));
 
+        Cache::getStore()->flush();
         Carbon::setTestNow($time = Carbon::create(2020, 1, 1, 20, 31, 0));
         $this->assertFalse($tfa->validateCode($code));
     }

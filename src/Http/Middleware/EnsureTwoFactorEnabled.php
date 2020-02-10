@@ -19,12 +19,12 @@ class EnsureTwoFactorEnabled
     {
         $user = $request->user();
 
-        if ($user instanceof TwoFactorAuthenticatable && $user->hasTwoFactorEnabled()) {
-            return $next($request);
+        if (! $user instanceof TwoFactorAuthenticatable || ! $user->hasTwoFactorEnabled()) {
+            return $request->expectsJson()
+                ? abort(403, __('Two Factor Authentication is not enabled.'))
+                : redirect()->route($redirectToRoute);
         }
 
-        return $request->expectsJson()
-            ? abort(403, __('Two Factor Authentication is not enabled.'))
-            : redirect()->route($redirectToRoute);
+        return $next($request);
     }
 }
