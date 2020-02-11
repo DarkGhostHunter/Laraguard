@@ -11,6 +11,11 @@ Two Factor Authentication via TOTP for all your Users out-of-the-box.
 
 This package _silently_ enables authentication using 6 digits codes, without Internet or external providers.
 
+## Requirements
+
+* Laravel [6.15](https://blog.laravel.com/laravel-v6-15-0-released) or later.
+* PHP 7.2+
+
 ## Table of Contents
 
 * [Installation](#installation)
@@ -29,7 +34,7 @@ This package _silently_ enables authentication using 6 digits codes, without Int
     + [Cache Store](#cache-store)
     + [Recovery](#recovery)
     + [Safe devices](#safe-devices)
-    + [Secret length](#secret-bytes)
+    + [Secret length](#secret-length)
     + [TOTP configuration](#totp-configuration)
     + [Custom view](#custom-view)
 * [Security](#security)
@@ -146,7 +151,7 @@ public function showRecoveryCodes(Request $request)
 
 ### Logging in
 
-This package hooks into the `Validated` event (or `Attempting` if it doesn't exists) to check the User's Two Factor Authentication configuration preemptively.
+This package hooks into the `Attempting` and `Validated` events to check the User's Two Factor Authentication configuration preemptively.
 
 1. If the User has set up Two Factor Authentication, it will be prompted for a 2FA Code, otherwise authentication will proceed as normal.
 2. If the Login attempt contains a `2fa_code` with the 2FA Code inside the Request, it will be used to check if its valid and proceed as normal.
@@ -272,7 +277,7 @@ return [
 ];
 ```
 
-This package works by hooking up the `ForcesTwoFactorAuth` listener to the `Validated`, or `Attempting` event as a fallback.
+This package works by hooking up the `ForcesTwoFactorAuth` listener to the `Attempting` and `Validated` events as a fallback.
 
 This may work wonders out-of-the-box, but if you want tighter control on how and when prompt for Two Factor Authentication, you can disable it. For example, to create your own 2FA Guard or greatly modify the Login Controller.
 

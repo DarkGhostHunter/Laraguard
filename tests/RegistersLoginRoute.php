@@ -5,6 +5,7 @@ namespace Tests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 trait RegistersLoginRoute
 {
@@ -16,7 +17,9 @@ trait RegistersLoginRoute
                     ? 'authenticated'
                     : 'unauthenticated';
             } catch (\Throwable $exception) {
-                var_dump([get_class($exception), $exception->getMessage()]);
+                if (! $exception instanceof HttpResponseException) {
+                    var_dump([get_class($exception), $exception->getMessage()]);
+                }
                 throw $exception;
             }
         })->middleware('web');
