@@ -191,11 +191,18 @@ Route::get('system/settings')
     ->middleware('2fa');
 ```
 
-This middleware works much like the `verified` middleware: if the User has not enabled Two Factor Authentication, it will be redirected to a route name containing the warning, which is `2fa.notice` by default.
+This middleware works much like the `verified` middleware: if the User has not enabled Two Factor Authentication, it will be redirected to a route name containing the warning, which is `2fa.notice` by default. 
+
+You can implement this easily using this package:
+
+```php
+Route::view('2fa-required', 'laraguard::notice')
+    ->name('2fa.notice');
+```
 
 ## Protecting the Login
 
-Two Factor Authentication can be victim of brute-force attacks. The attacker will need between 16.000~34.000 requests each second to get the correct codes.
+Two Factor Authentication can be victim of brute-force attacks. The attacker will need between 16.000~34.000 requests each second to get the correct code, or less depending on the lifetime of the code.
 
 Since the listener throws a response before the default Login throttler increments its failed tries, its recommended to use a try-catch in the `attemptLogin()` method to keep the throttler working.
 
@@ -233,6 +240,10 @@ You will receive the authentication view in `resources/views/vendor/laraguard/au
 return [
     'listener' => true,
     'input' => '2fa_code',
+    'cache' => [
+        'store' => null,
+        'prefix' => '2fa.code'
+    ],
     'recovery' => [
         'enabled' => true,
         'codes' => 10,
@@ -280,7 +291,7 @@ This allows to seamlessly intercept the log in attempt and proceed with Two Fact
 ### Cache Store
 
 ```php
-return [
+return  [
     'cache' => [
         'store' => null,
         'prefix' => '2fa.code'
@@ -288,7 +299,7 @@ return [
 ];
 ```
 
-[RFC 6238](https://tools.ietf.org/html/rfc6238#section-5) states that one-time passwords shouldn't be able to be usable again, even if inside the time window. For this, we need to use the Cache to save code for a given period of time.
+[RFC 6238](https://tools.ietf.org/html/rfc6238#section-5) states that one-time passwords shouldn't be able to be usable again, even if inside the time window. For this, we need to use the Cache to save the code for a given period of time.
 
 You can change the store to use, which it's the default used by your application, and the prefix to use as cache keys, in case of collisions.
 
@@ -362,7 +373,7 @@ This controls TOTP code generation and verification mechanisms:
 
 This configuration values are always passed down to the authentication app as URI parameters:
 
-    otpauth://totp/Laravel:taylor@laravel.com?secret=THISISMYSECRETPLEASEDONOTSHAREIT&issuer=Laravel&algorithm=SHA1&digits=6&period=30
+    otpauth://totp/Laravel:taylor@laravel.com?secret=THISISMYSECRETPLEASEDONOTSHAREIT&issuer=Laravel&label=taylor%40laravel.com&algorithm=SHA1&digits=6&period=30
 
 These values are printed to each 2FA data inside the application. Changes will only take effect for new activations.
 
@@ -382,7 +393,7 @@ You can override the view, which handles the Two Factor Code verification for th
 
 The way it works is very simple: it will hold the User credentials in a hidden input while it asks for the Two Factor Code. The User will send everything again along with the Code, the application will ensure its correct, and complete the log in.
 
-This view and its controller is bypassed if the User doesn't uses Two Factor Authentication, making the log in transparent and non-invasive. 
+This view and its controller is bypassed if the User doesn't uses Two Factor Authentication, making the log in transparent and non-invasive.
 
 ## Security
 
