@@ -15,8 +15,19 @@ jobs:
       uses: shivammathur/setup-php@v1
       with:
         php-version: '7.4'
-        extension-csv: mbstring, intl
+        extensions: mbstring, intl
         coverage: xdebug
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
@@ -26,8 +37,8 @@ jobs:
 
     - name: Upload coverage results to Coveralls
       env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_SERVICE_NAME: github
+        COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        COVERALLS_SERVICE_NAME: github
       run: |
-          composer require cedx/coveralls
-          vendor/bin/coveralls build/logs/clover.xml
+        composer require cedx/coveralls
+        vendor/bin/coveralls build/logs/clover.xml
