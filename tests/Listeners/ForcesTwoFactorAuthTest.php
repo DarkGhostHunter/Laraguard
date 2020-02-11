@@ -12,6 +12,7 @@ use Orchestra\Testbench\TestCase;
 use Tests\Stubs\UserTwoFactorStub;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth;
 
 class ForcesTwoFactorAuthTest extends TestCase
 {
@@ -52,6 +53,8 @@ class ForcesTwoFactorAuthTest extends TestCase
 
     public function test_login_with_no_valid_credentials_no_2fa_fails()
     {
+        $this->app['config']->set('auth.providers.users.model', UserStub::class);
+
         $user = UserStub::create([
             'name'     => 'test',
             'email'    => 'bar@test.com',
@@ -67,9 +70,11 @@ class ForcesTwoFactorAuthTest extends TestCase
 
     public function test_login_with_no_2fa_no_code_succeeds()
     {
+        $this->app['config']->set('auth.providers.users.model', UserStub::class);
+
         $user = UserStub::create([
             'name'     => 'test',
-            'email'    => 'bar@test.com',
+            'email'    => 'quz@test.com',
             'password' => '$2y$10$EicEv29xyMt/AbuWc0AIkeWb8Ip0fdhAYqgiXUaoG8Klu43521jQW',
         ]);
 
@@ -82,6 +87,8 @@ class ForcesTwoFactorAuthTest extends TestCase
 
     public function test_login_with_no_2fa_with_code_succeeds()
     {
+        $this->app['config']->set('auth.providers.users.model', UserStub::class);
+
         $user = UserStub::create([
             'name'     => 'test',
             'email'    => 'bar@test.com',
@@ -390,6 +397,8 @@ class ForcesTwoFactorAuthTest extends TestCase
         $this->user->refresh();
 
         $this->assertCount(1, $this->user->twoFactorAuth->safe_devices);
+
+        $this->app->forgetInstance(EnforceTwoFactorAuth::class);
 
         $code = $this->user->generateRecoveryCodes()->first()['code'];
 

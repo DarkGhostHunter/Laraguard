@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateTwoFactorAuthenticationsTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateTwoFactorAuthenticationsTable extends Migration
     {
         Schema::create('two_factor_authentications', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->morphs('authenticatable');
+            $table->morphs('authenticatable', '2fa_auth_type_auth_id_index');
             $table->binary('shared_secret');
             $table->timestampTz('enabled_at')->nullable();
             $table->string('label');

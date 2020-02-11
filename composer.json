@@ -23,8 +23,8 @@
         "ext-json": "*",
         "bacon/bacon-qr-code": "2.*",
         "paragonie/constant_time_encoding": "2.*",
-        "illuminate/support": "^6.13",
-        "illuminate/auth": "^6.13"
+        "illuminate/support": "^6.15",
+        "illuminate/auth": "^6.15"
     },
     "require-dev": {
         "orchestra/testbench": "^4.0",

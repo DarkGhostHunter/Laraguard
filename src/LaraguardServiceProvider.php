@@ -3,7 +3,10 @@
 namespace DarkGhostHunter\Laraguard;
 
 use Illuminate\Routing\Router;
+use Illuminate\Auth\Events\Validated;
+use Illuminate\Auth\Events\Attempting;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Config\Repository;
 
 class LaraguardServiceProvider extends ServiceProvider
@@ -25,9 +28,9 @@ class LaraguardServiceProvider extends ServiceProvider
      * @param  \Illuminate\Routing\Router  $router
      * @return void
      */
-    public function boot(Repository $config, Router $router)
+    public function boot(Repository $config, Router $router, Dispatcher $dispatcher)
     {
-        $this->registerListener($config);
+        $this->registerListener($config, $dispatcher);
         $this->registerMiddleware($router);
 
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laraguard');
@@ -59,28 +62,20 @@ class LaraguardServiceProvider extends ServiceProvider
      * Register a listeners to tackle authentication.
      *
      * @param  \Illuminate\Contracts\Config\Repository  $config
+     * @param  \Illuminate\Contracts\Events\Dispatcher  $dispatcher
      */
-    protected function registerListener(Repository $config)
+    protected function registerListener(Repository $config, Dispatcher $dispatcher)
     {
         if (! $config['laraguard.listener']) {
             return;
         }
 
-        // We will check if the "Validated" auth event exists. If it is, this will allow our
-        // listener to not retrieve the user beforehand, since it'll be already retrieved.
-        // If not, we listen to the "Attempting" to retrieve and validate it ourselves.
-        $this->app['events']->listen(
-            $this->getEventName(), Listeners\ForcesTwoFactorAuth::class
+        $this->app->singleton(Listeners\EnforceTwoFactorAuth::class);
+        $dispatcher->listen(Attempting::class,
+            'DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth@saveCredentials'
         );
-    }
-
-    /**
-     * Checks if the "Validated" event exists, otherwise fallback to "Attempting".
-     *
-     * @return string
-     */
-    protected function getEventName()
-    {
-        return class_exists('Illuminate\Auth\Events\Validated') ? 'Illuminate\Auth\Events\Validated' : 'Illuminate\Auth\Events\Attempting';
+        $dispatcher->listen(Validated::class,
+            'DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth@checkTwoFactor'
+        );
     }
 }
