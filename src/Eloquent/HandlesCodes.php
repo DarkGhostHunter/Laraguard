@@ -95,7 +95,7 @@ trait HandlesCodes
     {
         $hmac = hash_hmac(
             $this->algorithm,
-            $this->timestampToBinary($timestamp),
+            $this->timestampToBinary($this->getPeriodsFromTimestamp($timestamp)),
             $this->getBinarySecret(),
             true
         );
@@ -110,6 +110,17 @@ trait HandlesCodes
             ) % (10 ** $this->digits);
 
         return str_pad((string)$number, $this->digits, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Return the periods elapsed from the given Timestamp and seconds.
+     *
+     * @param  int  $timestamp
+     * @return int
+     */
+    protected function getPeriodsFromTimestamp(int $timestamp)
+    {
+        return (int)(floor($timestamp / $this->seconds));
     }
 
     /**
