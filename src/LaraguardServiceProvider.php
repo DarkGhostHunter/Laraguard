@@ -70,7 +70,9 @@ class LaraguardServiceProvider extends ServiceProvider
             return;
         }
 
-        $this->app->singleton(Listeners\EnforceTwoFactorAuth::class);
+        $this->app->singleton(Listeners\EnforceTwoFactorAuth::class, function ($app) {
+            return new Listeners\EnforceTwoFactorAuth($app['config'], $app['request']);
+        });
         $dispatcher->listen(Attempting::class,
             'DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth@saveCredentials'
         );

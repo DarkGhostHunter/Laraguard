@@ -237,7 +237,7 @@ To show the form, the Listener uses `HttpResponseException` to forcefully exit t
 
 To further configure the package, publish the configuration files and assets:
 
-    php artisan vendor:publish --provider=DarkGhostHunter\Laraguard\LaraguardServiceProvider
+    php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider"
 
 You will receive the authentication view in `resources/views/vendor/laraguard/auth.blade.php`, and the `config/laraguard.php` config file with the following contents:
 

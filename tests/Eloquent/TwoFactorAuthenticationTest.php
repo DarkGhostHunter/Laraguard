@@ -123,26 +123,26 @@ class TwoFactorAuthenticationTest extends TestCase
         ]);
 
         Carbon::setTestNow(Carbon::create(2020, 1, 1, 20, 29, 59));
-        $this->assertEquals('493537', $tfa->makeCode());
-        $this->assertEquals('389766', $tfa->makeCode('now', 1));
+        $this->assertEquals('779186', $tfa->makeCode());
+        $this->assertEquals('716347', $tfa->makeCode('now', 1));
 
         Carbon::setTestNow(Carbon::create(2020, 1, 1, 20, 30, 0));
-        $this->assertEquals('389766', $tfa->makeCode());
-        $this->assertEquals('493537', $tfa->makeCode('now', -1));
+        $this->assertEquals('716347', $tfa->makeCode());
+        $this->assertEquals('779186', $tfa->makeCode('now', -1));
 
         for ($i = 0 ; $i < 30 ; ++$i) {
             Carbon::setTestNow(Carbon::create(2020, 1, 1, 20, 30, $i));
-            $this->assertEquals('389766', $tfa->makeCode());
+            $this->assertEquals('716347', $tfa->makeCode());
         }
 
         Carbon::setTestNow(Carbon::create(2020, 1, 1, 20, 30, 31));
-        $this->assertEquals('629101', $tfa->makeCode());
+        $this->assertEquals('133346', $tfa->makeCode());
 
-        $this->assertEquals('495085', $tfa->makeCode(
+        $this->assertEquals('818740', $tfa->makeCode(
             Carbon::create(2020, 1, 1, 1, 1, 1))
         );
 
-        $this->assertEquals('461236', $tfa->makeCode('4th february 2020'));
+        $this->assertEquals('976814', $tfa->makeCode('4th february 2020'));
     }
 
     public function test_makes_code_for_timestamp()
@@ -151,8 +151,8 @@ class TwoFactorAuthenticationTest extends TestCase
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
         ]);
 
-        $this->assertEquals('356058', $tfa->makeCode(1581300000));
-        $this->assertTrue($tfa->validateCode('356058', 1581300000));
+        $this->assertEquals('566278', $tfa->makeCode(1581300000));
+        $this->assertTrue($tfa->validateCode('566278', 1581300000));
     }
 
     public function test_validate_code()
@@ -164,7 +164,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
         Carbon::setTestNow($time = Carbon::create(2020, 1, 1, 20, 30, 0));
 
-        $this->assertEquals('389766', $code = $tfa->makeCode());
+        $this->assertEquals('716347', $code = $tfa->makeCode());
         $this->assertTrue($tfa->validateCode($tfa->makeCode()));
 
         Carbon::setTestNow($time = Carbon::create(2020, 1, 1, 20, 29, 59));
@@ -183,7 +183,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
         Carbon::setTestNow($time = Carbon::create(2020, 1, 1, 20, 30, 0));
 
-        $this->assertEquals('389766', $code = $tfa->makeCode());
+        $this->assertEquals('716347', $code = $tfa->makeCode());
         $this->assertTrue($tfa->validateCode($tfa->makeCode()));
 
         Cache::getStore()->flush();
