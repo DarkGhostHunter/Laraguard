@@ -115,7 +115,7 @@ public function confirmTwoFactor(Request $request)
 }
 ```
 
-If the User doesn't issue the correct Code, the method will return `false`. You can tell the User to double-check its device's timezone, or create another Shared Secret with `confirmTwoFactorAuth()`.
+If the User doesn't issue the correct Code, the method will return `false`. You can tell the User to double-check its device's timezone, or create another Shared Secret with `createTwoFactorAuth()`.
 
 ### Recovery Codes
 
