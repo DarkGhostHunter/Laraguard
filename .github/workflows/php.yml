@@ -10,13 +10,15 @@ jobs:
       fail-fast: true
       matrix:
         php: [7.4, 7.3, 7.2.15]
-        laravel: [7.*]
+        laravel: [7.*, 6.*]
         dependency-version: [prefer-lowest, prefer-stable]
         include:
           - laravel: 7.*
             testbench: 5.*
+          - laravel: 6.*
+            testbench: 4.*
 
-    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.dependency-version }}
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }}
 
     steps:
       - name: Checkout
@@ -48,5 +50,6 @@ jobs:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_SERVICE_NAME: github
         run: |
-          composer require "cedx/coveralls:v11.2.0 - v12.0.0"
+          composer remove orchestra/testbench orchestra/canvas phpunit/phpunit
+          composer require "cedx/coveralls:v11.2.0 - v12.0.0" --ignore-platform-reqs
           vendor/bin/coveralls build/logs/clover.xml
