@@ -51,5 +51,5 @@ jobs:
           COVERALLS_SERVICE_NAME: github
         run: |
           composer remove orchestra/testbench orchestra/canvas phpunit/phpunit
-          composer require "cedx/coveralls:v11.2.0 - v12.0.0" --ignore-platform-reqs
+          composer require "cedx/coveralls:v11.2.0 - v12.0.0"
           vendor/bin/coveralls build/logs/clover.xml
