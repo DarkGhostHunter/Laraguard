@@ -27,8 +27,8 @@
         "illuminate/auth": "^6.15||^7.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^4.0",
-        "orchestra/canvas": "^4.0",
+        "orchestra/testbench": "^4.0||^5.0",
+        "orchestra/canvas": "^4.0||5.0",
         "phpunit/phpunit": "^8.0"
     },
     "autoload": {

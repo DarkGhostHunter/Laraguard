@@ -7,6 +7,20 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [7.4, 7.3, 7.2]
+        laravel: [7.*, 6.*]
+        dependency-version: [prefer-lowest, prefer-stable]
+        include:
+        - laravel: 7.*
+          testbench: 5.*
+        - laravel: 6.*
+          testbench: 4.*
+
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }}
+
     steps:
     - name: Checkout
       uses: actions/checkout@v1
@@ -14,7 +28,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v1
       with:
-        php-version: '7.4'
+        php-version: ${{ matrix.php }}
         extensions: mbstring, intl
         coverage: xdebug
 
@@ -26,11 +40,13 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-        restore-keys: ${{ runner.os }}-composer-
+        key: ${{ runner.os }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+        restore-keys: ${{ runner.os }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}-composer-
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
+      run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-progress --no-update
+          composer update --${{ matrix.dependency-version }} --prefer-dist --no-progress --no-suggest
 
     - name: Run test suite
       run: composer run-script test
