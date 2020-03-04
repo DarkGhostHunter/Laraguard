@@ -18,7 +18,7 @@ trait TwoFactorAuthentication
     public function initializeTwoFactorAuthentication()
     {
         // For security, we will hide the Two Factor Authentication data from the parent model.
-        $this->addHidden('twoFactorAuth');
+        $this->makeHidden('twoFactorAuth');
     }
 
     /**
