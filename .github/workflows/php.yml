@@ -33,14 +33,10 @@ jobs:
         extensions: mbstring, intl
         coverage: xdebug
 
-    - name: Get Composer Cache Directory
-      id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
     - name: Cache dependencies
       uses: actions/cache@v1
       with:
-        path: ${{ steps.composer-cache.outputs.dir }}
+        path: ~/.composer/cache/files
         key: ${{ runner.os }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
         restore-keys: ${{ runner.os }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}-composer-
 
@@ -49,10 +45,10 @@ jobs:
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-progress --no-update
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-progress --no-suggest
 
-    - name: Run test suite
+    - name: Run Tests
       run: composer run-script test
 
-    - name: Upload coverage results to Coveralls
+    - name: Upload Coverage to Coveralls
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         COVERALLS_SERVICE_NAME: github
