@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "php": "^7.2",
+        "php": "^7.2.15",
         "ext-json": "*",
         "bacon/bacon-qr-code": "2.*",
         "paragonie/constant_time_encoding": "2.*",

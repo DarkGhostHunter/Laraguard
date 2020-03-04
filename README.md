@@ -115,7 +115,7 @@ public function confirmTwoFactor(Request $request)
 }
 ```
 
-If the User doesn't issue the correct Code, the method will return `false`. You can tell the User to double-check its device's timezone, or create another Shared Secret with `confirmTwoFactorAuth()`.
+If the User doesn't issue the correct Code, the method will return `false`. You can tell the User to double-check its device's timezone, or create another Shared Secret with `createTwoFactorAuth()`.
 
 ### Recovery Codes
 
@@ -398,7 +398,7 @@ You can override the view, which handles the Two Factor Code verification for th
 
 The way it works is very simple: it will hold the User credentials in a hidden input while it asks for the Two Factor Code. The User will send everything again along with the Code, the application will ensure its correct, and complete the log in.
 
-This view and its controller is bypassed if the User doesn't uses Two Factor Authentication, making the log in transparent and non-invasive.
+This view and its form is bypassed if the User doesn't uses Two Factor Authentication, making the log in transparent and non-invasive.
 
 ## Security
 
