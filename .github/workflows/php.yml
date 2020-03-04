@@ -50,6 +50,6 @@ jobs:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_SERVICE_NAME: github
         run: |
-          mv -r composer-coveralls.json composer.json
+          mv -f .github/workflows/composer-coveralls.json composer.json
           composer install
           vendor/bin/coveralls build/logs/clover.xml
