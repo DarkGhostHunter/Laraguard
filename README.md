@@ -13,7 +13,7 @@ This package _silently_ enables authentication using 6 digits codes, without Int
 
 ## Requirements
 
-* Laravel [6.15](https://blog.laravel.com/laravel-v6-15-0-released) or later.
+* Laravel [6.15](https://blog.laravel.com/laravel-v6-15-0-released) or Laravel 7.
 * PHP 7.2+
 
 ## Table of Contents
