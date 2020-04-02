@@ -20,6 +20,7 @@ use DarkGhostHunter\Laraguard\Events\TwoFactorRecoveryCodesGenerated;
 class TwoFactorAuthenticationTest extends TestCase
 {
     use DatabaseMigrations;
+    use RunsPublishableMigrations;
     use RegistersPackage;
     use CreatesTwoFactorUser;
     use RegistersLoginRoute;
@@ -28,6 +29,7 @@ class TwoFactorAuthenticationTest extends TestCase
     protected function setUp() : void
     {
         $this->afterApplicationCreated([$this, 'loadLaravelMigrations']);
+        $this->afterApplicationCreated([$this, 'runPublishableMigration']);
         $this->afterApplicationCreated([$this, 'registerLoginRoute']);
         $this->afterApplicationCreated([$this, 'createTwoFactorUser']);
         parent::setUp();

@@ -3,6 +3,7 @@
 namespace Tests\Eloquent;
 
 use Carbon\Carbon;
+use Tests\RunsPublishableMigrations;
 use Tests\RegistersPackage;
 use Orchestra\Testbench\TestCase;
 use ParagonIE\ConstantTime\Base32;
@@ -16,12 +17,14 @@ class TwoFactorAuthenticationTest extends TestCase
 {
     use RegistersPackage;
     use DatabaseMigrations;
+    use RunsPublishableMigrations;
 
     protected $tfa;
 
     protected function setUp() : void
     {
         $this->afterApplicationCreated([$this, 'loadLaravelMigrations']);
+        $this->afterApplicationCreated([$this, 'runPublishableMigration']);
         parent::setUp();
     }
 
