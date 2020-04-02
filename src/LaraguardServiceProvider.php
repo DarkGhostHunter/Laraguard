@@ -49,7 +49,7 @@ class LaraguardServiceProvider extends ServiceProvider
                 $timestamp = date('Y_m_d_His', time());
 
                 $this->publishes([
-                    __DIR__.'/../database/migrations/create_two_factor_authentications_table.php.stub' => database_path("/migrations/{$timestamp}_create_two_factor_authentications_table.php"),
+                    __DIR__.'/../database/migrations/2020_04_02_000000_create_two_factor_authentications_table.php' => database_path("/migrations/{$timestamp}_create_two_factor_authentications_table.php"),
                 ], 'migrations');
             }
         }
