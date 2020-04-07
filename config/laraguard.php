@@ -7,13 +7,27 @@ return [
     | Listener hook
     |--------------------------------------------------------------------------
     |
-    | If the Listener is enabled, Laraguard will automatically hook into the
-    | "Attempting" event and magically ask for Two Factor Authentication if
-    | is necessary. Disable this to use your own 2FA authentication logic.
+    | If the Listener class is present, Laraguard will automatically hook into
+    | the "Attempting" event and magically ask for Two Factor Authentication if
+    | is necessary. Set this value to false to use your own 2FA authentication
+    | logic.
     |
     */
 
-    'listener' => true,
+    'listener' => DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | TwoFactorAuthentication Model
+    |--------------------------------------------------------------------------
+    |
+    | When using the "TwoFactorAuthentication" trait from this package, we need
+    | to know which Eloquent model should be used to retrieve your two factor
+    | authentication records.
+    |
+    */
+
+    'model' => DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication::class,
 
     /*
     |--------------------------------------------------------------------------
