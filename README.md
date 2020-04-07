@@ -251,7 +251,7 @@ You will receive the authentication view in `resources/views/vendor/laraguard/au
 
 ```php
 return [
-    'listener' => true,
+    'listener' => \DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
     'input' => '2fa_code',
     'cache' => [
         'store' => null,

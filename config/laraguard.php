@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'listener' => DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
+    'listener' => \DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -27,7 +27,7 @@ return [
     |
     */
 
-    'model' => DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication::class,
+    'model' => \DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication::class,
 
     /*
     |--------------------------------------------------------------------------
