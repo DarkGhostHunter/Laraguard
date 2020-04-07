@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Auth\Events\Attempting;
 use Illuminate\Contracts\Config\Repository;
+use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthListener;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
 
-class EnforceTwoFactorAuth
+class EnforceTwoFactorAuth implements TwoFactorAuthListener
 {
     use ChecksTwoFactorCode;
 
@@ -61,7 +62,7 @@ class EnforceTwoFactorAuth
     }
 
     /**
-     * Saves the Credentials for the User.
+     * Saves the credentials temporarily into the class instance.
      *
      * @param  \Illuminate\Auth\Events\Attempting  $event
      * @return void
