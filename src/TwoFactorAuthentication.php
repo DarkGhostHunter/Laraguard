@@ -28,7 +28,7 @@ trait TwoFactorAuthentication
      */
     public function twoFactorAuth()
     {
-        return $this->morphOne(Eloquent\TwoFactorAuthentication::class, 'authenticatable')
+        return $this->morphOne(config('laraguard.model'), 'authenticatable')
             ->withDefault(config('laraguard.totp'));
     }
 
@@ -184,7 +184,7 @@ trait TwoFactorAuthentication
     {
         [$enabled, $amount, $length] = array_values(config('laraguard.recovery'));
 
-        $this->twoFactorAuth->recovery_codes = Eloquent\TwoFactorAuthentication::generateRecoveryCodes($amount, $length);
+        $this->twoFactorAuth->recovery_codes = config('laraguard.model')::generateRecoveryCodes($amount, $length);
         $this->twoFactorAuth->recovery_codes_generated_at = now();
         $this->twoFactorAuth->save();
 
@@ -248,7 +248,7 @@ trait TwoFactorAuthentication
      */
     protected function generateTwoFactorRemember()
     {
-        return Eloquent\TwoFactorAuthentication::generateDefaultTwoFactorRemember();
+        return config('laraguard.model')::generateDefaultTwoFactorRemember();
     }
 
     /**
