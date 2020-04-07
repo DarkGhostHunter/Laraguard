@@ -2,6 +2,7 @@
 
 namespace Tests\Listeners;
 
+use Tests\RunsPublishableMigrations;
 use Tests\Stubs\UserStub;
 use Tests\RegistersPackage;
 use Illuminate\Support\Str;
@@ -18,6 +19,7 @@ class ForcesTwoFactorAuthTest extends TestCase
 {
     use RegistersPackage;
     use DatabaseMigrations;
+    use RunsPublishableMigrations;
     use CreatesTwoFactorUser;
     use RegistersLoginRoute;
     use WithFaker;
@@ -25,6 +27,7 @@ class ForcesTwoFactorAuthTest extends TestCase
     protected function setUp() : void
     {
         $this->afterApplicationCreated([$this, 'loadLaravelMigrations']);
+        $this->afterApplicationCreated([$this, 'runPublishableMigration']);
         $this->afterApplicationCreated([$this, 'createTwoFactorUser']);
         $this->afterApplicationCreated([$this, 'registerLoginRoute']);
         parent::setUp();

@@ -34,7 +34,6 @@ class LaraguardServiceProvider extends ServiceProvider
         $this->registerMiddleware($router);
 
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laraguard');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         $this->loadFactoriesFrom(__DIR__ . '/../database/factories');
 
         if ($this->app->runningInConsole()) {
@@ -45,6 +44,14 @@ class LaraguardServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../resources/views' => resource_path('views/vendor/laraguard'),
             ], 'views');
+
+            if (! class_exists('CreateTwoFactorAuthenticationsTable')) {
+                $timestamp = date('Y_m_d_His', time());
+
+                $this->publishes([
+                    __DIR__.'/../database/migrations/2020_04_02_000000_create_two_factor_authentications_table.php' => database_path("/migrations/{$timestamp}_create_two_factor_authentications_table.php"),
+                ], 'migrations');
+            }
         }
     }
 

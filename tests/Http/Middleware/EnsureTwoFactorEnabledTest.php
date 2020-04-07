@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Middleware;
 
+use Tests\RunsPublishableMigrations;
 use Tests\Stubs\UserStub;
 use Tests\RegistersPackage;
 use Tests\CreatesTwoFactorUser;
@@ -12,11 +13,13 @@ class EnsureTwoFactorEnabledTest extends TestCase
 {
     use RegistersPackage;
     use DatabaseMigrations;
+    use RunsPublishableMigrations;
     use CreatesTwoFactorUser;
 
     protected function setUp() : void
     {
         $this->afterApplicationCreated([$this, 'loadLaravelMigrations']);
+        $this->afterApplicationCreated([$this, 'runPublishableMigration']);
         $this->afterApplicationCreated([$this, 'createTwoFactorUser']);
 
         $this->afterApplicationCreated(function () {

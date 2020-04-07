@@ -56,9 +56,17 @@ It is not invasive, but you can go full manual if you want.
 
 ## Usage
 
-First, run the migrations. This will create a table to handle the Two Factor Authentication information for each model you set.
+First, publish the migration with:
 
-    php artisan migrate:run
+    php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="migrations"
+
+Note: The default migration assumes you are using integers for your user model IDs. If you are using UUIDs, or some other format, adjust the format of the morphs `authenticatable` fields in the published migration before continuing.
+
+After publishing the migration, you can create the `two_factor_authentications` table by running the migration:
+
+    php artisan migrate
+
+This will create a table to handle the Two Factor Authentication information for each model you set.
 
 Add the `TwoFactorAuthenticatable` _contract_ and the `TwoFactorAuthentication` trait to the User model, or any other model you want to make Two Factor Authentication available. 
 
