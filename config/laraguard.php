@@ -96,9 +96,9 @@ return [
     | Secret Length
     |--------------------------------------------------------------------------
     |
-    | Using a shared secret with a length of 160-bit (as recommended per RFC
-    | 4226) is recommended, but you may want to tighten or loose the secret
-    | length. The RFC 4226 standard allows down to 128-bit shared secrets.
+    | The package uses a shared secret length of 160-bit, as recommended by the
+    | RFC 4226. This makes it compatible with most 2FA apps. You can change it
+    | freely but consider the standard allows shared secrets down to 128-bit.
     |
     */
 
