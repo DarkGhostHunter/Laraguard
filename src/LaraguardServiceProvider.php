@@ -8,6 +8,7 @@ use Illuminate\Auth\Events\Attempting;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Config\Repository;
+use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthListener;
 
 class LaraguardServiceProvider extends ServiceProvider
 {
@@ -77,9 +78,10 @@ class LaraguardServiceProvider extends ServiceProvider
             return;
         }
 
-        $this->app->singleton($config['laraguard.listener'], function ($app) use ($config) {
+        $this->app->singleton(TwoFactorAuthListener::class, function ($app) use ($config) {
             return new $config['laraguard.listener']($app['config'], $app['request']);
         });
+
         $dispatcher->listen(Attempting::class, $config['laraguard.listener'] . '@saveCredentials');
         $dispatcher->listen(Validated::class, $config['laraguard.listener'] . '@checkTwoFactor');
     }
