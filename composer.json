@@ -9,6 +9,8 @@
         "2fa"
     ],
     "homepage": "https://github.com/darkghosthunter/laraguard",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -21,14 +23,14 @@
     "require": {
         "php": "^7.2.15",
         "ext-json": "*",
-        "bacon/bacon-qr-code": "2.*",
-        "paragonie/constant_time_encoding": "2.*",
+        "bacon/bacon-qr-code": "^2.0",
+        "paragonie/constant_time_encoding": "^2.0",
         "illuminate/support": "^6.15||^7.0",
         "illuminate/auth": "^6.15||^7.0"
     },
     "require-dev": {
         "orchestra/testbench": "^4.0||^5.0",
-        "orchestra/canvas": "^4.0||5.0",
+        "orchestra/canvas": "^4.0||^5.0",
         "phpunit/phpunit": "^8.0"
     },
     "autoload": {

@@ -10,14 +10,16 @@ use Illuminate\Support\Carbon;
 use Tests\CreatesTwoFactorUser;
 use Orchestra\Testbench\TestCase;
 use Tests\Stubs\UserTwoFactorStub;
+use Tests\RunsPublishableMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth;
+use DarkGhostHunter\Laraguard\Contracts\TwoFactorListener;
 
 class ForcesTwoFactorAuthTest extends TestCase
 {
     use RegistersPackage;
     use DatabaseMigrations;
+    use RunsPublishableMigrations;
     use CreatesTwoFactorUser;
     use RegistersLoginRoute;
     use WithFaker;
@@ -25,6 +27,7 @@ class ForcesTwoFactorAuthTest extends TestCase
     protected function setUp() : void
     {
         $this->afterApplicationCreated([$this, 'loadLaravelMigrations']);
+        $this->afterApplicationCreated([$this, 'runPublishableMigration']);
         $this->afterApplicationCreated([$this, 'createTwoFactorUser']);
         $this->afterApplicationCreated([$this, 'registerLoginRoute']);
         parent::setUp();
@@ -398,7 +401,7 @@ class ForcesTwoFactorAuthTest extends TestCase
 
         $this->assertCount(1, $this->user->twoFactorAuth->safe_devices);
 
-        $this->app->forgetInstance(EnforceTwoFactorAuth::class);
+        $this->app->forgetInstance(TwoFactorListener::class);
 
         $code = $this->user->generateRecoveryCodes()->first()['code'];
 

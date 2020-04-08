@@ -1,8 +1,0 @@
-{
-    "require": {
-        "cedx/coveralls": "*"
-    },
-    "config": {
-        "vendor-dir": "vendor-coveralls"
-    }
-}

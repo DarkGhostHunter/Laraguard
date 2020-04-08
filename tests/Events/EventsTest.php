@@ -2,6 +2,7 @@
 
 namespace Tests\Events;
 
+use Tests\RunsPublishableMigrations;
 use Tests\RegistersPackage;
 use Illuminate\Support\Str;
 use Tests\CreatesTwoFactorUser;
@@ -18,11 +19,13 @@ class EventsTest extends TestCase
 {
     use RegistersPackage;
     use DatabaseMigrations;
+    use RunsPublishableMigrations;
     use CreatesTwoFactorUser;
 
     protected function setUp() : void
     {
         $this->afterApplicationCreated([$this, 'loadLaravelMigrations']);
+        $this->afterApplicationCreated([$this, 'runPublishableMigration']);
         $this->afterApplicationCreated([$this, 'createTwoFactorUser']);
 
         parent::setUp();

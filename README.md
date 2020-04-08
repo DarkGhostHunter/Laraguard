@@ -13,7 +13,7 @@ This package _silently_ enables authentication using 6 digits codes, without Int
 
 ## Requirements
 
-* Laravel [6.15](https://blog.laravel.com/laravel-v6-15-0-released) or later.
+* Laravel [6.15](https://blog.laravel.com/laravel-v6-15-0-released) or Laravel 7.
 * PHP 7.2+
 
 ## Table of Contents
@@ -30,6 +30,7 @@ This package _silently_ enables authentication using 6 digits codes, without Int
 * [Protecting the Login](#protecting-the-login)
 * [Configuration](#configuration)
     + [Listener](#listener)
+    + [Eloquent Model](#eloquent-model)
     + [Input name](#input-name)
     + [Cache Store](#cache-store)
     + [Recovery](#recovery)
@@ -52,13 +53,21 @@ That's it.
 
 This packages adds a **Contract** to detect in a **per-user basis** if it should use Two Factor Authentication. It includes a custom **view** and a **listener** to handle the Two Factor authentication itself during login attempts.
 
-It is not invasive, but you can go full manual if you want.
+This package was made to be the less invasive possible, but you can go full manual if you want.
 
 ## Usage
 
-First, run the migrations. This will create a table to handle the Two Factor Authentication information for each model you set.
+First, publish the migration with:
 
-    php artisan migrate:run
+    php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="migrations"
+
+> The default migration assumes you are using integers for your user model IDs. If you are using UUIDs, or some other format, adjust the format of the morphs `authenticatable` fields in the published migration before continuing.
+
+After publishing the migration, you can create the `two_factor_authentications` table by running the migration:
+
+    php artisan migrate
+
+This will create a table to handle the Two Factor Authentication information for each model you set.
 
 Add the `TwoFactorAuthenticatable` _contract_ and the `TwoFactorAuthentication` trait to the User model, or any other model you want to make Two Factor Authentication available. 
 
@@ -243,7 +252,8 @@ You will receive the authentication view in `resources/views/vendor/laraguard/au
 
 ```php
 return [
-    'listener' => true,
+    'listener' => \DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
+    'model' => \DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication::class,
     'input' => '2fa_code',
     'cache' => [
         'store' => null,
@@ -273,13 +283,29 @@ return [
 
 ```php
 return [
-    'listener' => true,
+    'listener' => \DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
 ];
 ```
 
-This package works by hooking up the `ForcesTwoFactorAuth` listener to the `Attempting` and `Validated` events as a fallback.
+This package works out-of-the-box by hooking up the `ForcesTwoFactorAuth` listener to the `Attempting` and `Validated` events, which is in charge of checking if the user login needs a 2FA code or not. 
 
-This may work wonders out-of-the-box, but if you want tighter control on how and when prompt for Two Factor Authentication, you can disable it. For example, to create your own 2FA Guard or greatly modify the Login Controller.
+This may work wonders, but if you want tighter control on how and when prompt for Two Factor Authentication, you can use another listener, or disable it. For example, to create your own 2FA Guard or greatly modify the Login Controller.
+
+> If you change it for your own Listener, ensure it implements the `TwoFactorAuthListener` contract.
+
+### Eloquent Model
+
+```php
+return [
+    'model' => \DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication::class,
+];
+```
+
+This is the model where the the Two Factor Authentication data, like the shared secret and recovery codes, are saved and associated to the User model.
+
+You can change this model for your own if you wish.
+
+> If you change it for your own Model, ensure it implements the `TwoFactorTotp` contract.
 
 ### Input name
 

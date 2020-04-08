@@ -7,13 +7,26 @@ return [
     | Listener hook
     |--------------------------------------------------------------------------
     |
-    | If the Listener is enabled, Laraguard will automatically hook into the
-    | "Attempting" event and magically ask for Two Factor Authentication if
-    | is necessary. Disable this to use your own 2FA authentication logic.
+    | If a Listener class is present, Laraguard will hook into the Attempting
+    | and Validated events and check if it needs Two Factor Authentication.
+    | Set this to false or null to use your own 2FA logic without events.
     |
     */
 
-    'listener' => true,
+    'listener' => \DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | TwoFactorAuthentication Model
+    |--------------------------------------------------------------------------
+    |
+    | When using the "TwoFactorAuthentication" trait from this package, we need
+    | to know which Eloquent model should be used to retrieve your two factor
+    | authentication records. You can use your own for more advanced logic.
+    |
+    */
+
+    'model' => \DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -83,9 +96,9 @@ return [
     | Secret Length
     |--------------------------------------------------------------------------
     |
-    | Using a shared secret with a length of 160-bit (as recommended per RFC
-    | 4226) is recommended, but you may want to tighten or loose the secret
-    | length. The RFC 4226 standard allows down to 128-bit shared secrets.
+    | The package uses a shared secret length of 160-bit, as recommended by the
+    | RFC 4226. This makes it compatible with most 2FA apps. You can change it
+    | freely but consider the standard allows shared secrets down to 128-bit.
     |
     */
 
