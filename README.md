@@ -52,7 +52,7 @@ That's it.
 
 This packages adds a **Contract** to detect in a **per-user basis** if it should use Two Factor Authentication. It includes a custom **view** and a **listener** to handle the Two Factor authentication itself during login attempts.
 
-It is not invasive, but you can go full manual if you want.
+This package was made to be the less invasive possible, but you can go full manual if you want.
 
 ## Usage
 
@@ -60,7 +60,7 @@ First, publish the migration with:
 
     php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="migrations"
 
-Note: The default migration assumes you are using integers for your user model IDs. If you are using UUIDs, or some other format, adjust the format of the morphs `authenticatable` fields in the published migration before continuing.
+> The default migration assumes you are using integers for your user model IDs. If you are using UUIDs, or some other format, adjust the format of the morphs `authenticatable` fields in the published migration before continuing.
 
 After publishing the migration, you can create the `two_factor_authentications` table by running the migration:
 
@@ -252,6 +252,7 @@ You will receive the authentication view in `resources/views/vendor/laraguard/au
 ```php
 return [
     'listener' => \DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
+    'model' => \DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication::class,
     'input' => '2fa_code',
     'cache' => [
         'store' => null,
@@ -281,13 +282,29 @@ return [
 
 ```php
 return [
-    'listener' => true,
+    'listener' => \DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
 ];
 ```
 
-This package works by hooking up the `ForcesTwoFactorAuth` listener to the `Attempting` and `Validated` events as a fallback.
+This package works out-of-the-box by hooking up the `ForcesTwoFactorAuth` listener to the `Attempting` and `Validated` events, which is in charge of checking if the user login needs a 2FA code or not. 
 
-This may work wonders out-of-the-box, but if you want tighter control on how and when prompt for Two Factor Authentication, you can disable it. For example, to create your own 2FA Guard or greatly modify the Login Controller.
+This may work wonders, but if you want tighter control on how and when prompt for Two Factor Authentication, you can use another listener, or disable it. For example, to create your own 2FA Guard or greatly modify the Login Controller.
+
+> If you change it for your own Listener, ensure it implements the `TwoFactorAuthListener` contract.
+
+### Model
+
+```php
+return [
+    'model' => \DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication::class,
+];
+```
+
+This is the model where the the Two Factor Authentication data is saved and associated to the User model.
+
+You can change this model for your own to create, validate and show the shared secret. If you plan to change where and how this is stored, you can just change the model itself or extend it.
+
+> If you change it for your own Model, ensure it implements the `TwoFactorTotp` contract.
 
 ### Input name
 

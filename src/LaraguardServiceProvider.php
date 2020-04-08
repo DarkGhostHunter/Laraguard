@@ -8,7 +8,6 @@ use Illuminate\Auth\Events\Attempting;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Config\Repository;
-use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthListener;
 
 class LaraguardServiceProvider extends ServiceProvider
 {
@@ -27,6 +26,7 @@ class LaraguardServiceProvider extends ServiceProvider
      *
      * @param  \Illuminate\Contracts\Config\Repository  $config
      * @param  \Illuminate\Routing\Router  $router
+     * @param  \Illuminate\Contracts\Events\Dispatcher  $dispatcher
      * @return void
      */
     public function boot(Repository $config, Router $router, Dispatcher $dispatcher)
@@ -38,21 +38,7 @@ class LaraguardServiceProvider extends ServiceProvider
         $this->loadFactoriesFrom(__DIR__ . '/../database/factories');
 
         if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__ . '/../config/laraguard.php' => config_path('laraguard.php'),
-            ], 'config');
-
-            $this->publishes([
-                __DIR__ . '/../resources/views' => resource_path('views/vendor/laraguard'),
-            ], 'views');
-
-            if (! class_exists('CreateTwoFactorAuthenticationsTable')) {
-                $timestamp = date('Y_m_d_His', time());
-
-                $this->publishes([
-                    __DIR__.'/../database/migrations/2020_04_02_000000_create_two_factor_authentications_table.php' => database_path("/migrations/{$timestamp}_create_two_factor_authentications_table.php"),
-                ], 'migrations');
-            }
+            $this->publishFiles();
         }
     }
 
@@ -78,11 +64,39 @@ class LaraguardServiceProvider extends ServiceProvider
             return;
         }
 
-        $this->app->singleton(TwoFactorAuthListener::class, function ($app) use ($config) {
+        $this->app->singleton(Contracts\TwoFactorListener::class, function ($app) use ($config) {
             return new $config['laraguard.listener']($app['config'], $app['request']);
         });
 
-        $dispatcher->listen(Attempting::class, $config['laraguard.listener'] . '@saveCredentials');
-        $dispatcher->listen(Validated::class, $config['laraguard.listener'] . '@checkTwoFactor');
+        $dispatcher->listen(Attempting::class, Contracts\TwoFactorListener::class . '@saveCredentials');
+        $dispatcher->listen(Validated::class, Contracts\TwoFactorListener::class . '@checkTwoFactor');
+    }
+
+    /**
+     * Publish config, view and migrations files.
+     *
+     * @return void
+     */
+    protected function publishFiles()
+    {
+        $this->publishes([
+            __DIR__ . '/../config/laraguard.php' => config_path('laraguard.php'),
+        ], 'config');
+
+        $this->publishes([
+            __DIR__ . '/../resources/views' => resource_path('views/vendor/laraguard'),
+        ], 'views');
+
+        // We will allow the publishing for the Two Factor Authentication migration that
+        // holds the TOTP data, only if it wasn't published before, avoiding multiple
+        // copies for the same migration, which can throw errors when re-migrating.
+        if (! class_exists('CreateTwoFactorAuthenticationsTable')) {
+            $timestamp = now()->format('Y_m_d_His');
+
+            $this->publishes([
+                __DIR__ .
+                '/../database/migrations/2020_04_02_000000_create_two_factor_authentications_table.php' => database_path("/migrations/{$timestamp}_create_two_factor_authentications_table.php"),
+            ], 'migrations');
+        }
     }
 }

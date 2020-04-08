@@ -6,10 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Auth\Events\Attempting;
 use Illuminate\Contracts\Config\Repository;
-use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthListener;
+use DarkGhostHunter\Laraguard\Contracts\TwoFactorListener;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
 
-class EnforceTwoFactorAuth implements TwoFactorAuthListener
+class EnforceTwoFactorAuth implements TwoFactorListener
 {
     use ChecksTwoFactorCode;
 

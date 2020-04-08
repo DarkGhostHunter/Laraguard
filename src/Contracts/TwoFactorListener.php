@@ -5,7 +5,7 @@ namespace DarkGhostHunter\Laraguard\Contracts;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Auth\Events\Attempting;
 
-interface TwoFactorAuthListener
+interface TwoFactorListener
 {
     /**
      * Saves the credentials temporarily into the class instance.
