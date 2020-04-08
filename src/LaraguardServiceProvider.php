@@ -60,12 +60,12 @@ class LaraguardServiceProvider extends ServiceProvider
      */
     protected function registerListener(Repository $config, Dispatcher $dispatcher)
     {
-        if (! $config['laraguard.listener']) {
+        if (! $listener = $config['laraguard.listener']) {
             return;
         }
 
-        $this->app->singleton(Contracts\TwoFactorListener::class, function ($app) use ($config) {
-            return new $config['laraguard.listener']($app['config'], $app['request']);
+        $this->app->singleton(Contracts\TwoFactorListener::class, function ($app) use ($listener) {
+            return new $listener($app['config'], $app['request']);
         });
 
         $dispatcher->listen(Attempting::class, Contracts\TwoFactorListener::class . '@saveCredentials');
