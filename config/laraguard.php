@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | If a Listener class is present, Laraguard will hook into the Attempting
-    | and Retrieved events and check if it needs Two Factor Authentication.
+    | and Validated events and check if it needs Two Factor Authentication.
     | Set this to false or null to use your own 2FA logic without events.
     |
     */
