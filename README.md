@@ -30,6 +30,7 @@ This package _silently_ enables authentication using 6 digits codes, without Int
 * [Protecting the Login](#protecting-the-login)
 * [Configuration](#configuration)
     + [Listener](#listener)
+    + [Eloquent Model](#eloquent-model)
     + [Input name](#input-name)
     + [Cache Store](#cache-store)
     + [Recovery](#recovery)
@@ -292,7 +293,7 @@ This may work wonders, but if you want tighter control on how and when prompt fo
 
 > If you change it for your own Listener, ensure it implements the `TwoFactorAuthListener` contract.
 
-### Model
+### Eloquent Model
 
 ```php
 return [
@@ -300,9 +301,9 @@ return [
 ];
 ```
 
-This is the model where the the Two Factor Authentication data is saved and associated to the User model.
+This is the model where the the Two Factor Authentication data, like the shared secret and recovery codes, are saved and associated to the User model.
 
-You can change this model for your own to create, validate and show the shared secret. If you plan to change where and how this is stored, you can just change the model itself or extend it.
+You can change this model for your own if you wish.
 
 > If you change it for your own Model, ensure it implements the `TwoFactorTotp` contract.
 
