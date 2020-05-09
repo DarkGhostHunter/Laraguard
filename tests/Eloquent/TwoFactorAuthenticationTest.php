@@ -319,7 +319,7 @@ class TwoFactorAuthenticationTest extends TestCase
     public function test_changes_issuer()
     {
         config(['app.name' => 'quz']);
-        config(['laraguard.totp.issuer' => 'foo']);
+        config(['laraguard.totp.issuer' => 'foo bar']);
 
         $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
@@ -328,7 +328,7 @@ class TwoFactorAuthenticationTest extends TestCase
             'digits'        => 14,
         ]);
 
-        $uri = '"otpauth:\/\/totp\/foo%3Atest@foo.com?issuer=foo&label=test%40foo.com&secret=KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3&algorithm=SHA256&digits=14"';
+        $uri = '"otpauth:\/\/totp\/foo%20bar%3Atest@foo.com?issuer=foo%20bar&label=test%40foo.com&secret=KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3&algorithm=SHA256&digits=14"';
 
         $this->assertJson($tfa->toJson());
         $this->assertEquals($uri, $tfa->toJson());
