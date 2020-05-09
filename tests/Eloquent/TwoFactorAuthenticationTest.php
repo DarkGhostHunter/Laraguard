@@ -3,11 +3,11 @@
 namespace Tests\Eloquent;
 
 use Carbon\Carbon;
-use Tests\RunsPublishableMigrations;
 use Tests\RegistersPackage;
 use Orchestra\Testbench\TestCase;
 use ParagonIE\ConstantTime\Base32;
 use Tests\Stubs\UserTwoFactorStub;
+use Tests\RunsPublishableMigrations;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -269,7 +269,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_serializes_to_uri()
     {
-        config(['app.name' => 'quz']);
+        config(['laraguard.issuer' => 'quz']);
 
         $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
@@ -285,7 +285,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_serializes_to_qr_and_renders_to_qr()
     {
-        config(['app.name' => 'quz']);
+        config(['laraguard.issuer' => 'quz']);
 
         $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
@@ -300,7 +300,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_serializes_uri_to_json()
     {
-        config(['app.name' => 'quz']);
+        config(['laraguard.issuer' => 'quz']);
 
         $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
@@ -310,6 +310,24 @@ class TwoFactorAuthenticationTest extends TestCase
         ]);
 
         $uri = '"otpauth:\/\/totp\/quz%3Atest@foo.com?issuer=quz&label=test%40foo.com&secret=KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3&algorithm=SHA256&digits=14"';
+
+        $this->assertJson($tfa->toJson());
+        $this->assertEquals($uri, $tfa->toJson());
+        $this->assertEquals($uri, json_encode($tfa));
+    }
+
+    public function test_changes_issuer()
+    {
+        config(['laraguard.issuer' => 'foo bar']);
+
+        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+            'label'         => 'test@foo.com',
+            'shared_secret' => 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
+            'algorithm'     => 'sHa256',
+            'digits'        => 14,
+        ]);
+
+        $uri = '"otpauth:\/\/totp\/foo%20bar%3Atest@foo.com?issuer=foo%20bar&label=test%40foo.com&secret=KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3&algorithm=SHA256&digits=14"';
 
         $this->assertJson($tfa->toJson());
         $this->assertEquals($uri, $tfa->toJson());

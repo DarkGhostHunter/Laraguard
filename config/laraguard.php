@@ -115,6 +115,8 @@ return [
     |
     */
 
+    'issuer' => env('APP_NAME', 'Laravel'),
+
     'totp' => [
         'digits' => 6,
         'seconds' => 30,
