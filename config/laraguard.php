@@ -115,7 +115,7 @@ return [
     |
     */
 
-    'issuer' => env('APP_NAME', 'Laravel'),
+    'issuer' => env('OTP_TOTP_ISSUER'),
 
     'totp' => [
         'digits' => 6,
