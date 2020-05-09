@@ -271,6 +271,7 @@ return [
 	],    
     'secret_length' => 20,
     'totp' => [
+        'issuer' => env('APP_NAME', 'Laravel'),
         'digits' => 6,
         'seconds' => 30,
         'window' => 1,
@@ -387,6 +388,7 @@ It's recommended to use 128-bit or 160-bit because some Authenticator apps may h
 ```php
 return [
     'totp' => [
+        'issuer' => env('APP_NAME', 'Laravel'),
         'digits' => 6,
         'seconds' => 30,
         'window' => 1,
@@ -397,6 +399,7 @@ return [
 
 This controls TOTP code generation and verification mechanisms:
 
+* Issuer: The name of the issuer of the TOTP. Default is the application name. 
 * Digits: The amount of digits to ask for TOTP code. 
 * Seconds: The number of seconds a code is considered valid.
 * Window: Additional steps of seconds to keep a code as valid.
