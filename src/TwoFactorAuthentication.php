@@ -2,6 +2,7 @@
 
 namespace DarkGhostHunter\Laraguard;
 
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -29,7 +30,7 @@ trait TwoFactorAuthentication
     public function twoFactorAuth()
     {
         return $this->morphOne(config('laraguard.model'), 'authenticatable')
-            ->withDefault(config('laraguard.totp'));
+            ->withDefault(Arr::except(config('laraguard.totp'), 'issuer'));
     }
 
     /**

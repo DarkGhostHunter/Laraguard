@@ -1,6 +1,7 @@
 <?php
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
+use Illuminate\Support\Arr;
 use Faker\Generator as Faker;
 use Illuminate\Support\Collection;
 use DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication;
@@ -13,7 +14,7 @@ $factory->define(TwoFactorAuthentication::class, function (Faker $faker) {
         'shared_secret' => TwoFactorAuthentication::generateRandomSecret(),
         'enabled_at'    => $faker->dateTimeBetween('-1 year'),
         'label'         => $faker->freeEmail,
-    ], $config['totp']);
+    ], Arr::except($config['totp'], 'issuer'));
 
     [$enabled, $amount, $length] = array_values($config['recovery']);
 
