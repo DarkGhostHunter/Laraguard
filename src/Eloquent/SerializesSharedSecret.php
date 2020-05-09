@@ -17,7 +17,7 @@ trait SerializesSharedSecret
     public function toUri() : string
     {
         $query = http_build_query([
-            'issuer'    => $issuer = config('laraguard.totp.issuer', config('app.name')),
+            'issuer'    => $issuer = config('laraguard.issuer'),
             'label'     => $this->attributes['label'],
             'secret'    => $this->shared_secret,
             'algorithm' => strtoupper($this->attributes['algorithm']),

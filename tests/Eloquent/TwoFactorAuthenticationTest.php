@@ -269,7 +269,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_serializes_to_uri()
     {
-        config(['app.name' => 'quz']);
+        config(['laraguard.issuer' => 'quz']);
 
         $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
@@ -285,7 +285,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_serializes_to_qr_and_renders_to_qr()
     {
-        config(['app.name' => 'quz']);
+        config(['laraguard.issuer' => 'quz']);
 
         $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
@@ -300,7 +300,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_serializes_uri_to_json()
     {
-        config(['app.name' => 'quz']);
+        config(['laraguard.issuer' => 'quz']);
 
         $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
@@ -318,8 +318,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_changes_issuer()
     {
-        config(['app.name' => 'quz']);
-        config(['laraguard.totp.issuer' => 'foo bar']);
+        config(['laraguard.issuer' => 'foo bar']);
 
         $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
