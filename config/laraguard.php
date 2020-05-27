@@ -129,9 +129,9 @@ return [
     | QR Code Config
     |--------------------------------------------------------------------------
     |
-    | This package uses BaconQrCode generator package for generating QR Code.
-    | BaconQrCode allow to customize size and margin of QR Code. You can
-    | configure size and margin with these settings.
+    | This package uses the BaconQrCode generator package to generate QR codes
+    | as SVG. These size and image margin values are used to create them. You
+    | can always your own code to create personalized QR Codes from the URI.
     |
     */
 
