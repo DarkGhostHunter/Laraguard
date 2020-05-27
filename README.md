@@ -37,6 +37,7 @@ This package _silently_ enables authentication using 6 digits codes, without Int
     + [Safe devices](#safe-devices)
     + [Secret length](#secret-length)
     + [TOTP configuration](#totp-configuration)
+    + [QR Code Configuration](#qr-code-configuration)
     + [Custom view](#custom-view)
 * [Security](#security)
 * [License](#license)
@@ -412,6 +413,19 @@ This configuration values are always passed down to the authentication app as UR
 These values are printed to each 2FA data inside the application. Changes will only take effect for new activations.
 
 > It's not recommended to edit these parameters if you plan to use publicly available Authenticator apps, since some of them **may not support non-standard configuration**, like more digits, different period of seconds or other algorithms.
+
+### QR Code Configuration 
+
+```php
+return [
+    'qr_code' => [
+        'size' => 400,
+        'margin' => 4
+    ],
+];
+```
+
+This controls the size and margin used to create the QR Code.
 
 ### Custom view
 

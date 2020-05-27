@@ -123,4 +123,20 @@ return [
         'window' => 1,
         'algorithm' => 'sha1',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | QR Code Config
+    |--------------------------------------------------------------------------
+    |
+    | This package uses BaconQrCode generator package for generating QR Code.
+    | BaconQrCode allow to customize size and margin of QR Code. You can
+    | configure size and margin with these settings.
+    |
+    */
+
+    'qr_code' => [
+        'size' => 400,
+        'margin' => 4
+    ],
 ];
