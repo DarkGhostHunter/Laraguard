@@ -3,7 +3,7 @@
 @section('card-body')
     <form action="{{ $action }}" method="post">
         @csrf
-        @foreach($credentials as $name => $value)
+        @foreach((array)$credentials as $name => $value)
             <input type="hidden" name="{{ $name }}" value="{{ $value }}">
         @endforeach
         @if($remember)
