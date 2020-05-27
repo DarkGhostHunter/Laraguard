@@ -34,8 +34,10 @@ trait SerializesSharedSecret
      */
     public function toQr() : string
     {
+        [$size, $margin] = array_values(config('laraguard.qr_code'));
+
         return (
-            new Writer((new ImageRenderer(new RendererStyle(400), new SvgImageBackEnd())))
+            new Writer((new ImageRenderer(new RendererStyle($size, $margin), new SvgImageBackEnd())))
         )->writeString($this->toUri());
     }
 

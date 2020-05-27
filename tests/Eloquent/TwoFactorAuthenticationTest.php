@@ -298,6 +298,25 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertStringEqualsFile(__DIR__ . '/../Stubs/QrStub.svg', $tfa->render());
     }
 
+    public function test_serializes_to_qr_and_renders_to_qr_with_custom_values()
+    {
+        config(['laraguard.issuer' => 'quz']);
+        config(['laraguard.qr_code' => [
+            'size' => 600,
+            'margin' => 10
+        ]]);
+
+        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+            'label'         => 'test@foo.com',
+            'shared_secret' => 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
+            'algorithm'     => 'sHa256',
+            'digits'        => 14,
+        ]);
+
+        $this->assertStringEqualsFile(__DIR__ . '/../Stubs/CustomQrStub.svg', $tfa->toQr());
+        $this->assertStringEqualsFile(__DIR__ . '/../Stubs/CustomQrStub.svg', $tfa->render());
+    }
+
     public function test_serializes_uri_to_json()
     {
         config(['laraguard.issuer' => 'quz']);

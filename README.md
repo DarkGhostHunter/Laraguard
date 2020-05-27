@@ -37,6 +37,7 @@ This package _silently_ enables authentication using 6 digits codes, without Int
     + [Safe devices](#safe-devices)
     + [Secret length](#secret-length)
     + [TOTP configuration](#totp-configuration)
+    + [QR Code Configuration](#qr-code-configuration)
     + [Custom view](#custom-view)
 * [Security](#security)
 * [License](#license)
@@ -270,12 +271,16 @@ return [
         'expiration_days' => 14,
 	],    
     'secret_length' => 20,
-    'issuer' => env('APP_NAME', 'Laravel'),
+    'issuer' => env('OTP_TOTP_ISSUER'),
     'totp' => [
         'digits' => 6,
         'seconds' => 30,
         'window' => 1,
         'algorithm' => 'sha1',
+    ],
+    'qr_code' => [
+        'size' => 400,
+        'margin' => 4
     ],
 ];
 ```
@@ -302,7 +307,7 @@ return [
 ];
 ```
 
-This is the model where the the Two Factor Authentication data, like the shared secret and recovery codes, are saved and associated to the User model.
+This is the model where the data for Two Factor Authentication is saved, like the shared secret and recovery codes, and associated to the User model.
 
 You can change this model for your own if you wish.
 
@@ -331,7 +336,7 @@ return  [
 ];
 ```
 
-[RFC 6238](https://tools.ietf.org/html/rfc6238#section-5) states that one-time passwords shouldn't be able to be usable again, even if inside the time window. For this, we need to use the Cache to save the code for a given period of time.
+[RFC 6238](https://tools.ietf.org/html/rfc6238#section-5) states that one-time passwords shouldn't be able to be usable again, even if inside the time window. For this, we need to use the Cache to save the code for a given period.
 
 You can change the store to use, which it's the default used by your application, and the prefix to use as cache keys, in case of collisions.
 
@@ -363,7 +368,7 @@ return [
 ];
 ```
 
-Enabling this option will allow the application to "remember" a device using a cookie, allowing it to bypass Two Factor Authentication once a code is verified in that device. When the User logs in again in that device, it won't be prompted for a Code. 
+Enabling this option will allow the application to "remember" a device using a cookie, allowing it to bypass Two Factor Authentication once a code is verified in that device. When the User logs in again in that device, it won't be prompted for a 2FA Code again. 
 
 There is a limit of devices that can be saved. New devices will displace the oldest devices registered. Devices are considered no longer "safe" until a set amount of days.
 
@@ -387,7 +392,7 @@ It's recommended to use 128-bit or 160-bit because some Authenticator apps may h
 
 ```php
 return [
-    'issuer' => env('APP_NAME', 'Laravel'),
+    'issuer' => env('OTP_TOTP_ISSUER'),
     'totp' => [
         'digits' => 6,
         'seconds' => 30,
@@ -409,9 +414,22 @@ This configuration values are always passed down to the authentication app as UR
 
     otpauth://totp/Laravel:taylor@laravel.com?secret=THISISMYSECRETPLEASEDONOTSHAREIT&issuer=Laravel&label=taylor%40laravel.com&algorithm=SHA1&digits=6&period=30
 
-These values are printed to each 2FA data inside the application. Changes will only take effect for new activations.
+These values are printed to each 2FA data record inside the application. Changes will only take effect for new activations.
 
 > It's not recommended to edit these parameters if you plan to use publicly available Authenticator apps, since some of them **may not support non-standard configuration**, like more digits, different period of seconds or other algorithms.
+
+### QR Code Configuration 
+
+```php
+return [
+    'qr_code' => [
+        'size' => 400,
+        'margin' => 4
+    ],
+];
+```
+
+This controls the size and margin used to create the QR Code, which are created as SVG.
 
 ### Custom view
 
@@ -420,14 +438,14 @@ These values are printed to each 2FA data inside the application. Changes will o
 You can override the view, which handles the Two Factor Code verification for the User. It receives this data:
 
 * `$action`: The full URL where the form should send the login credentials.
-* `$credentials`: An array containing the User credentials used for the login.
+* `$credentials`: An `array|null` containing the User credentials used for the login.
 * `$user`: The User instance trying to authenticate.
 * `$error`: If the Two Factor Code is invalid. 
 * `$remember`: If the "remember" checkbox has been filled.
 
 The way it works is very simple: it will hold the User credentials in a hidden input while it asks for the Two Factor Code. The User will send everything again along with the Code, the application will ensure its correct, and complete the log in.
 
-This view and its form is bypassed if the User doesn't uses Two Factor Authentication, making the log in transparent and non-invasive.
+This view and its form is bypassed if the User doesn't uses Two Factor Authentication, making the login transparent and non-invasive.
 
 ## Security
 

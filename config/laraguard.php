@@ -115,12 +115,28 @@ return [
     |
     */
 
-    'issuer' => env('APP_NAME', 'Laravel'),
+    'issuer' => env('OTP_TOTP_ISSUER'),
 
     'totp' => [
         'digits' => 6,
         'seconds' => 30,
         'window' => 1,
         'algorithm' => 'sha1',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | QR Code Config
+    |--------------------------------------------------------------------------
+    |
+    | This package uses the BaconQrCode generator package to generate QR codes
+    | as SVG. These size and image margin values are used to create them. You
+    | can always your own code to create personalized QR Codes from the URI.
+    |
+    */
+
+    'qr_code' => [
+        'size' => 400,
+        'margin' => 4
     ],
 ];

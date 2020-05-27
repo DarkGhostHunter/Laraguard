@@ -54,6 +54,22 @@ class ForcesTwoFactorAuthTest extends TestCase
         $this->assertStringContainsString(__('The Code is invalid or has expired.'), $view);
     }
 
+    public function test_form_doesnt_contains_credentials()
+    {
+        $view = view('laraguard::auth')->with([
+            'action'      => 'qux',
+            'user'        => $this->user,
+            'credentials' => null,
+            'remember'    => 'on',
+            'error'       => true,
+        ])->render();
+
+        $this->assertStringContainsString('action="qux"', $view);
+        $this->assertStringNotContainsString('<input type="hidden" name="foo" value="bar">', $view);
+        $this->assertStringContainsString('<input type="hidden" name="remember" value="on">', $view);
+        $this->assertStringContainsString(__('The Code is invalid or has expired.'), $view);
+    }
+
     public function test_login_with_no_valid_credentials_no_2fa_fails()
     {
         $this->app['config']->set('auth.providers.users.model', UserStub::class);
