@@ -2,6 +2,7 @@
 
 namespace DarkGhostHunter\Laraguard;
 
+use DarkGhostHunter\Laraguard\Rules\TwoFactorAuth;
 use Illuminate\Routing\Router;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Auth\Events\Attempting;
@@ -33,9 +34,11 @@ class LaraguardServiceProvider extends ServiceProvider
     {
         $this->registerListener($config, $dispatcher);
         $this->registerMiddleware($router);
+        $this->registerValidators();
 
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laraguard');
         $this->loadFactoriesFrom(__DIR__ . '/../database/factories');
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang/', 'laraguard');
 
         if ($this->app->runningInConsole()) {
             $this->publishFiles();
@@ -73,6 +76,18 @@ class LaraguardServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the custom validators
+     *
+     * @return void
+     */
+    private function registerValidators()
+    {
+        $this->app['validator']->extend('two_factor_auth', function ($attribute, $value) {
+            return (new TwoFactorAuth())->passes($attribute, $value);
+        }, __('laraguard::validation.two_factor_auth'));
+    }
+
+    /**
      * Publish config, view and migrations files.
      *
      * @return void
@@ -86,6 +101,10 @@ class LaraguardServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../resources/views' => resource_path('views/vendor/laraguard'),
         ], 'views');
+
+        $this->publishes([
+            __DIR__ . '/../resources/lang' => resource_path('lang/vendor/laraguard'),
+        ]);
 
         // We will allow the publishing for the Two Factor Authentication migration that
         // holds the TOTP data, only if it wasn't published before, avoiding multiple

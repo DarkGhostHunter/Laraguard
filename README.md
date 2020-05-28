@@ -127,6 +127,38 @@ public function confirmTwoFactor(Request $request)
 
 If the User doesn't issue the correct Code, the method will return `false`. You can tell the User to double-check its device's timezone, or create another Shared Secret with `createTwoFactorAuth()`.
 
+You may validate that Code passed to a controller is a valid Code by using the TwoFactorAuth rule.
+
+```php
+use DarkGhostHunter\Laraguard\Rules\TwoFactorAuth;
+
+public function confirmTwoFactor(Request $request)
+{
+    $this->validate($request, [
+        '2fa_code' => ['required', new TwoFactorAuth()],
+    ]);
+}
+```
+
+You can also use the 'pipe' syntax for rule.
+
+```php
+public function confirmTwoFactor(Request $request)
+{
+    $this->validate($request, [
+        '2fa_code' => 'required|two_factor_auth',
+    ]);
+}
+```
+
+You can also define an error message by adding an entry in the validation language file or you can publish the language files to your resources/lang folder.
+
+```php
+'two_factor_auth' => 'The code you have entered is invalid.',
+
+// The rest of the validation error messages...
+```
+
 ### Recovery Codes
 
 Recovery Codes are automatically generated each time the Two Factor Authentication is enabled. By default, a Collection of ten one-use 8-characters codes are created.
@@ -249,7 +281,7 @@ To further configure the package, publish the configuration files and assets:
 
     php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider"
 
-You will receive the authentication view in `resources/views/vendor/laraguard/auth.blade.php`, and the `config/laraguard.php` config file with the following contents:
+You will receive the authentication view in `resources/views/vendor/laraguard/auth.blade.php`, the language file `resources/lang/vendor/laraguard/en/validation.php` and the `config/laraguard.php` config file with the following contents:
 
 ```php
 return [
