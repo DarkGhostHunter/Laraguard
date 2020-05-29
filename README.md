@@ -127,34 +127,40 @@ public function confirmTwoFactor(Request $request)
 
 If the User doesn't issue the correct Code, the method will return `false`. You can tell the User to double-check its device's timezone, or create another Shared Secret with `createTwoFactorAuth()`.
 
-You may validate that Code passed to a controller is a valid Code by using the TwoFactorAuth rule.
+You may validate that Code passed to a controller is a valid Code by using the TotpCode rule.
 
 ```php
-use DarkGhostHunter\Laraguard\Rules\TwoFactorAuth;
+use DarkGhostHunter\Laraguard\Rules\TotpCode;
 
 public function confirmTwoFactor(Request $request)
 {
     $this->validate($request, [
-        '2fa_code' => ['required', new TwoFactorAuth()],
+        '2fa_code' => ['required', new TotpCode()],
     ]);
+
+    $request->user()->enableTwoFactorAuth();
 }
 ```
 
 You can also use the 'pipe' syntax for rule.
 
 ```php
-public function confirmTwoFactor(Request $request)
+public function setSafeDevice(Request $request)
 {
     $this->validate($request, [
-        '2fa_code' => 'required|two_factor_auth',
+        '2fa_code' => 'required|totp_code',
     ]);
+
+    $request->user()->addSafeDevice($request);
+
+    session()->flash('message', "This device has been added as safe and the app won't ask for codes");
 }
 ```
 
 You can also define an error message by adding an entry in the validation language file or you can publish the language files to your resources/lang folder.
 
 ```php
-'two_factor_auth' => 'The code you have entered is invalid.',
+'totp_code' => 'The code you have entered is invalid.',
 
 // The rest of the validation error messages...
 ```

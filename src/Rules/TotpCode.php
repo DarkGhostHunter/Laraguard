@@ -2,17 +2,35 @@
 
 namespace DarkGhostHunter\Laraguard\Rules;
 
+use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 
-class TwoFactorAuth implements Rule
+class TotpCode implements Rule
 {
     /**
      * The name of the rule.
      *
      * @var string
      */
-    protected $rule = 'two_factor_auth';
+    protected $rule = 'totp_code';
+
+    /**
+     * The auth user.
+     *
+     * @var \Illuminate\Foundation\Auth\User
+     */
+    protected $user;
+
+    /**
+     * Create a new "totp code" rule instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->user = Auth::user();
+    }
 
     /**
      * Determine if the validation rule passes.
@@ -23,11 +41,11 @@ class TwoFactorAuth implements Rule
      */
     public function passes($attribute, $value) : bool
     {
-        if (is_null($value)) {
-            return false;
+        if ($this->user instanceof TwoFactorAuthenticatable) {
+            return is_string($value) && $this->user->twoFactorAuth->validateCode($value);
         }
-
-        return Auth::user()->confirmTwoFactorAuth($value);
+    
+        return false;
     }
 
     /**
@@ -37,7 +55,7 @@ class TwoFactorAuth implements Rule
      */
     public function message() : string
     {
-        return __('laraguard::validation.two_factor_auth');
+        return __('laraguard::validation.totp_code');
     }
 
     /**

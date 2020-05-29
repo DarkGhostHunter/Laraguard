@@ -2,7 +2,7 @@
 
 namespace DarkGhostHunter\Laraguard;
 
-use DarkGhostHunter\Laraguard\Rules\TwoFactorAuth;
+use DarkGhostHunter\Laraguard\Rules\TotpCode;
 use Illuminate\Routing\Router;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Auth\Events\Attempting;
@@ -82,9 +82,9 @@ class LaraguardServiceProvider extends ServiceProvider
      */
     private function registerValidators()
     {
-        $this->app['validator']->extend('two_factor_auth', function ($attribute, $value) {
-            return (new TwoFactorAuth())->passes($attribute, $value);
-        }, __('laraguard::validation.two_factor_auth'));
+        $this->app['validator']->extend('totp_code', function ($attribute, $value) {
+            return (new TotpCode())->passes($attribute, $value);
+        }, __('laraguard::validation.totp_code'));
     }
 
     /**

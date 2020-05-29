@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'two_factor_auth' => 'The code you have entered is invalid.',
+    'totp_code' => 'The code you have entered is invalid.',
 ];
