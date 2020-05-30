@@ -104,7 +104,7 @@ class LaraguardServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/../resources/lang' => resource_path('lang/vendor/laraguard'),
-        ]);
+        ], 'translations');
 
         // We will allow the publishing for the Two Factor Authentication migration that
         // holds the TOTP data, only if it wasn't published before, avoiding multiple
