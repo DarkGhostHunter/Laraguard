@@ -20,6 +20,7 @@ class LaraguardServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/laraguard.php', 'laraguard');
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang/', 'laraguard');
     }
 
     /**
@@ -38,7 +39,6 @@ class LaraguardServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laraguard');
         $this->loadFactoriesFrom(__DIR__ . '/../database/factories');
-        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang/', 'laraguard');
 
         if ($this->app->runningInConsole()) {
             $this->publishFiles();
