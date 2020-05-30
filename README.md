@@ -287,7 +287,7 @@ To further configure the package, publish the configuration files and assets:
 
     php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider"
 
-You will receive the authentication view in `resources/views/vendor/laraguard/auth.blade.php`, the language file `resources/lang/vendor/laraguard/en/validation.php` and the `config/laraguard.php` config file with the following contents:
+You will receive the authentication view in `resources/views/vendor/laraguard/auth.blade.php`, the language files `resources/lang/vendor/laraguard` folder and the `config/laraguard.php` config file with the following contents:
 
 ```php
 return [
