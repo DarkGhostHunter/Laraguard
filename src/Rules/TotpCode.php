@@ -55,7 +55,7 @@ class TotpCode implements Rule
      */
     public function message() : string
     {
-        return __('laraguard::validation.totp_code');
+        return __('laraguard::messages.totp_code');
     }
 
     /**

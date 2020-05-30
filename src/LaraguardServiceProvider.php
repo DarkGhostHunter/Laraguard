@@ -84,7 +84,7 @@ class LaraguardServiceProvider extends ServiceProvider
     {
         $this->app['validator']->extend('totp_code', function ($attribute, $value) {
             return (new TotpCode())->passes($attribute, $value);
-        }, __('laraguard::validation.totp_code'));
+        }, __('laraguard::messages.totp_code'));
     }
 
     /**
