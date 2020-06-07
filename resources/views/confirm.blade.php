@@ -3,13 +3,6 @@
 @section('card-body')
     <form action="{{ route('2fa.confirm') }}" method="post">
         @csrf
-        @foreach($credentials as $name => $value)
-            <input type="hidden" name="{{ $name }}" value="{{ $value }}">
-        @endforeach
-        @if($remember)
-            <input type="hidden" name="remember" value="on">
-        @endif
-
         <p class="text-center">
             {{ trans('laraguard::messages.continue') }}
         </p>

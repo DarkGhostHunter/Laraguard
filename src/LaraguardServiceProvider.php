@@ -130,9 +130,15 @@ class LaraguardServiceProvider extends ServiceProvider
      */
     protected function registerRoutes(Repository $config, Router $router)
     {
-        if ($config->get('laraguard.confirm.register_routes')) {
-            $router->get('2fa/notice', $config->get('laraguard.confirm.view'))->name('2fa.notice');
-            $router->post('2fa/confirm', $config->get('laraguard.confirm.action'))->name('2fa.confirm');
+        if ($view = $config->get('laraguard.confirm.view')) {
+            $router->get('2fa/confirm', $view)
+                ->middleware('web')
+                ->name('2fa.confirm');
+        }
+
+        if ($action = $config->get('laraguard.confirm.action')) {
+            $router->post('2fa/confirm', $action)
+                ->middleware('web');
         }
     }
 }

@@ -43,7 +43,7 @@ class RequireTwoFactorEnabled
      * @param  string  $redirectToRoute
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|mixed
      */
-    public function handle($request, Closure $next, $redirectToRoute = '2fa.notice')
+    public function handle($request, Closure $next, $redirectToRoute = '2fa.confirm')
     {
         if ($this->userHasTwoFactorEnabled()) {
             return $request->expectsJson()

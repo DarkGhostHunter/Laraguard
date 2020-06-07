@@ -10,7 +10,7 @@ trait Confirms2FACode
     use RedirectsUsers;
 
     /**
-     * Display the password confirmation view.
+     * Display the TOTP code confirmation view.
      *
      * @return \Illuminate\View\View
      */
@@ -20,7 +20,7 @@ trait Confirms2FACode
     }
 
     /**
-     * Confirm the given user's password.
+     * Confirm the given user's TOTP code.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
@@ -31,11 +31,13 @@ trait Confirms2FACode
 
         $this->resetTotpConfirmationTimeout($request);
 
-        return $request->wantsJson() ? response()->noContent() : redirect()->intended($this->redirectPath());
+        return $request->wantsJson()
+            ? response()->noContent()
+            : redirect()->intended($this->redirectPath());
     }
 
     /**
-     * Reset the password confirmation timeout.
+     * Reset the TOTP code timeout.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return void
@@ -46,14 +48,14 @@ trait Confirms2FACode
     }
 
     /**
-     * Get the password confirmation validation rules.
+     * Get the TOTP code validation rules.
      *
      * @return array
      */
     protected function rules()
     {
         return [
-            config('laraguard.input') => 'required|numeric',
+            config('laraguard.input') => 'required|totp_code',
         ];
     }
 

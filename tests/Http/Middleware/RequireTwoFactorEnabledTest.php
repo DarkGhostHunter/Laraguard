@@ -2,14 +2,14 @@
 
 namespace Tests\Http\Middleware;
 
-use Tests\RunsPublishableMigrations;
 use Tests\Stubs\UserStub;
 use Tests\RegistersPackage;
 use Tests\CreatesTwoFactorUser;
 use Orchestra\Testbench\TestCase;
+use Tests\RunsPublishableMigrations;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
-class EnsureTwoFactorEnabledTest extends TestCase
+class RequireTwoFactorEnabledTest extends TestCase
 {
     use RegistersPackage;
     use DatabaseMigrations;
