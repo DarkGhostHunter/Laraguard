@@ -27,6 +27,8 @@ This package _silently_ enables authentication using 6 digits codes, without Int
     + [Deactivation](#deactivation)
 * [Events](#events)
 * [Middleware](#middleware)
+* [Validation](#validation)
+* [Translations](#translations)
 * [Protecting the Login](#protecting-the-login)
 * [Configuration](#configuration)
     + [Listener](#listener)
@@ -58,17 +60,15 @@ This package was made to be the less invasive possible, but you can go full manu
 
 ## Usage
 
-First, publish the migration with:
-
-    php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="migrations"
-
-> The default migration assumes you are using integers for your user model IDs. If you are using UUIDs, or some other format, adjust the format of the morphs `authenticatable` fields in the published migration before continuing.
-
-After publishing the migration, you can create the `two_factor_authentications` table by running the migration:
+First, create the `two_factor_authentications` table by running the migration:
 
     php artisan migrate
 
 This will create a table to handle the Two Factor Authentication information for each model you set.
+
+> If you need to modify the migration from this package, override it by publishing the migration:
+>
+>     php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="migrations"
 
 Add the `TwoFactorAuthenticatable` _contract_ and the `TwoFactorAuthentication` trait to the User model, or any other model you want to make Two Factor Authentication available. 
 
@@ -198,7 +198,11 @@ The following events are fired in addition to the default Authentication events.
 
 ## Middleware
 
-If you need to ensure the User has Two Factor Authentication enabled before entering a given route, you can use the `2fa` middleware.
+Laraguard comes with two middleware for your routes. `2fa.required` and `2fa.confirm`.
+
+### Require 2FA
+
+If you need to ensure the User has Two Factor Authentication enabled before entering a given route, you can use the `2fa.required` middleware.
 
 ```php
 Route::get('system/settings')
@@ -211,9 +215,67 @@ This middleware works much like the `verified` middleware: if the User has not e
 You can implement this easily using this package:
 
 ```php
-Route::view('2fa-required', 'laraguard::notice')
-    ->name('2fa.notice');
+Route::view('2fa-required', 'laraguard::notice')->name('2fa.notice');
 ```
+
+Alternatively, you can use a custom controller action to also include a URL to route the user to enable Two Factor Authentication.
+
+```php
+public function notice()
+{
+    return view('2fa.notice', [
+        'url' => url('config/2fa')
+    ]);
+}
+```
+
+### Confirm 2FA
+
+As with `password.confirm`, you can also ask the user to confirm an action using `2fa.confirm`. 
+
+```php
+Route::get('api/token')->uses('ApiTokenController@show')->middleware('2fa.confirm');
+```
+
+Laraguard automatically uses the [`Confirm2FACodeController`](src/Http/Controllers/Confirm2FACodeController.php) to handle the form view and the code confirmation for you.
+
+Alternatively, you can use the [`Confirms2FACode`](src/Http/Controllers/Confirms2FACode.php) trait to create your own while [changing the actions to handle the view form and confirmation](#2fa-confirmation-middleware).
+
+## Validation
+
+Sometimes you may want to manually trigger a TOTP validation in any part of your application. You can validate a TOTP code for the authenticated user using the `totp_code` rule.
+
+```php
+public function checkTotp(Request $request)
+{
+    $request->validate([
+        'code' => 'required|totp_code'
+    ]);
+
+    // ...
+}
+```
+
+This rule will succeed if the user is authenticated, is has Two Factor Authentication enabled, and the code is correct.
+
+## Translations
+
+Laraguard comes with translation files (only for english) that you can use immediately in your application.
+
+```php
+public function disableTwoFactorAuth()
+{
+    // ...
+
+    session()->flash('2fa_disabled', trans('laraguard::messages.disabled'));
+
+    return back();
+}
+```
+
+To add your own in your language, publish the translation files. These will be located in `resources/vendor/laraguard`:
+
+    php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="translations"
 
 ## Protecting the Login
 
@@ -269,7 +331,13 @@ return [
         'enabled' => false,
         'max_devices' => 3,
         'expiration_days' => 14,
-	],    
+	],
+    'confirm' => [
+        'timeout' => 10800,
+        'register_routes' => true,
+        'view' => 'DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController@showConfirmForm',
+        'action' => 'DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController@confirm'
+    ],
     'secret_length' => 20,
     'issuer' => env('OTP_TOTP_ISSUER'),
     'totp' => [
@@ -376,6 +444,26 @@ You can change the maximum number of devices saved and the amount of days of val
 
 > When re-enabling Two Factor Authentication, the list of devices is automatically invalidated.
 
+### 2FA Confirmation Middleware
+
+```php
+return [
+    'confirm' => [
+        'timeout' => 10800, // 3 hours
+
+        'register_routes' => true,
+        'view' => 'DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController@showConfirmForm',
+        'action' => 'DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController@confirm'
+    ],
+];
+```
+
+If the `register_routes` is set to `true`, the `2fa/notice` and `2fa/confirm` routes will be registered to handle 2FA code notice and confirmation for the [`2fa.confirm` middleware](#confirm-2fa). If you disable it, you will have to register the routes and controller actions yourself.
+
+This array also sets by how much to "remember" the 2FA Code confirmation, and the actions used to show the view to confirm the 2FA Code with also the action to handle the confirmation.
+
+You may want to change these, specially if you want your own view to show the confirmation form.
+
 ### Secret length
 
 ```php
@@ -416,7 +504,7 @@ This configuration values are always passed down to the authentication app as UR
 
 These values are printed to each 2FA data record inside the application. Changes will only take effect for new activations.
 
-> It's not recommended to edit these parameters if you plan to use publicly available Authenticator apps, since some of them **may not support non-standard configuration**, like more digits, different period of seconds or other algorithms.
+> Do not edit these parameters if you plan to use publicly available Authenticator apps, since some of them **may not support non-standard configuration**, like more digits, different period of seconds or other algorithms.
 
 ### QR Code Configuration 
 
@@ -438,9 +526,9 @@ This controls the size and margin used to create the QR Code, which are created 
 You can override the view, which handles the Two Factor Code verification for the User. It receives this data:
 
 * `$action`: The full URL where the form should send the login credentials.
-* `$credentials`: An `array|null` containing the User credentials used for the login.
+* `$credentials`: An `array` containing the User credentials used for the login.
 * `$user`: The User instance trying to authenticate.
-* `$error`: If the Two Factor Code is invalid. 
+* `$error`: If the Two Factor Code is invalid.
 * `$remember`: If the "remember" checkbox has been filled.
 
 The way it works is very simple: it will hold the User credentials in a hidden input while it asks for the Two Factor Code. The User will send everything again along with the Code, the application will ensure its correct, and complete the log in.

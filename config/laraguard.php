@@ -53,8 +53,8 @@ return [
     */
 
     'cache' => [
-        'store' => null,
-        'prefix' => '2fa.code'
+        'store'  => null,
+        'prefix' => '2fa.code',
     ],
 
     /*
@@ -70,8 +70,8 @@ return [
 
     'recovery' => [
         'enabled' => true,
-        'codes' => 10,
-        'length' => 8,
+        'codes'   => 10,
+        'length'  => 8,
     ],
 
     /*
@@ -86,9 +86,28 @@ return [
     */
 
     'safe_devices' => [
-        'enabled' => false,
-        'max_devices' => 3,
+        'enabled'         => false,
+        'max_devices'     => 3,
         'expiration_days' => 14,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Require Two Factor Middleware
+    |--------------------------------------------------------------------------
+    |
+    | When using the "2fa.confirm" middleware a view with a form will be used
+    | to ask the user for a TOTP code, an a controller action to receive it.
+    | You can change both actions and also when to forget the confirmation.
+    |
+    */
+
+    'confirm' => [
+        'timeout' => 10800, // 3 hours
+
+        'register_routes' => true,
+        'view' => 'DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController@showConfirmForm',
+        'action' => 'DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController@confirm'
     ],
 
     /*
@@ -118,9 +137,9 @@ return [
     'issuer' => env('OTP_TOTP_ISSUER'),
 
     'totp' => [
-        'digits' => 6,
-        'seconds' => 30,
-        'window' => 1,
+        'digits'    => 6,
+        'seconds'   => 30,
+        'window'    => 1,
         'algorithm' => 'sha1',
     ],
 
@@ -136,7 +155,7 @@ return [
     */
 
     'qr_code' => [
-        'size' => 400,
-        'margin' => 4
+        'size'   => 400,
+        'margin' => 4,
     ],
 ];

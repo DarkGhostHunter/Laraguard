@@ -1,9 +1,9 @@
 @extends('laraguard::layout')
 
 @section('card-body')
-    <form action="{{ $action }}" method="post">
+    <form action="{{ route('2fa.confirm') }}" method="post">
         @csrf
-        @foreach((array)$credentials as $name => $value)
+        @foreach($credentials as $name => $value)
             <input type="hidden" name="{{ $name }}" value="{{ $value }}">
         @endforeach
         @if($remember)
