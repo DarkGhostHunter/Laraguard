@@ -118,4 +118,15 @@ class TotpRuleTest extends TestCase
         $this->assertFalse($fails);
     }
 
+    public function test_validator_rule_uses_translation()
+    {
+        $validator = validator([
+            'totp_code' => 'invalid'
+        ], [
+            'totp_code' => 'totp_code'
+        ]);
+
+        $this->assertSame('The Code is invalid or has expired.', $validator->errors()->get('totp_code')[0]);
+    }
+
 }

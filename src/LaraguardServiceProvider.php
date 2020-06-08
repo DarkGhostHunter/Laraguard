@@ -33,31 +33,19 @@ class LaraguardServiceProvider extends ServiceProvider
      */
     public function boot(Repository $config, Router $router, Dispatcher $dispatcher, Factory $validator)
     {
-        $this->registerListener($config, $dispatcher);
-        $this->registerMiddleware($router);
-        $this->registerRules($validator);
-        $this->registerRoutes($config, $router);
-
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laraguard');
         $this->loadFactoriesFrom(__DIR__ . '/../database/factories');
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'laraguard');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
+        $this->registerListener($config, $dispatcher);
+        $this->registerMiddleware($router);
+        $this->registerRules($validator);
+        $this->registerRoutes($config, $router);
+
         if ($this->app->runningInConsole()) {
             $this->publishFiles();
         }
-    }
-
-    /**
-     * Register the middleware.
-     *
-     * @param  \Illuminate\Routing\Router  $router
-     * @return void
-     */
-    protected function registerMiddleware(Router $router)
-    {
-        $router->aliasMiddleware('2fa.require', Http\Middleware\RequireTwoFactorEnabled::class);
-        $router->aliasMiddleware('2fa.confirm', Http\Middleware\ConfirmTwoFactorCode::class);
     }
 
     /**
@@ -79,6 +67,50 @@ class LaraguardServiceProvider extends ServiceProvider
 
         $dispatcher->listen(Attempting::class, Contracts\TwoFactorListener::class . '@saveCredentials');
         $dispatcher->listen(Validated::class, Contracts\TwoFactorListener::class . '@checkTwoFactor');
+    }
+
+    /**
+     * Register the middleware.
+     *
+     * @param  \Illuminate\Routing\Router  $router
+     * @return void
+     */
+    protected function registerMiddleware(Router $router)
+    {
+        $router->aliasMiddleware('2fa.require', Http\Middleware\RequireTwoFactorEnabled::class);
+        $router->aliasMiddleware('2fa.confirm', Http\Middleware\ConfirmTwoFactorCode::class);
+    }
+
+    /**
+     * Register custom validation rules.
+     *
+     * @param  \Illuminate\Contracts\Validation\Factory  $validator
+     * @return void
+     */
+    protected function registerRules(Factory $validator)
+    {
+        $validator->extendImplicit('totp_code', Rules\TotpCodeRule::class, trans('laraguard::validation.totp_code'));
+    }
+
+    /**
+     * Register the routes for 2FA Code confirmation.
+     *
+     * @param  \Illuminate\Contracts\Config\Repository  $config
+     * @param  \Illuminate\Routing\Router  $router
+     * @return void
+     */
+    protected function registerRoutes(Repository $config, Router $router)
+    {
+        if ($view = $config->get('laraguard.confirm.view')) {
+            $router->get('2fa/confirm', $view)
+                ->middleware('web')
+                ->name('2fa.confirm');
+        }
+
+        if ($action = $config->get('laraguard.confirm.action')) {
+            $router->post('2fa/confirm', $action)
+                ->middleware('web');
+        }
     }
 
     /**
@@ -107,38 +139,6 @@ class LaraguardServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../database/migrations/2020_04_02_000000_create_two_factor_authentications_table.php' => database_path('migrations/' . now()->format('Y_m_d_His') . '_create_two_factor_authentications_table.php'),
             ], 'migrations');
-        }
-    }
-
-    /**
-     * Register custom validation rules.
-     *
-     * @param  \Illuminate\Contracts\Validation\Factory  $validator
-     * @return void
-     */
-    protected function registerRules(Factory $validator)
-    {
-        $validator->extend('totp_code', Rules\TotpCodeRule::class);
-    }
-
-    /**
-     * Register the routes for 2FA Code confirmation.
-     *
-     * @param  \Illuminate\Contracts\Config\Repository  $config
-     * @param  \Illuminate\Routing\Router  $router
-     * @return void
-     */
-    protected function registerRoutes(Repository $config, Router $router)
-    {
-        if ($view = $config->get('laraguard.confirm.view')) {
-            $router->get('2fa/confirm', $view)
-                ->middleware('web')
-                ->name('2fa.confirm');
-        }
-
-        if ($action = $config->get('laraguard.confirm.action')) {
-            $router->post('2fa/confirm', $action)
-                ->middleware('web');
         }
     }
 }

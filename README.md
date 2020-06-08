@@ -13,7 +13,7 @@ This package _silently_ enables authentication using 6 digits codes, without Int
 
 ## Requirements
 
-* Laravel 7.
+* Laravel [6.15](https://blog.laravel.com/laravel-v6-15-0-released) or Laravel 7.
 * PHP 7.2+
 
 ## Table of Contents
@@ -65,7 +65,7 @@ First, create the `two_factor_authentications` table by running the migration:
 
     php artisan migrate
 
-This will create a table to handle the Two Factor Authentication information for each model you set.
+This will create a table to handle the Two Factor Authentication information for each model you want to attach to 2FA.
 
 > If you need to modify the migration from this package, you can publish it to override whatever you need.
 >
@@ -149,7 +149,7 @@ public function confirmTwoFactor(Request $request)
 
 You're free on how to show these codes to the User, but **ensure** you show them one time after a successfully enabling Two Factor Authentication, and ask him to print them somewhere.
 
-> These Recovery Codes are handled automatically when the User issues a Code. If it's a recovery code, the package will use it and invalidate it.
+> These Recovery Codes are handled automatically when the User validates one. If it's a recovery code, the package will use and mark it as invalid.
 
 The User can generate a fresh batch of codes using `generateRecoveryCodes()`, which automatically invalidates the previous batch.
 
@@ -197,13 +197,13 @@ The following events are fired in addition to the default Authentication events.
 * `TwoFactorRecoveryCodesGenerated`: An User has generated a new set of Recovery Codes.
 * `TwoFactorDisabled`: An User has disabled Two Factor Authentication.
 
-> You can use `TwoFactorRecoveryCodesDepleted` to tell the User to create more Recovery Codes. For example, you can show him in the next request a new set of recovery codes.
+> You can use `TwoFactorRecoveryCodesDepleted` to tell the User to create more Recovery Codes.
 
 ## Middleware
 
 Laraguard comes with two middleware for your routes: `2fa.require` and `2fa.confirm`.
 
-> To avoid unexpected results, these middleware only act on your users models with `TwoFactorAuthenticatable`.
+> To avoid unexpected results, these middleware only act on your users models with `TwoFactorAuthenticatable`. If a user model doesn't implements it, the middleware bypass any 2FA logic.
 
 ### Require 2FA
 
@@ -236,7 +236,7 @@ public function notice()
 
 ### Confirm 2FA
 
-Much like [`password.confirm` middleware](https://laravel.com/docs/authentication#password-confirmation), you can also ask the user to confirm an action using `2fa.confirm`.
+Much like the [`password.confirm` middleware](https://laravel.com/docs/authentication#password-confirmation), you can also ask the user to confirm an action using `2fa.confirm`.
 
 ```php
 Route::get('api/token')
@@ -246,11 +246,11 @@ Route::get('api/token')
 
 Laraguard automatically uses the [`Confirm2FACodeController`](src/Http/Controllers/Confirm2FACodeController.php) to handle the form view and the code confirmation for you.
 
-Alternatively, [you can point your own controller actions](#confirmation-middleware) to handle the form view and confirmation. Better yet, you can start with using the [`Confirms2FACode`](src/Http/Controllers/Confirms2FACode.php) trait to avoid reinventing the wheel.
+Alternatively, [you can point your own controller actions](#confirmation-middleware) to handle the form view and confirmation. Better yet, you can start with the [`Confirms2FACode`](src/Http/Controllers/Confirms2FACode.php) trait to avoid reinventing the wheel.
 
 ## Validation
 
-Sometimes you may want to manually trigger a TOTP validation in any part of your application. You can validate a TOTP code for the authenticated user using the `totp_code` rule.
+Sometimes you may want to manually trigger a TOTP validation in any part of your application for the authenticated user. You can validate a TOTP code for the authenticated user using the `totp_code` rule.
 
 ```php
 public function checkTotp(Request $request)
@@ -267,7 +267,7 @@ This rule will succeed if the user is authenticated, is has Two Factor Authentic
 
 ## Translations
 
-Laraguard comes with translation files (only for english) that you can use immediately in your application.
+Laraguard comes with translation files (only for english) that you can use immediately in your application. These are also used for the [validation rule](#validation).
 
 ```php
 public function disableTwoFactorAuth()
