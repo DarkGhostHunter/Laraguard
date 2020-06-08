@@ -69,8 +69,8 @@ class EnforceTwoFactorAuth implements TwoFactorListener
      */
     public function saveCredentials(Attempting $event)
     {
-        $this->credentials = $event->credentials;
-        $this->remember = $event->remember;
+        $this->credentials = (array) $event->credentials;
+        $this->remember = (bool) $event->remember;
     }
 
     /**
@@ -106,6 +106,7 @@ class EnforceTwoFactorAuth implements TwoFactorListener
             'user'        => $user,
             'error'       => $error,
             'remember'    => $this->remember,
+            'input'       => $this->input
         ]);
 
         return response($view, $error ? 422 : 403)->throwResponse();
