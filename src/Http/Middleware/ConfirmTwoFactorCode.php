@@ -51,22 +51,17 @@ class ConfirmTwoFactorCode
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @param  string  $redirectToRoute
-     * @param  bool  $useSafeDevice
      * @return mixed
      */
-    public function handle($request, Closure $next, $redirectToRoute = '2fa.confirm', $useSafeDevice = false)
+    public function handle($request, Closure $next, $redirectToRoute = '2fa.confirm')
     {
-        if ($this->userHasTwoFactorEnabled()) {
-            if ($this->codeWasValidated($request) || $this->isSafeDevice($request, $useSafeDevice)) {
-                return $next($request);
-            }
-
-            return $request->expectsJson()
-                ? $this->response->json(['message' => trans('laraguard::messages.required')], 403)
-                : $this->response->redirectGuest($this->url->route($redirectToRoute));
+        if ($this->userHasNotEnabledTwoFactorAuth() || $this->codeWasValidated($request)) {
+            return $next($request);
         }
 
-        return $next($request);
+        return $request->expectsJson()
+            ? $this->response->json(['message' => trans('laraguard::messages.required')], 403)
+            : $this->response->redirectGuest($this->url->route($redirectToRoute));
     }
 
     /**
@@ -74,25 +69,9 @@ class ConfirmTwoFactorCode
      *
      * @return bool
      */
-    protected function userHasTwoFactorEnabled()
+    protected function userHasNotEnabledTwoFactorAuth()
     {
-        return $this->user instanceof TwoFactorAuthenticatable && $this->user->hasTwoFactorEnabled();
-    }
-
-    /**
-     * Check if the current Request was made from a Safe Device.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string|bool  $useSafeDevice
-     * @return bool
-     */
-    protected function isSafeDevice($request, $useSafeDevice)
-    {
-        if ($useSafeDevice = filter_var($useSafeDevice, FILTER_VALIDATE_BOOLEAN)) {
-            return false;
-        }
-
-        return $this->user->isSafeDevice($request);
+        return ! ($this->user instanceof TwoFactorAuthenticatable && $this->user->hasTwoFactorEnabled());
     }
 
     /**

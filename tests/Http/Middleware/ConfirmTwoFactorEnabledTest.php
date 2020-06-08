@@ -4,7 +4,6 @@ namespace Tests\Http\Middleware;
 
 use Tests\Stubs\UserStub;
 use Tests\RegistersPackage;
-use Illuminate\Http\Request;
 use Tests\CreatesTwoFactorUser;
 use Orchestra\Testbench\TestCase;
 use Tests\RunsPublishableMigrations;
@@ -146,26 +145,5 @@ class ConfirmTwoFactorEnabledTest extends TestCase
 
         $this->get('intended_to_foo')
             ->assertRedirect('foo');
-    }
-
-    public function test_bypasses_check_if_not_forced_and_using_safe_devices()
-    {
-        Date::setTestNow($now = Date::create(2020, 04, 01, 20, 20));
-
-        $this->app['router']->get('intended_forced', function () {
-            return 'ok';
-        })->name('intended')->middleware('web', 'auth', '2fa.confirm:2fa.confirm,false');
-
-        $this->actingAs($this->user);
-
-        $this->followingRedirects()
-            ->get('intended_forced')
-            ->assertViewIs('laraguard::confirm');
-
-        $this->user->addSafeDevice(new Request());
-
-        $this->followingRedirects()
-            ->get('intended_forced')
-            ->assertSee('ok');
     }
 }
