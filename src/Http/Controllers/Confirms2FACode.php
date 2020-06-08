@@ -3,12 +3,9 @@
 namespace DarkGhostHunter\Laraguard\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\RedirectsUsers;
 
 trait Confirms2FACode
 {
-    use RedirectsUsers;
-
     /**
      * Display the TOTP code confirmation view.
      *
@@ -67,5 +64,20 @@ trait Confirms2FACode
     protected function validationErrorMessages()
     {
         return [];
+    }
+
+    /**
+     * Return the path to redirect if no intended path exists.
+     *
+     * @return string
+     * @see \Illuminate\Foundation\Auth\RedirectsUsers
+     */
+    public function redirectPath()
+    {
+        if (method_exists($this, 'redirectTo')) {
+            return $this->redirectTo();
+        }
+
+        return property_exists($this, 'redirectTo') ? $this->redirectTo : '/home';
     }
 }
