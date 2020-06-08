@@ -203,6 +203,8 @@ The following events are fired in addition to the default Authentication events.
 
 Laraguard comes with two middleware for your routes: `2fa.require` and `2fa.confirm`.
 
+> To avoid unexpected results, these middleware only act on your users models with `TwoFactorAuthenticatable`.
+
 ### Require 2FA
 
 If you need to ensure the User has Two Factor Authentication enabled before entering a given route, you can use the `2fa.require` middleware.
@@ -221,7 +223,7 @@ You can implement the view easily with the one included in this package:
 Route::view('2fa-required', 'laraguard::notice')->name('2fa.notice');
 ```
 
-Alternatively, you can use a custom controller action to also include a URL to route the user to enable Two Factor Authentication.
+Alternatively, you can use a custom controller action to also include a link to where he can enable Two Factor Authentication.
 
 ```php
 public function notice()
@@ -234,7 +236,7 @@ public function notice()
 
 ### Confirm 2FA
 
-As with [`password.confirm` middleware](https://laravel.com/docs/authentication#password-confirmation), you can also ask the user to confirm an action using `2fa.confirm`. 
+Much like [`password.confirm` middleware](https://laravel.com/docs/authentication#password-confirmation), you can also ask the user to confirm an action using `2fa.confirm`.
 
 ```php
 Route::get('api/token')
@@ -244,7 +246,7 @@ Route::get('api/token')
 
 Laraguard automatically uses the [`Confirm2FACodeController`](src/Http/Controllers/Confirm2FACodeController.php) to handle the form view and the code confirmation for you.
 
-Alternatively, [you can point your own controller actions](#confirmation-middleware) to handle the form view and confirmation. Better yet, you can use the [`Confirms2FACode`](src/Http/Controllers/Confirms2FACode.php) in yours.
+Alternatively, [you can point your own controller actions](#confirmation-middleware) to handle the form view and confirmation. Better yet, you can start with using the [`Confirms2FACode`](src/Http/Controllers/Confirms2FACode.php) trait to avoid reinventing the wheel.
 
 ## Validation
 

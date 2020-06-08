@@ -12,7 +12,7 @@ class RequireTwoFactorEnabled
     /**
      * Current User authenticated.
      *
-     * @var \Illuminate\Contracts\Auth\Authenticatable|\DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable
+     * @var \Illuminate\Contracts\Auth\Authenticatable|\DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable|null
      */
     protected $user;
 
@@ -26,13 +26,13 @@ class RequireTwoFactorEnabled
     /**
      * Create a new middleware instance.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
      * @param  \Illuminate\Contracts\Routing\ResponseFactory  $response
      */
-    public function __construct(Authenticatable $user, ResponseFactory $response)
+    public function __construct(ResponseFactory $response, Authenticatable $user = null)
     {
-        $this->user = $user;
         $this->response = $response;
+        $this->user = $user;
     }
 
     /**
@@ -43,9 +43,9 @@ class RequireTwoFactorEnabled
      * @param  string  $redirectToRoute
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|mixed
      */
-    public function handle($request, Closure $next, $redirectToRoute = '2fa.confirm')
+    public function handle($request, Closure $next, $redirectToRoute = '2fa.notice')
     {
-        if ($this->userHasTwoFactorEnabled()) {
+        if ($this->hasTwoFactorAuthDisabled()) {
             return $request->expectsJson()
                 ? $this->response->json(['message' => trans('laraguard::messages.enable')], 403)
                 : $this->response->redirectToRoute($redirectToRoute);
@@ -59,8 +59,8 @@ class RequireTwoFactorEnabled
      *
      * @return bool
      */
-    protected function userHasTwoFactorEnabled()
+    protected function hasTwoFactorAuthDisabled()
     {
-        return $this->user instanceof TwoFactorAuthenticatable && $this->user->hasTwoFactorEnabled();
+        return $this->user instanceof TwoFactorAuthenticatable && ! $this->user->hasTwoFactorEnabled();
     }
 }

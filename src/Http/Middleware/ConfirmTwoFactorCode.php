@@ -51,18 +51,22 @@ class ConfirmTwoFactorCode
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @param  string  $redirectToRoute
-     * @param  bool  $force
+     * @param  bool  $useSafeDevice
      * @return mixed
      */
-    public function handle($request, Closure $next, $redirectToRoute = '2fa.notice', $force = true)
+    public function handle($request, Closure $next, $redirectToRoute = '2fa.confirm', $useSafeDevice = false)
     {
-        if ($this->usingTwoFactorAuth() && $this->isSafeDevice($request, $force) && $this->codeValidated($request)) {
-            return $next($request);
+        if ($this->userHasTwoFactorEnabled()) {
+            if ($this->codeWasValidated($request) || $this->isSafeDevice($request, $useSafeDevice)) {
+                return $next($request);
+            }
+
+            return $request->expectsJson()
+                ? $this->response->json(['message' => trans('laraguard::messages.required')], 403)
+                : $this->response->redirectGuest($this->url->route($redirectToRoute));
         }
 
-        return $request->expectsJson()
-            ? $this->response->json(['message' => trans('laraguard::messages.required')], 403)
-            : $this->response->redirectGuest($this->url->route($redirectToRoute));
+        return $next($request);
     }
 
     /**
@@ -70,7 +74,7 @@ class ConfirmTwoFactorCode
      *
      * @return bool
      */
-    protected function usingTwoFactorAuth()
+    protected function userHasTwoFactorEnabled()
     {
         return $this->user instanceof TwoFactorAuthenticatable && $this->user->hasTwoFactorEnabled();
     }
@@ -79,12 +83,12 @@ class ConfirmTwoFactorCode
      * Check if the current Request was made from a Safe Device.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  string|bool  $force
+     * @param  string|bool  $useSafeDevice
      * @return bool
      */
-    protected function isSafeDevice($request, $force)
+    protected function isSafeDevice($request, $useSafeDevice)
     {
-        if ($force = filter_var($force, FILTER_VALIDATE_BOOLEAN)) {
+        if ($useSafeDevice = filter_var($useSafeDevice, FILTER_VALIDATE_BOOLEAN)) {
             return false;
         }
 
@@ -97,7 +101,7 @@ class ConfirmTwoFactorCode
      * @param  \Illuminate\Http\Request  $request
      * @return bool
      */
-    protected function codeValidated($request)
+    protected function codeWasValidated($request)
     {
         $confirmedAt = now()->timestamp - $request->session()->get('2fa.totp_confirmed_at', 0);
 

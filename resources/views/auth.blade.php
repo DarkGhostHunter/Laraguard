@@ -9,7 +9,6 @@
         @if($remember)
             <input type="hidden" name="remember" value="on">
         @endif
-
         <p class="text-center">
             {{ trans('laraguard::messages.continue') }}
         </p>
@@ -24,11 +23,12 @@
                     </div>
                 @endif
             </div>
-        </div>
-        <div class="col-auto mb-3">
-            <button type="submit" class="btn btn-primary btn-lg">
-                {{ trans('laraguard::messages.confirm') }}
-            </button>
+            <div class="w-100"></div>
+            <div class="col-auto mb-3">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    {{ trans('laraguard::messages.confirm') }}
+                </button>
+            </div>
         </div>
     </form>
 @endsection

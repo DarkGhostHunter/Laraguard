@@ -46,12 +46,14 @@ class ForcesTwoFactorAuthTest extends TestCase
             'credentials' => ['foo' => 'bar'],
             'remember'    => 'on',
             'error'       => true,
+            'input'       => 'bar'
         ])->render();
 
         $this->assertStringContainsString('action="qux"', $view);
         $this->assertStringContainsString('<input type="hidden" name="foo" value="bar">', $view);
         $this->assertStringContainsString('<input type="hidden" name="remember" value="on">', $view);
-        $this->assertStringContainsString(__('The Code is invalid or has expired.'), $view);
+        $this->assertStringNotContainsString('<input type="text" name="foo" id="bar"', $view);
+        $this->assertStringContainsString(trans('The Code is invalid or has expired.'), $view);
     }
 
     public function test_form_doesnt_contains_credentials()
@@ -62,12 +64,14 @@ class ForcesTwoFactorAuthTest extends TestCase
             'credentials' => null,
             'remember'    => 'on',
             'error'       => true,
+            'input'       => 'foo'
         ])->render();
 
         $this->assertStringContainsString('action="qux"', $view);
         $this->assertStringNotContainsString('<input type="hidden" name="foo" value="bar">', $view);
         $this->assertStringContainsString('<input type="hidden" name="remember" value="on">', $view);
-        $this->assertStringContainsString(__('The Code is invalid or has expired.'), $view);
+        $this->assertStringNotContainsString('<input type="text" name="foo" id="bar"', $view);
+        $this->assertStringContainsString(trans('The Code is invalid or has expired.'), $view);
     }
 
     public function test_login_with_no_valid_credentials_no_2fa_fails()

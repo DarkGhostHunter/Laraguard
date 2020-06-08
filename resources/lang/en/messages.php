@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'required' => 'Two Factor Code is required.',
+    'required' => 'Two Factor Authentication is required.',
     'continue' => 'To continue, open up your Authenticator app and issue your 2FA code.',
     'enable'   => 'You need to enable Two Factor Authentication.',
 

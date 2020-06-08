@@ -104,8 +104,6 @@ return [
 
     'confirm' => [
         'timeout' => 10800, // 3 hours
-
-        'register_routes' => true,
         'view' => 'DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController@showConfirmForm',
         'action' => 'DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController@confirm'
     ],
