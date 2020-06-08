@@ -118,6 +118,19 @@ class TotpRuleTest extends TestCase
         $this->assertFalse($fails);
     }
 
+    public function test_validator_succeeds_if_code_is_recovery()
+    {
+        $this->app['auth']->guard()->setUser($this->user);
+
+        $fails = validator([
+            'totp_code' => $this->user->generateRecoveryCodes()->first()['code']
+        ], [
+            'totp_code' => 'totp_code'
+        ])->fails();
+
+        $this->assertFalse($fails);
+    }
+
     public function test_validator_rule_uses_translation()
     {
         $validator = validator([

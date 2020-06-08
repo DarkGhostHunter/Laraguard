@@ -43,7 +43,7 @@ class TotpCodeRule
      */
     public function validate($attribute, $value)
     {
-        if (is_numeric($value) && $this->user instanceof TwoFactorAuthenticatable) {
+        if (is_string($value) && $this->user instanceof TwoFactorAuthenticatable) {
             return $this->user->validateTwoFactorCode($value);
         }
 
