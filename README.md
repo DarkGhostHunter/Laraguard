@@ -228,7 +228,7 @@ Alternatively, you can use a custom controller action to also include a link to 
 ```php
 public function notice()
 {
-    return view('2fa.notice', [
+    return view('laraguard::notice', [
         'url' => url('account/settings')
     ]);
 }
