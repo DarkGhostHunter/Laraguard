@@ -131,6 +131,28 @@ class ConfirmTwoFactorEnabledTest extends TestCase
             ->assertViewIs('laraguard::confirm');
     }
 
+    public function test_throttles_totp()
+    {
+        Date::setTestNow($now = Date::create(2020, 04, 01, 20, 20));
+
+        $this->actingAs($this->user);
+
+        $this->followingRedirects()
+            ->get('intended')
+            ->assertViewIs('laraguard::confirm');
+
+        for ($i = 0; $i < 60; $i++) {
+            $this->post('2fa/confirm', [
+                config('laraguard.input') => 'invalid'
+            ])->assertSessionHasErrors();
+        }
+
+        $this->post('2fa/confirm', [
+            config('laraguard.input') => 'invalid'
+        ])->assertStatus(429);
+
+    }
+
     public function test_routes_to_alternate_named_route()
     {
         $this->app['router']->get('intended_to_foo', function () {

@@ -27,5 +27,6 @@ class Confirm2FACodeController extends Controller
     public function __construct()
     {
         $this->middleware(['auth']);
+        $this->middleware(['throttle:60,1'])->only('confirm');
     }
 }

@@ -61,15 +61,12 @@ This package was made to be the less invasive possible, but you can go full manu
 
 ## Usage
 
-First, create the `two_factor_authentications` table by running the migration:
+First, create the `two_factor_authentications` table by publishing the migration and migrating:
 
+    php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="migrations"
     php artisan migrate
 
 This will create a table to handle the Two Factor Authentication information for each model you want to attach to 2FA.
-
-> If you need to modify the migration from this package, you can publish it to override whatever you need.
->
->     php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="migrations"
 
 Add the `TwoFactorAuthenticatable` _contract_ and the `TwoFactorAuthentication` trait to the User model, or any other model you want to make Two Factor Authentication available. 
 
