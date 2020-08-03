@@ -36,7 +36,6 @@ class LaraguardServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laraguard');
         $this->loadFactoriesFrom(__DIR__ . '/../database/factories');
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'laraguard');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         $this->registerListener($config, $dispatcher);
         $this->registerMiddleware($router);
