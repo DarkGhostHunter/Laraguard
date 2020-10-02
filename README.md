@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="600" height="200" src="laraguardlogo.png">
+  <img src="laraguardlogo.png">
 </p>
 
 
