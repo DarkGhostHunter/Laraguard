@@ -1,4 +1,6 @@
-![Screenshot](laraguardlogo.png)
+<p align="center">
+  <img width="600" height="200" src="laraguardlogo.png">
+</p>
 
 
 # Laraguard
