@@ -1,4 +1,7 @@
-![Zachary Lisko - Unsplash (UL) #JEBeXUHm1c4](https://images.unsplash.com/flagged/photo-1570343271132-8949dd284a04?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1280&h=400&q=80)
+<p align="center">
+  <img src="laraguardlogo.png">
+</p>
+
 
 # Laraguard
 
