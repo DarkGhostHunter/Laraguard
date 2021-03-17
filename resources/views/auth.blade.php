@@ -24,6 +24,13 @@
                 @endif
             </div>
             <div class="w-100"></div>
+            <div class="col-sm-8 col-8 mb-3">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="safe_device">
+                    <label class="custom-control-label" for="safe_device">Don't ask for codes in this device.</label>
+                </div>
+            </div>
+            <div class="w-100"></div>
             <div class="col-auto mb-3">
                 <button type="submit" class="btn btn-primary btn-lg">
                     {{ trans('laraguard::messages.confirm') }}

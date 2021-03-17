@@ -20,7 +20,8 @@ trait ChecksTwoFactorCode
 
         $shouldUse = $user->hasTwoFactorEnabled();
 
-        if ($this->config['laraguard.safe_devices.enabled']) {
+        // If safe devices is active, then it should be used if the current is not.
+        if ($this->isSafeDevicesEnabled()) {
             return $shouldUse && ! $user->isSafeDevice($this->request);
         }
 
@@ -28,14 +29,24 @@ trait ChecksTwoFactorCode
     }
 
     /**
-     * Returns if the Request is from a Safe Device.
+     * Checks if the app config has Safe Devices enabled.
      *
-     * @param  \DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable  $user
      * @return bool
      */
-    protected function isSafeDevice(TwoFactorAuthenticatable $user)
+    protected function isSafeDevicesEnabled()
     {
-        return $this->config['laraguard.safe_devices.enabled'] && $user->isSafeDevice($this->request);
+        return $this->config['laraguard.safe_devices.enabled'];
+    }
+
+
+    /**
+     * Checks if the user wants to add this device as "safe".
+     *
+     * @return bool
+     */
+    protected function wantsAddSafeDevice()
+    {
+        return $this->request->filled('safe_device');
     }
 
     /**
@@ -49,27 +60,22 @@ trait ChecksTwoFactorCode
     }
 
     /**
-     * Checks if the Request has a Two Factor Code and is correct (even if is invalid).
+     * Checks if the Request has a Two Factor Code and is correct and valid.
      *
      * @param  \DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable  $user
      * @return bool
      */
     protected function hasValidCode(TwoFactorAuthenticatable $user)
     {
-        return ! validator($this->request->only($this->input), [$this->input => 'alphanum'])->fails()
-            && $user->validateTwoFactorCode($this->request->input($this->input));
+        return $this->hasCorrectCode() && $user->validateTwoFactorCode($this->request->input($this->input));
     }
 
     /**
-     * Adds a safe device to Two Factor Authentication data.
+     * Checks if the Request has a Two Factor Code and is correct.
      *
-     * @param  \DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable  $user
-     * @return void
+     * @return bool
      */
-    protected function addSafeDevice(TwoFactorAuthenticatable $user)
-    {
-        if ($this->config['laraguard.safe_devices.enabled']) {
-            $user->addSafeDevice($this->request);
-        }
+    protected function hasCorrectCode() {
+        return ! validator($this->request->only($this->input), [$this->input => 'alphanum'])->fails();
     }
 }
