@@ -16,8 +16,10 @@ This package _silently_ enables authentication using 6 digits codes, without Int
 
 ## Requirements
 
-* Laravel [6.15](https://blog.laravel.com/laravel-v6-15-0-released) or Laravel 7.
-* PHP 7.2+
+* Laravel 7.x or Laravel 8.x
+* PHP 7.4 or Laravel 8.x
+
+> For older versions support, consider helping by sponsoring or donating.
 
 ## Table of Contents
 
@@ -58,7 +60,7 @@ That's it.
 
 ### How this works
 
-This packages adds a **Contract** to detect in a **per-user basis** if it should use Two Factor Authentication. It includes a custom **view** and a **listener** to handle the Two Factor authentication itself during login attempts.
+This package adds a **Contract** to detect in a **per-user basis** if it should use Two Factor Authentication. It includes a custom **view** and a **listener** to handle the Two Factor authentication itself during login attempts.
 
 This package was made to be the less invasive possible, but you can go full manual if you want.
 
