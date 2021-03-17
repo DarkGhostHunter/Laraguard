@@ -36,7 +36,8 @@
     },
     "autoload": {
         "psr-4": {
-            "DarkGhostHunter\\Laraguard\\": "src"
+            "DarkGhostHunter\\Laraguard\\": "src",
+            "Database\\Factories\\DarkGhostHunter\\Laraguard\\Eloquent\\": "database/factories"
         }
     },
     "autoload-dev": {

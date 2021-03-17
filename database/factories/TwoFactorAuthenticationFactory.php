@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\DarkGhostHunter\Laraguard\Eloquent;
 
 use Faker\Generator as Faker;
 use Illuminate\Database\Eloquent\Factories\Factory;

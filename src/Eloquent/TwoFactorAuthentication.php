@@ -116,7 +116,7 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
 
         $this->attributes = array_merge($this->attributes, config('laraguard.totp'));
 
-        $this->setSharedSecretAttribute(static::generateRandomSecret());
+        $this->attributes['shared_secret'] = static::generateRandomSecret();
 
         return $this;
     }
