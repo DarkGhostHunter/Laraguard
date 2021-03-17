@@ -323,7 +323,7 @@ class ForcesTwoFactorAuthTest extends TestCase
             'password' => '12345678',
             'remember' => 'on',
             '2fa_code' => '',
-        ])->assertViewIs('laraguard::auth')->assertStatus(422);
+        ])->assertViewIs('laraguard::auth')->assertStatus(403);
     }
 
     public function test_auth_request_receives_invalid_code_shows_form()
