@@ -112,7 +112,7 @@ class TwoFactorAuthenticationTest extends TestCase
     public function test_makes_code()
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
-            'shared_secret' => $secret = Base32::decodeUpper('KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3'),
+            'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
         ]);
 
         Carbon::setTestNow(Carbon::create(2020, 1, 1, 20, 29, 59));
@@ -141,7 +141,7 @@ class TwoFactorAuthenticationTest extends TestCase
     public function test_makes_code_for_timestamp()
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
-            'shared_secret' => $secret = Base32::decodeUpper('KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3'),
+            'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
         ]);
 
         $this->assertEquals('566278', $tfa->makeCode(1581300000));
@@ -151,7 +151,7 @@ class TwoFactorAuthenticationTest extends TestCase
     public function test_validate_code()
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
-            'shared_secret' => $secret = Base32::decodeUpper('KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3'),
+            'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
             'window'        => 0,
         ]);
 
@@ -170,7 +170,7 @@ class TwoFactorAuthenticationTest extends TestCase
     public function test_validate_code_with_window()
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
-            'shared_secret' => $secret = Base32::decodeUpper('KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3'),
+            'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
             'window'        => 1,
         ]);
 

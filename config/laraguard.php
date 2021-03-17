@@ -79,9 +79,9 @@ return [
     | Safe Devices
     |--------------------------------------------------------------------------
     |
-    | Authenticating with Two Factor Codes can become very obnoxious if you do
-    | it every time, so for this reasons the Safe Devices can be enabled. It
-    | remembers the device with an long-lived cookie to bypass Two Factor.
+    | Authenticating with Two Factor Codes can become very obnoxious when the
+    | user does it every time. To "remember" a device where a 2FA code was
+    | validated to not ask again you can enable Safe Device to save it.
     |
     */
 

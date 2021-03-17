@@ -4,6 +4,7 @@ namespace DarkGhostHunter\Laraguard\Eloquent;
 
 use DateTime;
 use Illuminate\Support\Carbon;
+use ParagonIE\ConstantTime\Base32;
 
 trait HandlesCodes
 {
@@ -141,7 +142,7 @@ trait HandlesCodes
      */
     protected function getBinarySecret()
     {
-        return $this->attributes['shared_secret'];
+        return Base32::decodeUpper($this->attributes['shared_secret']);
     }
 
     /**
