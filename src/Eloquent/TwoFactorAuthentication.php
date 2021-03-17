@@ -14,7 +14,6 @@ use DarkGhostHunter\Laraguard\Contracts\TwoFactorTotp;
  * @property-read null|\DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable $authenticatable
  *
  * @property string $shared_secret
- *
  * @property string $label
  * @property int $digits
  * @property int $seconds
@@ -70,26 +69,6 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
         return $this->morphTo('authenticatable');
     }
 
-    /**
-     * Gets the Shared Secret attribute from its binary form.
-     *
-     * @param $value
-     * @return null|string
-     */
-    protected function getSharedSecretAttribute($value)
-    {
-        return $value === null ? $value : Base32::encodeUpper($value);
-    }
-
-    /**
-     * Sets the Shared Secret attribute to its binary form.
-     *
-     * @param $value
-     */
-    protected function setSharedSecretAttribute($value)
-    {
-        $this->attributes['shared_secret'] = Base32::decodeUpper($value);
-    }
 
     /**
      * Sets the Algorithm to lowercase.
