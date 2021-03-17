@@ -24,13 +24,14 @@
         "php": "^7.4||^8.0",
         "ext-json": "*",
         "bacon/bacon-qr-code": "^2.0",
-        "paragonie/constant_time_encoding": "^2.0",
-        "illuminate/support": "^7.0||^8.0",
-        "illuminate/auth": "^7.0||^8.0"
+        "paragonie/constant_time_encoding": "^2.4",
+        "illuminate/support": "^8.0",
+        "illuminate/auth": "^8.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^5.0||^6.0",
-        "orchestra/canvas": "^5.0||^6.0",
+        "laravel/legacy-factories": "",
+        "orchestra/testbench": "^6.0",
+        "orchestra/canvas": "^6.0",
         "mockery/mockery":"^1.4",
         "phpunit/phpunit": "^9.3"
     },

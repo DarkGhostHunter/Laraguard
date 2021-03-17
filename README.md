@@ -10,14 +10,14 @@
  ![](https://github.com/DarkGhostHunter/Laraguard/workflows/PHP%20Composer/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/DarkGhostHunter/Laraguard/badge.svg?branch=master)](https://coveralls.io/github/DarkGhostHunter/Laraguard?branch=master)
 
-Two Factor Authentication via TOTP for all your Users out-of-the-box.
+Two Factor Authentication via TOTP for all your users out-of-the-box.
 
 This package _silently_ enables authentication using 6 digits codes, without Internet or external providers.
 
 ## Requirements
 
-* Laravel 7.x or Laravel 8.x
-* PHP 7.4 or Laravel 8.x
+* Laravel 8.x
+* PHP 7.4 or PHP 8.0
 
 > For older versions support, consider helping by sponsoring or donating.
 
@@ -60,7 +60,9 @@ That's it.
 
 ### How this works
 
-This package adds a **Contract** to detect in a **per-user basis** if it should use Two Factor Authentication. It includes a custom **view** and a **listener** to handle the Two Factor authentication itself during login attempts.
+This package adds a **Contract** to detect in a **per-user basis** if, after the credentials are deemed valid, should use Two Factor Authentication as a second layer of authentication.
+
+It includes a custom **view** and a **listener** to handle the Two Factor authentication itself during login attempts.
 
 This package was made to be the less invasive possible, but you can go full manual if you want.
 
