@@ -2,6 +2,7 @@
 
 namespace DarkGhostHunter\Laraguard\Eloquent;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use ParagonIE\ConstantTime\Base32;
 use Illuminate\Database\Eloquent\Model;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorTotp;
@@ -34,6 +35,7 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
     use HandlesRecoveryCodes;
     use HandlesSafeDevices;
     use SerializesSharedSecret;
+    use HasFactory;
 
     /**
      * The attributes that should be cast to native types.

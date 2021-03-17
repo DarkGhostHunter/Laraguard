@@ -37,7 +37,7 @@ class TwoFactorAuthenticationTest extends TestCase
         ]);
 
         $user->twoFactorAuth()->save(
-            $tfa = factory(TwoFactorAuthentication::class)->make()
+            $tfa = TwoFactorAuthentication::factory()->make()
         );
 
         $this->assertInstanceOf(MorphTo::class, $tfa->authenticatable());
@@ -57,7 +57,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_lowercases_algorithm()
     {
-        $tfa = factory(TwoFactorAuthentication::class)
+        $tfa = TwoFactorAuthentication::factory()
             ->states('with recovery', 'with safe devices')
             ->make([
                 'algorithm' => 'AbCdE2',
@@ -81,7 +81,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_flushes_authentication()
     {
-        $tfa = factory(TwoFactorAuthentication::class)
+        $tfa = TwoFactorAuthentication::factory()
             ->states('with recovery', 'with safe devices')
             ->create([
                 'authenticatable_type' => 'test',
@@ -121,7 +121,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_makes_code()
     {
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
         ]);
 
@@ -150,7 +150,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_makes_code_for_timestamp()
     {
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
         ]);
 
@@ -160,7 +160,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_validate_code()
     {
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
             'window'        => 0,
         ]);
@@ -179,7 +179,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_validate_code_with_window()
     {
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
             'window'        => 1,
         ]);
@@ -208,17 +208,17 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_contains_unused_recovery_codes()
     {
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make();
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make();
 
         $this->assertTrue($tfa->containsUnusedRecoveryCodes());
 
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'recovery_codes' => null,
         ]);
 
         $this->assertFalse($tfa->containsUnusedRecoveryCodes());
 
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'recovery_codes' => collect([
                 [
                     'code'    => '2G5oP36',
@@ -249,7 +249,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_serializes_to_string()
     {
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
         ]);
 
@@ -260,7 +260,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_serializes_to_grouped_string()
     {
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'shared_secret' => 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
         ]);
 
@@ -271,7 +271,7 @@ class TwoFactorAuthenticationTest extends TestCase
     {
         config(['laraguard.issuer' => 'quz']);
 
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
             'shared_secret' => 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
             'algorithm'     => 'sHa256',
@@ -287,7 +287,7 @@ class TwoFactorAuthenticationTest extends TestCase
     {
         config(['laraguard.issuer' => 'quz']);
 
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
             'shared_secret' => 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
             'algorithm'     => 'sHa256',
@@ -306,7 +306,7 @@ class TwoFactorAuthenticationTest extends TestCase
             'margin' => 10
         ]]);
 
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
             'shared_secret' => 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
             'algorithm'     => 'sHa256',
@@ -321,7 +321,7 @@ class TwoFactorAuthenticationTest extends TestCase
     {
         config(['laraguard.issuer' => 'quz']);
 
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
             'shared_secret' => 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
             'algorithm'     => 'sHa256',
@@ -339,7 +339,7 @@ class TwoFactorAuthenticationTest extends TestCase
     {
         config(['laraguard.issuer' => 'foo bar']);
 
-        $tfa = factory(TwoFactorAuthentication::class)->states('with recovery', 'with safe devices')->make([
+        $tfa = TwoFactorAuthentication::factory()->states('with recovery', 'with safe devices')->make([
             'label'         => 'test@foo.com',
             'shared_secret' => 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
             'algorithm'     => 'sHa256',
