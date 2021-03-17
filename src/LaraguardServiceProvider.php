@@ -13,6 +13,13 @@ use Illuminate\Contracts\Validation\Factory;
 class LaraguardServiceProvider extends ServiceProvider
 {
     /**
+     * The path of the migration file.
+     *
+     * @var string
+     */
+    protected const MIGRATION_FILE = __DIR__ . '/../database/migrations/2020_04_02_000000_create_two_factor_authentications_table.php';
+
+    /**
      * Register the application services.
      *
      * @return void
@@ -34,7 +41,6 @@ class LaraguardServiceProvider extends ServiceProvider
     public function boot(Repository $config, Router $router, Dispatcher $dispatcher, Factory $validator)
     {
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laraguard');
-        $this->loadFactoriesFrom(__DIR__ . '/../database/factories');
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'laraguard');
 
         $this->registerListener($config, $dispatcher);
@@ -136,7 +142,10 @@ class LaraguardServiceProvider extends ServiceProvider
         // copies for the same migration, which can throw errors when re-migrating.
         if (! class_exists('CreateTwoFactorAuthenticationsTable')) {
             $this->publishes([
-                __DIR__ . '/../database/migrations/2020_04_02_000000_create_two_factor_authentications_table.php' => database_path('migrations/' . now()->format('Y_m_d_His') . '_create_two_factor_authentications_table.php'),
+                self::MIGRATION_FILE =>
+                    database_path('migrations/' .
+                    now()->format('Y_m_d_His') .
+                    '_create_two_factor_authentications_table.php'),
             ], 'migrations');
         }
     }

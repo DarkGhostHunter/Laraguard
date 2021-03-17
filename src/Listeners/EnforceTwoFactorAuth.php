@@ -82,12 +82,22 @@ class EnforceTwoFactorAuth implements TwoFactorListener
     public function checkTwoFactor(Validated $event)
     {
         if ($this->shouldUseTwoFactorAuth($event->user)) {
-
-            if ($this->isSafeDevice($event->user) || ($this->hasCode() && $invalid = $this->hasValidCode($event->user))) {
-                return $this->addSafeDevice($event->user);
+            // If the request doesn't have any code, just throw a response.
+            if (! $this->hasCode()) {
+                $this->throwResponse($event->user);
             }
 
-            $this->throwResponse($event->user, isset($invalid));
+            // If the user has set an invalid code, throw him a response.
+            if (! $this->hasValidCode($event->user)) {
+                $this->throwResponse($event->user, true);
+            }
+
+            // The code is valid so we will need to check if the device should
+            // be registered as safe. For that, we will check if the config
+            // allows it, and there is a checkbox filled to opt-in this.
+            if ($this->isSafeDevicesEnabled() && $this->wantsAddSafeDevice()) {
+                $event->user->addSafeDevice($this->request);
+            }
         }
     }
 
@@ -97,11 +107,12 @@ class EnforceTwoFactorAuth implements TwoFactorListener
      * @param  \DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable  $user
      * @param  bool  $error
      * @return void
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */
     protected function throwResponse(TwoFactorAuthenticatable $user, bool $error = false)
     {
         $view = view('laraguard::auth', [
-            'action'      => request()->fullUrl(),
+            'action'      => $this->request->fullUrl(),
             'credentials' => $this->credentials,
             'user'        => $user,
             'error'       => $error,
@@ -109,6 +120,8 @@ class EnforceTwoFactorAuth implements TwoFactorListener
             'input'       => $this->input
         ]);
 
-        return response($view, $error ? 422 : 403)->throwResponse();
+        response($view, $error ? 422 : 403, [
+            'Cache-Control' => 'no-cache, must-revalidate',
+        ])->throwResponse();
     }
 }

@@ -213,7 +213,7 @@ class ForcesTwoFactorAuthTest extends TestCase
         ])->assertViewIs('laraguard::auth');
     }
 
-    public function test_login_request_from_safe_devices_with_safe_devices_enabled_saves_device()
+    public function test_login_request_from_safe_devices_with_safe_devices_enabled_doesnt_save_device()
     {
         config(['laraguard.safe_devices.enabled' => true]);
 
@@ -230,7 +230,28 @@ class ForcesTwoFactorAuthTest extends TestCase
 
         $this->user->refresh();
 
-        $this->assertCount(1, $this->user->twoFactorAuth->safe_devices);
+        $this->assertCount(0, $this->user->twoFactorAuth->safe_devices ?? []);
+    }
+
+    public function test_login_request_from_safe_devices_with_safe_devices_enabled_and_wants_saves_device()
+    {
+        config(['laraguard.safe_devices.enabled' => true]);
+
+        $this->assertNull($this->user->twoFactorAuth->safe_devices);
+
+        $this->post('login', [
+            'email'    => 'foo@test.com',
+            'password' => '12345678',
+            'remember' => 'on',
+            '2fa_code' => $this->user->twoFactorAuth->makeCode(),
+            'safe_device' => 'on'
+        ], [
+            'REMOTE_ADDR' => $ip = $this->faker->ipv4,
+        ])->assertSeeText('authenticated');
+
+        $this->user->refresh();
+
+        $this->assertCount(1, $this->user->twoFactorAuth->safe_devices ?? []);
     }
 
     public function test_login_request_from_save_device_with_save_devices_doesnt_save_and_shows_form()
@@ -302,7 +323,7 @@ class ForcesTwoFactorAuthTest extends TestCase
             'password' => '12345678',
             'remember' => 'on',
             '2fa_code' => '',
-        ])->assertViewIs('laraguard::auth')->assertStatus(422);
+        ])->assertViewIs('laraguard::auth')->assertForbidden();
     }
 
     public function test_auth_request_receives_invalid_code_shows_form()
@@ -402,7 +423,7 @@ class ForcesTwoFactorAuthTest extends TestCase
         $this->assertNull($this->user->twoFactorAuth->safe_devices);
     }
 
-    public function test_auth_requests_receives_code_and_saves_device()
+    public function test_auth_requests_receives_code_and_doesnt_save_device()
     {
         config(['laraguard.safe_devices.enabled' => true]);
 
@@ -419,7 +440,7 @@ class ForcesTwoFactorAuthTest extends TestCase
 
         $this->user->refresh();
 
-        $this->assertCount(1, $this->user->twoFactorAuth->safe_devices);
+        $this->assertCount(0, $this->user->twoFactorAuth->safe_devices ?? []);
 
         $this->app->forgetInstance(TwoFactorListener::class);
 
@@ -430,6 +451,43 @@ class ForcesTwoFactorAuthTest extends TestCase
             'password' => '12345678',
             'remember' => 'on',
             '2fa_code' => $code,
+        ])->assertSee('authenticated')->assertOk();
+
+        $this->user->refresh();
+
+        $this->assertNull($this->user->twoFactorAuth->safe_devices);
+    }
+
+    public function test_auth_requests_receives_code_and_saves_devices()
+    {
+        config(['laraguard.safe_devices.enabled' => true]);
+
+        Carbon::setTestNow();
+
+        $code = $this->user->twoFactorAuth->makeCode();
+
+        $this->post('login', [
+            'email'    => 'foo@test.com',
+            'password' => '12345678',
+            'remember' => 'on',
+            '2fa_code' => $code,
+            'safe_device' => 'on'
+        ])->assertSee('authenticated')->assertOk();
+
+        $this->user->refresh();
+
+        $this->assertCount(1, $this->user->twoFactorAuth->safe_devices ?? []);
+
+        $this->app->forgetInstance(TwoFactorListener::class);
+
+        $code = $this->user->generateRecoveryCodes()->first()['code'];
+
+        $this->post('login', [
+            'email'    => 'foo@test.com',
+            'password' => '12345678',
+            'remember' => 'on',
+            '2fa_code' => $code,
+            'safe_device' => 'on'
         ])->assertSee('authenticated')->assertOk();
 
         $this->user->refresh();

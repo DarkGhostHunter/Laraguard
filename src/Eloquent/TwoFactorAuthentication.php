@@ -2,6 +2,7 @@
 
 namespace DarkGhostHunter\Laraguard\Eloquent;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use ParagonIE\ConstantTime\Base32;
 use Illuminate\Database\Eloquent\Model;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorTotp;
@@ -14,7 +15,6 @@ use DarkGhostHunter\Laraguard\Contracts\TwoFactorTotp;
  * @property-read null|\DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable $authenticatable
  *
  * @property string $shared_secret
- *
  * @property string $label
  * @property int $digits
  * @property int $seconds
@@ -35,6 +35,7 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
     use HandlesRecoveryCodes;
     use HandlesSafeDevices;
     use SerializesSharedSecret;
+    use HasFactory;
 
     /**
      * The attributes that should be cast to native types.
@@ -70,26 +71,6 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
         return $this->morphTo('authenticatable');
     }
 
-    /**
-     * Gets the Shared Secret attribute from its binary form.
-     *
-     * @param $value
-     * @return null|string
-     */
-    protected function getSharedSecretAttribute($value)
-    {
-        return $value === null ? $value : Base32::encodeUpper($value);
-    }
-
-    /**
-     * Sets the Shared Secret attribute to its binary form.
-     *
-     * @param $value
-     */
-    protected function setSharedSecretAttribute($value)
-    {
-        $this->attributes['shared_secret'] = Base32::decodeUpper($value);
-    }
 
     /**
      * Sets the Algorithm to lowercase.
@@ -135,7 +116,7 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
 
         $this->attributes = array_merge($this->attributes, config('laraguard.totp'));
 
-        $this->setSharedSecretAttribute(static::generateRandomSecret());
+        $this->attributes['shared_secret'] = static::generateRandomSecret();
 
         return $this;
     }

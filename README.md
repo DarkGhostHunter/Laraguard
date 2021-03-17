@@ -1,4 +1,7 @@
-![Zachary Lisko - Unsplash (UL) #JEBeXUHm1c4](https://images.unsplash.com/flagged/photo-1570343271132-8949dd284a04?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1280&h=400&q=80)
+<p align="center">
+  <img src="laraguardlogo.png">
+</p>
+
 
 # Laraguard
 
@@ -7,14 +10,16 @@
  ![](https://github.com/DarkGhostHunter/Laraguard/workflows/PHP%20Composer/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/DarkGhostHunter/Laraguard/badge.svg?branch=master)](https://coveralls.io/github/DarkGhostHunter/Laraguard?branch=master)
 
-Two Factor Authentication via TOTP for all your Users out-of-the-box.
+Two Factor Authentication via TOTP for all your users out-of-the-box.
 
 This package _silently_ enables authentication using 6 digits codes, without Internet or external providers.
 
 ## Requirements
 
-* Laravel [6.15](https://blog.laravel.com/laravel-v6-15-0-released) or Laravel 7.
-* PHP 7.2+
+* Laravel 8.x
+* PHP 7.4 or PHP 8.0
+
+> For older versions support, consider helping by sponsoring or donating.
 
 ## Table of Contents
 
@@ -55,21 +60,20 @@ That's it.
 
 ### How this works
 
-This packages adds a **Contract** to detect in a **per-user basis** if it should use Two Factor Authentication. It includes a custom **view** and a **listener** to handle the Two Factor authentication itself during login attempts.
+This package adds a **Contract** to detect in a **per-user basis** if, after the credentials are deemed valid, should use Two Factor Authentication as a second layer of authentication.
+
+It includes a custom **view** and a **listener** to handle the Two Factor authentication itself during login attempts.
 
 This package was made to be the less invasive possible, but you can go full manual if you want.
 
 ## Usage
 
-First, create the `two_factor_authentications` table by running the migration:
+First, create the `two_factor_authentications` table by publishing the migration and migrating:
 
+    php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="migrations"
     php artisan migrate
 
 This will create a table to handle the Two Factor Authentication information for each model you want to attach to 2FA.
-
-> If you need to modify the migration from this package, you can publish it to override whatever you need.
->
->     php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="migrations"
 
 Add the `TwoFactorAuthenticatable` _contract_ and the `TwoFactorAuthentication` trait to the User model, or any other model you want to make Two Factor Authentication available. 
 

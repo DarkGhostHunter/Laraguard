@@ -19,7 +19,7 @@ trait CreatesTwoFactorUser
         ]);
 
         $this->user->twoFactorAuth()->save(
-            factory(TwoFactorAuthentication::class)->make()
+            TwoFactorAuthentication::factory()->make()
         );
     }
 }
