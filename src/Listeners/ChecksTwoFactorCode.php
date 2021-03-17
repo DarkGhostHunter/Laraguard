@@ -56,7 +56,7 @@ trait ChecksTwoFactorCode
      */
     protected function hasCode()
     {
-        return $this->request->has($this->input);
+        return $this->request->filled($this->input);
     }
 
     /**
