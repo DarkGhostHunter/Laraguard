@@ -100,7 +100,7 @@ The contract is used to identify the model using Two Factor Authentication, whil
 
 To enable Two Factor Authentication successfully, the User must sync the Shared Secret between its Authenticator app and the application. 
 
-> Some free Authenticator Apps are [FreeOTP](https://freeotp.github.io/), [Authy](https://authy.com/), [andOTP](https://github.com/andOTP/andOTP), [Google Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en), and [Microsoft Authenticator](https://www.microsoft.com/en-us/account/authenticator), to name a few.
+> Some free Authenticator Apps are [FreeOTP](https://freeotp.github.io/), [Authy](https://authy.com/), [andOTP](https://github.com/andOTP/andOTP), [Google](https://apps.apple.com/app/google-authenticator/id388497605) [Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en), and [Microsoft Authenticator](https://www.microsoft.com/en-us/account/authenticator), to name a few.
 
 To start, generate the needed data using the `createTwoFactorAuth()` method. Once you do, you can show the Shared Secret to the User as a string or QR Code (encoded as SVG) in your view.
 
