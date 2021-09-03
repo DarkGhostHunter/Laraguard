@@ -18,14 +18,8 @@ trait ChecksTwoFactorCode
             return false;
         }
 
-        $shouldUse = $user->hasTwoFactorEnabled();
-
-        // If safe devices is active, then it should be used if the current is not.
-        if ($this->isSafeDevicesEnabled()) {
-            return $shouldUse && ! $user->isSafeDevice($this->request);
-        }
-
-        return $shouldUse;
+        return $user->hasTwoFactorEnabled()
+            && (! $this->isSafeDevicesEnabled() || ! $user->isSafeDevice($this->request));
     }
 
     /**
