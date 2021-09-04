@@ -12,9 +12,9 @@ trait HandlesRecoveryCodes
      *
      * @return bool
      */
-    public function containsUnusedRecoveryCodes()
+    public function containsUnusedRecoveryCodes(): bool
     {
-        return $this->recovery_codes && $this->recovery_codes->contains('used_at', null);
+        return (bool) $this->recovery_codes?->contains('used_at');
     }
 
     /**
@@ -23,14 +23,12 @@ trait HandlesRecoveryCodes
      * @param  string  $code
      * @return int|null
      */
-    protected function getUnusedRecoveryCodeIndex(string $code)
+    protected function getUnusedRecoveryCodeIndex(string $code): ?int
     {
-        $key = optional($this->recovery_codes)->search([
+        return $this->recovery_codes?->search([
             'code'    => $code,
             'used_at' => null,
         ]);
-
-        return $key !== false ? $key : null;
     }
 
     /**
@@ -39,13 +37,13 @@ trait HandlesRecoveryCodes
      * @param  string  $code
      * @return bool
      */
-    public function setRecoveryCodeAsUsed(string $code)
+    public function setRecoveryCodeAsUsed(string $code): bool
     {
         if (null === $index = $this->getUnusedRecoveryCodeIndex($code)) {
             return false;
         }
 
-        $this->recovery_codes = $this->recovery_codes->put($index, [
+        $this->recovery_codes->put($index, [
             'code'    => $code,
             'used_at' => now(),
         ]);
@@ -60,9 +58,9 @@ trait HandlesRecoveryCodes
      * @param  int  $length
      * @return \Illuminate\Support\Collection
      */
-    public static function generateRecoveryCodes(int $amount, int $length)
+    public static function generateRecoveryCodes(int $amount, int $length): Collection
     {
-        return Collection::times($amount, function () use ($length) {
+        return Collection::times($amount, static function () use ($length): array {
             return [
                 'code'    => strtoupper(Str::random($length)),
                 'used_at' => null,

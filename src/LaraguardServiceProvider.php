@@ -2,13 +2,10 @@
 
 namespace DarkGhostHunter\Laraguard;
 
-use Illuminate\Routing\Router;
-use Illuminate\Auth\Events\Validated;
-use Illuminate\Auth\Events\Attempting;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Routing\Router;
+use Illuminate\Support\ServiceProvider;
 
 class LaraguardServiceProvider extends ServiceProvider
 {
@@ -18,13 +15,14 @@ class LaraguardServiceProvider extends ServiceProvider
      * @var string
      */
     protected const MIGRATION_FILE = __DIR__ . '/../database/migrations/2020_04_02_000000_create_two_factor_authentications_table.php';
+    protected const UPGRADE_FILE = __DIR__ . '/..database/migrations/0000_00_00_000000_upgrade_two_factor_authentications_table.php';
 
     /**
      * Register the application services.
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/laraguard.php', 'laraguard');
     }
@@ -34,16 +32,14 @@ class LaraguardServiceProvider extends ServiceProvider
      *
      * @param  \Illuminate\Contracts\Config\Repository  $config
      * @param  \Illuminate\Routing\Router  $router
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $dispatcher
      * @param  \Illuminate\Contracts\Validation\Factory  $validator
      * @return void
      */
-    public function boot(Repository $config, Router $router, Dispatcher $dispatcher, Factory $validator)
+    public function boot(Repository $config, Router $router, Factory $validator): void
     {
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laraguard');
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'laraguard');
 
-        $this->registerListener($config, $dispatcher);
         $this->registerMiddleware($router);
         $this->registerRules($validator);
         $this->registerRoutes($config, $router);
@@ -54,33 +50,12 @@ class LaraguardServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register a listeners to tackle authentication.
-     *
-     * @param  \Illuminate\Contracts\Config\Repository  $config
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $dispatcher
-     * @return void
-     */
-    protected function registerListener(Repository $config, Dispatcher $dispatcher)
-    {
-        if (! $listener = $config['laraguard.listener']) {
-            return;
-        }
-
-        $this->app->singleton(Contracts\TwoFactorListener::class, function ($app) use ($listener) {
-            return new $listener($app['config'], $app['request']);
-        });
-
-        $dispatcher->listen(Attempting::class, Contracts\TwoFactorListener::class . '@saveCredentials');
-        $dispatcher->listen(Validated::class, Contracts\TwoFactorListener::class . '@checkTwoFactor');
-    }
-
-    /**
      * Register the middleware.
      *
      * @param  \Illuminate\Routing\Router  $router
      * @return void
      */
-    protected function registerMiddleware(Router $router)
+    protected function registerMiddleware(Router $router): void
     {
         $router->aliasMiddleware('2fa.require', Http\Middleware\RequireTwoFactorEnabled::class);
         $router->aliasMiddleware('2fa.confirm', Http\Middleware\ConfirmTwoFactorCode::class);
@@ -92,7 +67,7 @@ class LaraguardServiceProvider extends ServiceProvider
      * @param  \Illuminate\Contracts\Validation\Factory  $validator
      * @return void
      */
-    protected function registerRules(Factory $validator)
+    protected function registerRules(Factory $validator): void
     {
         $validator->extendImplicit('totp_code', Rules\TotpCodeRule::class, trans('laraguard::validation.totp_code'));
     }
@@ -104,17 +79,14 @@ class LaraguardServiceProvider extends ServiceProvider
      * @param  \Illuminate\Routing\Router  $router
      * @return void
      */
-    protected function registerRoutes(Repository $config, Router $router)
+    protected function registerRoutes(Repository $config, Router $router): void
     {
         if ($view = $config->get('laraguard.confirm.view')) {
-            $router->get('2fa/confirm', $view)
-                ->middleware('web')
-                ->name('2fa.confirm');
+            $router->get('2fa/confirm', $view)->middleware('web')->name('2fa.confirm');
         }
 
         if ($action = $config->get('laraguard.confirm.action')) {
-            $router->post('2fa/confirm', $action)
-                ->middleware('web');
+            $router->post('2fa/confirm', $action)->middleware('web');
         }
     }
 
@@ -123,7 +95,7 @@ class LaraguardServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function publishFiles()
+    protected function publishFiles(): void
     {
         $this->publishes([
             __DIR__ . '/../config/laraguard.php' => config_path('laraguard.php'),
@@ -137,16 +109,16 @@ class LaraguardServiceProvider extends ServiceProvider
             __DIR__ . '/../resources/lang' => resource_path('lang/vendor/laraguard'),
         ], 'translations');
 
-        // We will allow the publishing for the Two Factor Authentication migration that
-        // holds the TOTP data, only if it wasn't published before, avoiding multiple
-        // copies for the same migration, which can throw errors when re-migrating.
-        if (! class_exists('CreateTwoFactorAuthenticationsTable')) {
-            $this->publishes([
-                self::MIGRATION_FILE =>
-                    database_path('migrations/' .
-                    now()->format('Y_m_d_His') .
-                    '_create_two_factor_authentications_table.php'),
-            ], 'migrations');
-        }
+        $this->publishes([
+            self::MIGRATION_FILE => database_path('migrations/'
+                . now()->format('Y_m_d_His')
+                . '_create_two_factor_authentications_table.php'),
+        ], 'migrations');
+
+        $this->publishes([
+            self::UPGRADE_FILE => database_path('migrations/'
+                . now()->format('Y_m_d_His')
+                . '_upgrade_two_factor_authentications_table.php'),
+        ], 'upgrade');
     }
 }

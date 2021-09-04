@@ -1,20 +1,6 @@
 <?php
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Listener hook
-    |--------------------------------------------------------------------------
-    |
-    | If a Listener class is present, Laraguard will hook into the Attempting
-    | and Validated events and check if it needs Two Factor Authentication.
-    | Set this to false or null to use your own 2FA logic without events.
-    |
-    */
-
-    'listener' => \DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
-
     /*
     |--------------------------------------------------------------------------
     | TwoFactorAuthentication Model
@@ -27,19 +13,6 @@ return [
     */
 
     'model' => \DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication::class,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Input name
-    |--------------------------------------------------------------------------
-    |
-    | When using the Listener, it will automatically check the Request for the
-    | input name containing the Two Factor Code. A safe default is set here,
-    | but you can override the value if it collides with other form input.
-    |
-    */
-
-    'input' => '2fa_code',
 
     /*
     |--------------------------------------------------------------------------
@@ -86,6 +59,7 @@ return [
     */
 
     'safe_devices' => [
+        'cookie'          => '2fa_remember',
         'enabled'         => false,
         'max_devices'     => 3,
         'expiration_days' => 14,

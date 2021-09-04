@@ -7,42 +7,20 @@ use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
+use Illuminate\Http\Request;
 
 class ConfirmTwoFactorCode
 {
-    /**
-     * The response factory instance.
-     *
-     * @var \Illuminate\Contracts\Routing\ResponseFactory
-     */
-    protected $response;
-
-    /**
-     * The URL generator instance.
-     *
-     * @var \Illuminate\Contracts\Routing\UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * Current user authenticated.
-     *
-     * @var \Illuminate\Contracts\Auth\Authenticatable|\DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable
-     */
-    protected $user;
-
     /**
      * Create a new middleware instance.
      *
      * @param  \Illuminate\Contracts\Routing\ResponseFactory  $response
      * @param  \Illuminate\Contracts\Routing\UrlGenerator  $url
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
      */
-    public function __construct(ResponseFactory $response, UrlGenerator $url, Authenticatable $user = null)
+    public function __construct(protected ResponseFactory $response, protected UrlGenerator $url, protected ?Authenticatable $user = null)
     {
-        $this->response = $response;
-        $this->url = $url;
-        $this->user = $user;
+        //
     }
 
     /**
@@ -53,9 +31,9 @@ class ConfirmTwoFactorCode
      * @param  string  $redirectToRoute
      * @return mixed
      */
-    public function handle($request, Closure $next, $redirectToRoute = '2fa.confirm')
+    public function handle($request, Closure $next, string $redirectToRoute = '2fa.confirm'): mixed
     {
-        if ($this->userHasNotEnabledTwoFactorAuth() || $this->codeWasValidated($request)) {
+        if ($this->userHasNotEnabledTwoFactorAuth() || $this->codeAlreadyValidated($request)) {
             return $next($request);
         }
 
@@ -65,11 +43,11 @@ class ConfirmTwoFactorCode
     }
 
     /**
-     * Check if the user is using Two Factor Authentication.
+     * Check if the user is using Two-Factor Authentication.
      *
      * @return bool
      */
-    protected function userHasNotEnabledTwoFactorAuth()
+    protected function userHasNotEnabledTwoFactorAuth(): bool
     {
         return ! ($this->user instanceof TwoFactorAuthenticatable && $this->user->hasTwoFactorEnabled());
     }
@@ -80,7 +58,7 @@ class ConfirmTwoFactorCode
      * @param  \Illuminate\Http\Request  $request
      * @return bool
      */
-    protected function codeWasValidated($request)
+    protected function codeAlreadyValidated(Request $request): bool
     {
         $confirmedAt = now()->timestamp - $request->session()->get('2fa.totp_confirmed_at', 0);
 

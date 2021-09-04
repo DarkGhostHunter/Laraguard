@@ -2,12 +2,12 @@
 
 namespace Database\Factories\DarkGhostHunter\Laraguard\Eloquent;
 
-use Faker\Generator as Faker;
+use DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Collection;
-use DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication;
 
-class TwoFactorAuthenticationFactory extends Factory {
+class TwoFactorAuthenticationFactory extends Factory
+{
     /**
      * The name of the factory's corresponding model.
      *
@@ -20,7 +20,7 @@ class TwoFactorAuthenticationFactory extends Factory {
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $config = config('laraguard');
 
@@ -43,60 +43,54 @@ class TwoFactorAuthenticationFactory extends Factory {
     /**
      * Returns a model with unused recovery codes.
      *
-     * @return TwoFactorAuthenticationFactory
+     * @return \Database\Factories\DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthenticationFactory
      */
-    public function withRecovery()
+    public function withRecovery(): static
     {
-        return $this->state(function(array $attributes) {
-            [$enabled, $amount, $length] = array_values(config('laraguard.recovery'));
+        [$enabled, $amount, $length] = array_values(config('laraguard.recovery'));
 
-            return [
-                'recovery_codes'              => TwoFactorAuthentication::generateRecoveryCodes($amount, $length),
-                'recovery_codes_generated_at' => $this->faker->dateTimeBetween('-1 years'),
-            ];
-        });
+        return $this->state([
+            'recovery_codes'              => TwoFactorAuthentication::generateRecoveryCodes($amount, $length),
+            'recovery_codes_generated_at' => $this->faker->dateTimeBetween('-1 years'),
+        ]);
     }
 
     /**
      * Returns an authentication with a list of safe devices.
      *
-     * @return TwoFactorAuthenticationFactory
+     * @return \Database\Factories\DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthenticationFactory
      */
-    public function withSafeDevices()
+    public function withSafeDevices(): static
     {
-        return $this->state(function (array $attributes) {
-            $max = config('laraguard.safe_devices.max_devices');
+        $max = config('laraguard.safe_devices.max_devices');
 
-            return [
-                'safe_devices' => Collection::times($max, function ($step) use ($max) {
+        return $this->state([
+            'safe_devices' => Collection::times($max, function ($step) use ($max) {
+                $expiration_days = config('laraguard.safe_devices.expiration_days');
 
-                    $expiration_days = config('laraguard.safe_devices.expiration_days');
+                $added_at = $max !== $step
+                    ? now()
+                    : $this->faker->dateTimeBetween(now()->subDays($expiration_days * 2),
+                        now()->subDays($expiration_days));
 
-                    $added_at = $max !== $step
-                        ? now()
-                        : $this->faker->dateTimeBetween(now()->subDays($expiration_days * 2), now()->subDays($expiration_days));
-
-                    return [
-                        '2fa_remember' => TwoFactorAuthentication::generateDefaultTwoFactorRemember(),
-                        'ip'           => $this->faker->ipv4,
-                        'added_at'     => $added_at,
-                    ];
-                }),
-            ];
-        });
+                return [
+                    '2fa_remember' => TwoFactorAuthentication::generateDefaultTwoFactorRemember(),
+                    'ip'           => $this->faker->ipv4,
+                    'added_at'     => $added_at,
+                ];
+            }),
+        ]);
     }
 
     /**
      * Returns an enabled authentication.
      *
-     * @return TwoFactorAuthenticationFactory
+     * @return \Database\Factories\DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthenticationFactory
      */
-    public function enabled()
+    public function enabled(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'enabled_at' => null
-            ];
-        });
+        return $this->state([
+            'enabled_at' => null,
+        ]);
     }
 }

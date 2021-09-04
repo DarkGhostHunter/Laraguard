@@ -3,8 +3,9 @@
 namespace DarkGhostHunter\Laraguard\Contracts;
 
 use Illuminate\Contracts\Support\Renderable;
+use Stringable;
 
-interface TwoFactorTotp extends Renderable
+interface TwoFactorTotp extends Renderable, Stringable
 {
     /**
      * Validates a given code, optionally for a given timestamp and future window.

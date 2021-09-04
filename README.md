@@ -10,45 +10,16 @@
  ![](https://github.com/DarkGhostHunter/Laraguard/workflows/PHP%20Composer/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/DarkGhostHunter/Laraguard/badge.svg?branch=master)](https://coveralls.io/github/DarkGhostHunter/Laraguard?branch=master)
 
-Two Factor Authentication via TOTP for all your users out-of-the-box.
+Two-Factor Authentication via TOTP for all your users out-of-the-box.
 
 This package _silently_ enables authentication using 6 digits codes, without Internet or external providers.
 
 ## Requirements
 
-* Laravel 8.x
-* PHP 7.4 or PHP 8.0
+* [Laravel 8.39 or later](https://github.com/laravel/framework/blob/8.x/CHANGELOG-8.x.md#v8390-2021-04-27)
+* PHP 8.0
 
 > For older versions support, consider helping by sponsoring or donating.
-
-## Table of Contents
-
-* [Installation](#installation)
-    + [How this works](#how-this-works)
-* [Usage](#usage)
-    + [Enabling Two Factor Authentication](#enabling-two-factor-authentication)
-    + [Recovery Codes](#recovery-codes)
-    + [Logging in](#logging-in)
-    + [Deactivation](#deactivation)
-* [Events](#events)
-* [Middleware](#middleware)
-* [Validation](#validation)
-* [Translations](#translations)
-* [Protecting the Login](#protecting-the-login)
-* [Configuration](#configuration)
-    + [Listener](#listener)
-    + [Eloquent Model](#eloquent-model)
-    + [Input name](#input-name)
-    + [Cache Store](#cache-store)
-    + [Recovery](#recovery)
-    + [Safe devices](#safe-devices)
-    + [Confirmation Middleware](#confirmation-middleware)
-    + [Secret length](#secret-length)
-    + [TOTP configuration](#totp-configuration)
-    + [QR Code Configuration](#qr-code-configuration)
-    + [Custom view](#custom-view)
-* [Security](#security)
-* [License](#license)
 
 ## Installation
 
@@ -60,9 +31,9 @@ That's it.
 
 ### How this works
 
-This package adds a **Contract** to detect in a **per-user basis** if, after the credentials are deemed valid, should use Two Factor Authentication as a second layer of authentication.
+This package adds a **Contract** to detect in a **per-user basis** if, after the credentials are deemed valid, should use Two-Factor Authentication as a second layer of authentication.
 
-It includes a custom **view** and a **listener** to handle the Two Factor authentication itself during login attempts.
+It includes a custom **view** and a **callback** to handle the Two-Factor authentication itself during login attempts.
 
 This package was made to be the less invasive possible, but you can go full manual if you want.
 
@@ -73,9 +44,9 @@ First, create the `two_factor_authentications` table by publishing the migration
     php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="migrations"
     php artisan migrate
 
-This will create a table to handle the Two Factor Authentication information for each model you want to attach to 2FA.
+This will create a table to handle the Two-Factor Authentication information for each model you want to attach to 2FA.
 
-Add the `TwoFactorAuthenticatable` _contract_ and the `TwoFactorAuthentication` trait to the User model, or any other model you want to make Two Factor Authentication available. 
+Add the `TwoFactorAuthenticatable` _contract_ and the `TwoFactorAuthentication` trait to the User model, or any other model you want to make Two-Factor Authentication available. 
 
 ```php
 <?php
@@ -94,13 +65,13 @@ class User extends Authenticatable implements TwoFactorAuthenticatable
 }
 ```
 
-The contract is used to identify the model using Two Factor Authentication, while the trait conveniently implements the methods required to handle it.
+The contract is used to identify the model using Two-Factor Authentication, while the trait conveniently implements the methods required to handle it.
 
-### Enabling Two Factor Authentication
+### Enabling Two-Factor Authentication
 
-To enable Two Factor Authentication successfully, the User must sync the Shared Secret between its Authenticator app and the application. 
+To enable Two-Factor Authentication successfully, the User must sync the Shared Secret between its Authenticator app and the application. 
 
-> Some free Authenticator Apps are [FreeOTP](https://freeotp.github.io/), [Authy](https://authy.com/), [andOTP](https://github.com/andOTP/andOTP), [Google](https://apps.apple.com/app/google-authenticator/id388497605) [Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en), and [Microsoft Authenticator](https://www.microsoft.com/en-us/account/authenticator), to name a few.
+> Some free Authenticator Apps are [iOS Authenticator](https://www.apple.com/ios/ios-15-preview/features/#:~:text=Built-in%20authenticator), [FreeOTP](https://freeotp.github.io/), [Authy](https://authy.com/), [andOTP](https://github.com/andOTP/andOTP), [Google](https://apps.apple.com/app/google-authenticator/id388497605) [Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en), and [Microsoft Authenticator](https://www.microsoft.com/en-us/account/authenticator), to name a few.
 
 To start, generate the needed data using the `createTwoFactorAuth()` method. Once you do, you can show the Shared Secret to the User as a string or QR Code (encoded as SVG) in your view.
 
@@ -117,7 +88,7 @@ public function prepareTwoFactor(Request $request)
 }
 ```
 
-> When you use `createTwoFactorAuth()` on someone with Two Factor Authentication already enabled, the previous data becomes permanently invalid. This ensures a User **never** has two Shared Secrets enabled at any given time.
+> When you use `createTwoFactorAuth()` on someone with Two-Factor Authentication already enabled, the previous data becomes permanently invalid. This ensures a User **never** has two Shared Secrets enabled at any given time.
 
 Then, the User must confirm the Shared Secret with a Code generated by their Authenticator app. The `confirmTwoFactorAuth()` method will automatically enable it if the code is valid.
 
@@ -136,7 +107,7 @@ If the User doesn't issue the correct Code, the method will return `false`. You 
 
 ### Recovery Codes
 
-Recovery Codes are automatically generated each time the Two Factor Authentication is enabled. By default, a Collection of ten one-use 8-characters codes are created.
+Recovery Codes are automatically generated each time the Two-Factor Authentication is enabled. By default, a Collection of ten one-use 8-characters codes are created.
 
 You can show them using `getRecoveryCodes()`.
 
@@ -151,7 +122,7 @@ public function confirmTwoFactor(Request $request)
 }
 ```
 
-You're free on how to show these codes to the User, but **ensure** you show them one time after a successfully enabling Two Factor Authentication, and ask him to print them somewhere.
+You're free on how to show these codes to the User, but **ensure** you show them one time after a successfully enabling Two-Factor Authentication, and ask him to print them somewhere.
 
 > These Recovery Codes are handled automatically when the User validates one. If it's a recovery code, the package will use and mark it as invalid.
 
@@ -164,31 +135,72 @@ public function showRecoveryCodes(Request $request)
 }
 ```
 
-> If the User depletes his recovery codes without disabling Two Factor Authentication, or Recovery Codes are deactivated, **he may be locked out forever without his Authenticator app**. Ensure you have countermeasures in these cases.
+> If the User depletes his recovery codes without disabling Two-Factor Authentication, or Recovery Codes are deactivated, **he may be locked out forever without his Authenticator app**. Ensure you have countermeasures in these cases.
 
 ### Logging in
 
-This package hooks into the `Attempting` and `Validated` events to check the User's Two Factor Authentication configuration preemptively.
+To login, the user must issue a TOTP code along their credentials. Simply use `attemptWhen()` with Laraguard, which will automatically do the checks for you. By default, it checks for the `2fa_code` input name, but you can issue your own as parameter.
 
-1. If the User has set up Two Factor Authentication, it will be prompted for a 2FA Code, otherwise authentication will proceed as normal.
-2. If the Login attempt contains a `2fa_code` with the 2FA Code inside the Request, it will be used to check if its valid and proceed as normal.
+```php
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use DarkGhostHunter\Laraguard\Laraguard;
 
-This is done transparently without intervening your application with guards, routes, controllers or middleware.
+public function login(Request $request)
+{
+    // ...
+    
+    $credentials = $request->only('email', 'password');
+    
+    if (Auth::attemptWhen($credentials, Laraguard::hasCode(), $request->filled('remember'))) {
+        return redirect()->home(); 
+    }
+    
+    return back()->withErrors(['email' => 'Bad credentials'])
+}
+```
 
-Additionally, **ensure you [protect your login route](#protecting-the-login)**.
+Behind the scenes, once the User is retrieved and validated from your guard of choice, it makes an additional check for a valid TOTP code. If it's invalid, it will return false and no authentication will happen.
 
-> If you're using a custom Authentication Guard that doesn't fire events, this package won't work, like the `TokenGuard` and the `RequestGuard`.
+#### Separating the TOTP requirement
+
+In some occasions you will want to tell the user the authentication failed because of an invalid TOTP code, instead of just denying the login altogether.
+
+You can use the `hasCodeOrFails()` method that does the same, but throws a validation exception, which is handled gracefully by the framework. It even accepts a custom message in case of failure, otherwise a default translation will be used.
+
+```php
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use DarkGhostHunter\Laraguard\Laraguard;
+
+public function login(Request $request)
+{
+    // ...
+    
+    $attempt = Auth::attemptWhen(
+        $request->only('email', 'password'),
+        Laraguard::hasCodeOrFails(),
+        $request->filled('remember')
+    );
+    
+    if ($attempt) {
+        return redirect()->home();
+    }
+    
+    return back()->withErrors(['email', 'Authentication failed!']);
+}
+```
 
 ### Deactivation
 
-You can deactivate Two Factor Authentication for a given User using the `disableTwoFactorAuth()` method. This will automatically invalidate the authentication data, allowing the User to log in with just his credentials.
+You can deactivate Two-Factor Authentication for a given User using the `disableTwoFactorAuth()` method. This will automatically invalidate the authentication data, allowing the User to log in with just his credentials.
 
 ```php
 public function disableTwoFactorAuth(Request $request)
 {
     $request->user()->disableTwoFactorAuth();
     
-    return 'Two Factor Authentication has been disabled!';
+    return 'Two-Factor Authentication has been disabled!';
 }
 ```
 
@@ -196,22 +208,22 @@ public function disableTwoFactorAuth(Request $request)
 
 The following events are fired in addition to the default Authentication events.
 
-* `TwoFactorEnabled`: An User has enabled Two Factor Authentication.
+* `TwoFactorEnabled`: An User has enabled Two-Factor Authentication.
 * `TwoFactorRecoveryCodesDepleted`: An User has used his last Recovery Code.
 * `TwoFactorRecoveryCodesGenerated`: An User has generated a new set of Recovery Codes.
-* `TwoFactorDisabled`: An User has disabled Two Factor Authentication.
+* `TwoFactorDisabled`: An User has disabled Two-Factor Authentication.
 
-> You can use `TwoFactorRecoveryCodesDepleted` to tell the User to create more Recovery Codes.
+> You can use `TwoFactorRecoveryCodesDepleted` to tell the User to create more Recovery Codes or mail them some more.
 
 ## Middleware
 
 Laraguard comes with two middleware for your routes: `2fa.require` and `2fa.confirm`.
 
-> To avoid unexpected results, these middleware only act on your users models with `TwoFactorAuthenticatable`. If a user model doesn't implements it, the middleware bypass any 2FA logic.
+> To avoid unexpected results, middleware only act on your users models with `TwoFactorAuthenticatable`. If a user model doesn't implement it, the middleware bypass any 2FA logic.
 
 ### Require 2FA
 
-If you need to ensure the User has Two Factor Authentication enabled before entering a given route, you can use the `2fa.require` middleware.
+If you need to ensure the User has Two-Factor Authentication enabled before entering a given route, you can use the `2fa.require` middleware. This middleware doesn't asks for codes, only checks if is enabled.
 
 ```php
 Route::get('system/settings')
@@ -219,33 +231,42 @@ Route::get('system/settings')
     ->middleware('2fa.require');
 ```
 
-This middleware works much like the `verified` middleware: if the User has not enabled Two Factor Authentication, it will be redirected to a route name containing the warning, which is `2fa.notice` by default. 
+This middleware works much like Laravel's `verified` middleware: if the User has not enabled Two-Factor Authentication, it will be redirected to a route name containing the warning, which is `2fa.notice` by default.
 
 You can implement the view easily with the one included in this package:
 
 ```php
+use Illuminate\Support\Facades\Route;
+
 Route::view('2fa-required', 'laraguard::notice')->name('2fa.notice');
 ```
 
-Alternatively, you can use a custom controller action to also include a link to where he can enable Two Factor Authentication.
+Alternatively, you can just redirect the user to where he can enable the configuration.
 
 ```php
-public function notice()
-{
-    return view('laraguard::notice', [
-        'url' => url('account/settings')
-    ]);
-}
+use Illuminate\Support\Facades\Route
+
+Route::get('system/settings')
+    ->uses('SystemSettingsController@show')
+    ->middleware('2fa.require:account.settings.2fa');
 ```
 
 ### Confirm 2FA
 
-Much like the [`password.confirm` middleware](https://laravel.com/docs/authentication#password-confirmation), you can also ask the user to confirm an action using `2fa.confirm`.
+Much like the [`password.confirm` middleware](https://laravel.com/docs/authentication#password-confirmation), you can also ask the user to confirm an action using `2fa.confirm`, if it has Two-Factor Authentication enabled. 
 
 ```php
 Route::get('api/token')
     ->uses('ApiTokenController@show')
     ->middleware('2fa.confirm');
+```
+
+Since a user without 2FA enabled won't be asked for a code, you can mix with middleware with `2fa.require` to enforce it.
+
+```php
+Route::get('api/token')
+    ->uses('ApiTokenController@show')
+    ->middleware('2fa.require', '2fa.confirm');
 ```
 
 Laraguard automatically uses the [`Confirm2FACodeController`](src/Http/Controllers/Confirm2FACodeController.php) to handle the form view and the code confirmation for you.
@@ -267,7 +288,7 @@ public function checkTotp(Request $request)
 }
 ```
 
-This rule will succeed if the user is authenticated, is has Two Factor Authentication enabled, and the code is correct.
+This rule will succeed if the user is authenticated, it has Two-Factor Authentication enabled, and the code is correct.
 
 ## Translations
 
@@ -288,47 +309,17 @@ To add your own in your language, publish the translation files. These will be l
 
     php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider" --tag="translations"
 
-## Protecting the Login
-
-Two Factor Authentication can be victim of brute-force attacks. The attacker will need between 16.000~34.000 requests each second to get the correct code, or less depending on the lifetime of the code.
-
-Since the listener throws a response before the default Login throttler increments its failed tries, its recommended to use a try-catch in the `attemptLogin()` method to keep the throttler working.
-
-```php
-/**
- * Attempt to log the user into the application.
- *
- * @param  \Illuminate\Http\Request  $request
- * @return bool
- */
-protected function attemptLogin(Request $request)
-{
-    try {
-        return $this->guard()->attempt(
-            $this->credentials($request), $request->filled('remember')
-        );
-    } catch (HttpResponseException $exception) {
-        $this->incrementLoginAttempts($request);
-        throw $exception;
-    }
-}
-```  
-
-To show the form, the Listener uses `HttpResponseException` to forcefully exit the authentication logic. This exception catch allows to throw the response after the login attempts are incremented.
-
 ## Configuration
 
 To further configure the package, publish the configuration files and assets:
 
     php artisan vendor:publish --provider="DarkGhostHunter\Laraguard\LaraguardServiceProvider"
 
-You will receive the authentication view in `resources/views/vendor/laraguard/auth.blade.php`, and the `config/laraguard.php` config file with the following contents:
+You will receive the `config/laraguard.php` config file with the following contents:
 
 ```php
 return [
-    'listener' => \DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
     'model' => \DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication::class,
-    'input' => '2fa_code',
     'cache' => [
         'store' => null,
         'prefix' => '2fa.code'
@@ -363,20 +354,6 @@ return [
 ];
 ```
 
-### Listener
-
-```php
-return [
-    'listener' => \DarkGhostHunter\Laraguard\Listeners\EnforceTwoFactorAuth::class,
-];
-```
-
-This package works out-of-the-box by hooking up the `ForcesTwoFactorAuth` listener to the `Attempting` and `Validated` events, which is in charge of checking if the user login needs a 2FA code or not. 
-
-This may work wonders, but if you want tighter control on how and when prompt for Two Factor Authentication, you can use another listener, or disable it. For example, to create your own 2FA Guard or greatly modify the Login Controller.
-
-> If you change it for your own Listener, ensure it implements the `TwoFactorAuthListener` contract.
-
 ### Eloquent Model
 
 ```php
@@ -385,23 +362,11 @@ return [
 ];
 ```
 
-This is the model where the data for Two Factor Authentication is saved, like the shared secret and recovery codes, and associated to the User model.
+This is the model where the data for Two-Factor Authentication is saved, like the shared secret and recovery codes, and associated to the User model.
 
 You can change this model for your own if you wish.
 
 > If you change it for your own Model, ensure it implements the `TwoFactorTotp` contract.
-
-### Input name
-
-```php
-return [
-    'input' => '2fa_code',
-];
-```
-
-By default, the input name that must contain the Two Factor Authentication Code is called `2fa_code`, which is a good default value to avoid collisions with other inputs names.
-
-This allows to seamlessly intercept the log in attempt and proceed with Two Factor Authentication or bypass it. Change it if it collides with other login form inputs.
 
 ### Cache Store
 
@@ -430,7 +395,7 @@ return [
 ];
 ```
 
-You can disable the generation and checking of Recovery Codes. If you do, ensure Users can authenticate by other means, like sending an email with a link to a signed URL that logs him in and disables Two Factor Authentication, or SMS.
+You can disable the generation and checking of Recovery Codes. If you do, ensure Users can authenticate by other means, like sending an email with a link to a signed URL that logs him in and disables Two-Factor Authentication, or SMS.
 
 The number and length of codes generated is configurable. 10 Codes of 8 random characters are enough for most authentication scenarios.
 
@@ -446,13 +411,13 @@ return [
 ];
 ```
 
-Enabling this option will allow the application to "remember" a device using a cookie, allowing it to bypass Two Factor Authentication once a code is verified in that device. When the User logs in again in that device, it won't be prompted for a 2FA Code again. 
+Enabling this option will allow the application to "remember" a device using a cookie, allowing it to bypass Two-Factor Authentication once a code is verified in that device. When the User logs in again in that device, it won't be prompted for a 2FA Code again. 
 
 There is a limit of devices that can be saved. New devices will displace the oldest devices registered. Devices are considered no longer "safe" until a set amount of days.
 
-You can change the maximum number of devices saved and the amount of days of validity once they're registered. More devices and more expiration days will make the Two Factor Authentication less secure.
+You can change the maximum number of devices saved and the amount of days of validity once they're registered. More devices and more expiration days will make the Two-Factor Authentication less secure.
 
-> When re-enabling Two Factor Authentication, the list of devices is automatically invalidated.
+> When re-enabling Two-Factor Authentication, the list of devices is automatically invalidated.
 
 ### Confirmation Middleware
 
@@ -527,21 +492,7 @@ return [
 
 This controls the size and margin used to create the QR Code, which are created as SVG.
 
-### Custom view
-
-    resources/views/vendor/laraguard/auth.blade.php
-
-You can override the view, which handles the Two Factor Code verification for the User. It receives this data:
-
-* `$action`: The full URL where the form should send the login credentials.
-* `$credentials`: An `array` containing the User credentials used for the login.
-* `$user`: The User instance trying to authenticate.
-* `$error`: If the Two Factor Code is invalid.
-* `$remember`: If the "remember" checkbox has been filled.
-
-The way it works is very simple: it will hold the User credentials in a hidden input while it asks for the Two Factor Code. The User will send everything again along with the Code, the application will ensure its correct, and complete the log in.
-
-This view and its form is bypassed if the User doesn't uses Two Factor Authentication, making the login transparent and non-invasive.
+## [Upgrading from 3.0](UPGRADE.md)
 
 ## Security
 

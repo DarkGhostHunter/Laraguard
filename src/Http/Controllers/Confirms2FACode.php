@@ -2,16 +2,20 @@
 
 namespace DarkGhostHunter\Laraguard\Http\Controllers;
 
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 trait Confirms2FACode
 {
     /**
      * Display the TOTP code confirmation view.
      *
-     * @return \Illuminate\View\View
+     * @return \Illuminate\Contracts\View\View
      */
-    public function showConfirmForm()
+    public function showConfirmForm(): View
     {
         return view('laraguard::confirm');
     }
@@ -22,7 +26,7 @@ trait Confirms2FACode
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
-    public function confirm(Request $request)
+    public function confirm(Request $request): JsonResponse|Response|RedirectResponse
     {
         $request->validate($this->rules(), $this->validationErrorMessages());
 
@@ -39,7 +43,7 @@ trait Confirms2FACode
      * @param  \Illuminate\Http\Request  $request
      * @return void
      */
-    protected function resetTotpConfirmationTimeout(Request $request)
+    protected function resetTotpConfirmationTimeout(Request $request): void
     {
         $request->session()->put('2fa.totp_confirmed_at', now()->timestamp);
     }
@@ -49,7 +53,7 @@ trait Confirms2FACode
      *
      * @return array
      */
-    protected function rules()
+    protected function rules(): array
     {
         return [
             config('laraguard.input') => 'required|totp_code',
@@ -61,7 +65,7 @@ trait Confirms2FACode
      *
      * @return array
      */
-    protected function validationErrorMessages()
+    protected function validationErrorMessages(): array
     {
         return [];
     }
@@ -72,7 +76,7 @@ trait Confirms2FACode
      * @return string
      * @see \Illuminate\Foundation\Auth\RedirectsUsers
      */
-    public function redirectPath()
+    public function redirectPath(): string
     {
         if (method_exists($this, 'redirectTo')) {
             return $this->redirectTo();
