@@ -221,12 +221,12 @@ trait HandlesCodes
      * @param  string  $code
      * @param  \DateTimeInterface|int|string  $at
      *
-     * @return bool
+     * @return void
      */
-    protected function setCodeAsUsed(string $code, DateTimeInterface|int|string $at = 'now'): bool
+    protected function setCodeAsUsed(string $code, DateTimeInterface|int|string $at = 'now'): void
     {
         // We will safely set the cache key for the whole lifetime plus window just to be safe.
-        return $this->cache->set($this->cacheKey($code), true,
+        $this->cache->set($this->cacheKey($code), true,
             Carbon::createFromTimestamp($this->getTimestampFromPeriod($at, $this->window + 1))
         );
     }

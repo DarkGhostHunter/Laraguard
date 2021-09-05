@@ -114,9 +114,9 @@ class Laraguard
     /**
      * Returns the code from the request input.
      *
-     * @return int
+     * @return string
      */
-    protected function getCode(): int
+    protected function getCode(): string
     {
         return $this->request->input($this->input);
     }

@@ -34,7 +34,7 @@ class TwoFactorAuthenticationFactory extends Factory
 
         if ($enabled) {
             $array['recovery_codes'] = TwoFactorAuthentication::generateRecoveryCodes($amount, $length);
-            $array['recovery_codes_generated_at'] = $this->faker->dateTimeBetween('-1 years');
+            $array['recovery_codes_generated_at'] = $this->faker->dateTimeBetween('-1 year');
         }
 
         return $array;
