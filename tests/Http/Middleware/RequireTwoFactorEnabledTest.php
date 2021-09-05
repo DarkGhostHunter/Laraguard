@@ -28,7 +28,7 @@ class RequireTwoFactorEnabledTest extends TestCase
             })->name('login');
             $this->app['router']->get('test', function () {
                 return 'ok';
-            })->middleware('web', 'auth', '2fa.require');
+            })->middleware('web', 'auth', '2fa.enabled');
             $this->app['router']->get('notice', function () {
                 return '2fa.notice';
             })->middleware('web', 'auth')->name('2fa.notice');
@@ -40,19 +40,19 @@ class RequireTwoFactorEnabledTest extends TestCase
         parent::setUp();
     }
 
-    public function test_guest_cant_access()
+    public function test_guest_cant_access(): void
     {
         $this->get('test')->assertRedirect('login');
 
         $this->getJson('test')->assertJson(['message' => 'Unauthenticated.'])->assertStatus(401);
     }
 
-    public function test_user_no_2fa_can_access()
+    public function test_user_no_2fa_can_access(): void
     {
         $this->actingAs(UserStub::create([
             'name'     => 'test',
             'email'    => 'bar@test.com',
-            'password' => '$2y$10$K0WnjWfbVBYcCvoSAh0yRurrgXgWVgQE2JHBJ.zdQdGHXgJofgGKC',
+            'password' => UserStub::PASSWORD_SECRET,
         ]));
 
         $this->get('test')->assertSee('ok');
@@ -60,7 +60,7 @@ class RequireTwoFactorEnabledTest extends TestCase
         $this->getJson('test')->assertSee('ok')->assertOk();
     }
 
-    public function test_user_2fa_not_enabled_cant_acesss()
+    public function test_user_2fa_not_enabled_cant_access(): void
     {
         $this->actingAs(tap($this->user)->disableTwoFactorAuth());
 
@@ -71,7 +71,7 @@ class RequireTwoFactorEnabledTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_user_2fa_enabled_access()
+    public function test_user_2fa_enabled_access(): void
     {
         $this->actingAs($this->user);
 
@@ -80,7 +80,7 @@ class RequireTwoFactorEnabledTest extends TestCase
         $this->getJson('test')->assertSee('ok');
     }
 
-    public function test_redirects_to_custom_notice()
+    public function test_redirects_to_custom_notice(): void
     {
         $this->actingAs(tap($this->user)->disableTwoFactorAuth());
 

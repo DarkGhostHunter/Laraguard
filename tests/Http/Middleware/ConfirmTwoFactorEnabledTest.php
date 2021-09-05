@@ -2,13 +2,13 @@
 
 namespace Tests\Http\Middleware;
 
-use Tests\Stubs\UserStub;
-use Tests\RegistersPackage;
-use Tests\CreatesTwoFactorUser;
-use Orchestra\Testbench\TestCase;
-use Tests\RunsPublishableMigrations;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\Date;
+use Orchestra\Testbench\TestCase;
+use Tests\CreatesTwoFactorUser;
+use Tests\RegistersPackage;
+use Tests\RunsPublishableMigrations;
+use Tests\Stubs\UserStub;
 
 class ConfirmTwoFactorEnabledTest extends TestCase
 {
@@ -17,7 +17,7 @@ class ConfirmTwoFactorEnabledTest extends TestCase
     use RunsPublishableMigrations;
     use CreatesTwoFactorUser;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->afterApplicationCreated([$this, 'loadLaravelMigrations']);
         $this->afterApplicationCreated([$this, 'runPublishableMigration']);
@@ -32,19 +32,19 @@ class ConfirmTwoFactorEnabledTest extends TestCase
         parent::setUp();
     }
 
-    public function test_continues_if_user_is_not_2fa_instance()
+    public function test_continues_if_user_is_not_2fa_instance(): void
     {
         $this->actingAs(UserStub::create([
             'name'     => 'test',
             'email'    => 'bar@test.com',
-            'password' => '$2y$10$K0WnjWfbVBYcCvoSAh0yRurrgXgWVgQE2JHBJ.zdQdGHXgJofgGKC',
+            'password' => UserStub::PASSWORD_SECRET,
         ]));
 
         $this->followingRedirects()->get('intended')->assertSee('ok');
         $this->getJson('intended')->assertSee('ok');
     }
 
-    public function test_continues_if_user_is_2fa_but_not_activated()
+    public function test_continues_if_user_is_2fa_but_not_activated(): void
     {
         $this->actingAs(tap($this->user)->disableTwoFactorAuth());
 
@@ -52,7 +52,7 @@ class ConfirmTwoFactorEnabledTest extends TestCase
         $this->getJson('intended')->assertSee('ok');
     }
 
-    public function test_asks_for_confirmation()
+    public function test_asks_for_confirmation(): void
     {
         $this->actingAs($this->user);
 
@@ -61,7 +61,7 @@ class ConfirmTwoFactorEnabledTest extends TestCase
         $this->getJson('intended')->assertJson(['message' => trans('laraguard::messages.required')]);
     }
 
-    public function test_redirects_to_intended_when_code_valid()
+    public function test_redirects_to_intended_when_code_valid(): void
     {
         $this->actingAs($this->user);
 
@@ -72,7 +72,7 @@ class ConfirmTwoFactorEnabledTest extends TestCase
 
         $this->followingRedirects()
             ->post('2fa/confirm', [
-                config('laraguard.input') => $this->user->makeTwoFactorCode()
+                '2fa_code' => $this->user->makeTwoFactorCode(),
             ])
             ->assertSessionHas('2fa.totp_confirmed_at')
             ->assertSee('ok');
@@ -82,7 +82,7 @@ class ConfirmTwoFactorEnabledTest extends TestCase
             ->assertSee('ok');
     }
 
-    public function test_returns_ok_on_json_response()
+    public function test_returns_ok_on_json_response(): void
     {
         $this->actingAs($this->user);
 
@@ -92,13 +92,13 @@ class ConfirmTwoFactorEnabledTest extends TestCase
             ->assertStatus(403);
 
         $this->postJson('2fa/confirm', [
-                config('laraguard.input') => $this->user->makeTwoFactorCode()
-            ])
+            '2fa_code' => $this->user->makeTwoFactorCode(),
+        ])
             ->assertSessionHas('2fa.totp_confirmed_at')
             ->assertNoContent();
     }
 
-    public function test_returns_validation_error_when_code_invalid()
+    public function test_returns_validation_error_when_code_invalid(): void
     {
         $this->actingAs($this->user);
 
@@ -107,12 +107,12 @@ class ConfirmTwoFactorEnabledTest extends TestCase
             ->assertViewIs('laraguard::confirm');
 
         $this->post('2fa/confirm', [
-                config('laraguard.input') => 'invalid'
-            ])
+            '2fa_code' => 'invalid',
+        ])
             ->assertSessionHasErrors();
     }
 
-    public function test_bypasses_check_if_below_timeout()
+    public function test_bypasses_check_if_below_timeout(): void
     {
         Date::setTestNow($now = Date::create(2020, 04, 01, 20, 20));
 
@@ -131,7 +131,7 @@ class ConfirmTwoFactorEnabledTest extends TestCase
             ->assertViewIs('laraguard::confirm');
     }
 
-    public function test_throttles_totp()
+    public function test_throttles_totp(): void
     {
         Date::setTestNow($now = Date::create(2020, 04, 01, 20, 20));
 
@@ -143,17 +143,16 @@ class ConfirmTwoFactorEnabledTest extends TestCase
 
         for ($i = 0; $i < 60; $i++) {
             $this->post('2fa/confirm', [
-                config('laraguard.input') => 'invalid'
+                '2fa_code' => 'invalid',
             ])->assertSessionHasErrors();
         }
 
         $this->post('2fa/confirm', [
-            config('laraguard.input') => 'invalid'
+            '2fa_code' => 'invalid',
         ])->assertStatus(429);
-
     }
 
-    public function test_routes_to_alternate_named_route()
+    public function test_routes_to_alternate_named_route(): void
     {
         $this->app['router']->get('intended_to_foo', function () {
             return 'ok';

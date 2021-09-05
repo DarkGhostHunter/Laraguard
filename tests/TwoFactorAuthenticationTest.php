@@ -5,6 +5,7 @@ namespace Tests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Orchestra\Testbench\TestCase;
+use Tests\Stubs\UserStub;
 use Tests\Stubs\UserTwoFactorStub;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Cache;
@@ -35,7 +36,7 @@ class TwoFactorAuthenticationTest extends TestCase
         parent::setUp();
     }
 
-    public function test_hides_relation_from_serialization()
+    public function test_hides_relation_from_serialization(): void
     {
         $array = $this->user->toArray();
 
@@ -43,13 +44,13 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertArrayNotHasKey('twoFactorAuth', $array);
     }
 
-    public function test_returns_two_factor_relation()
+    public function test_returns_two_factor_relation(): void
     {
         $this->assertInstanceOf(MorphOne::class, $this->user->twoFactorAuth());
         $this->assertInstanceOf(TwoFactorAuthentication::class, $this->user->twoFactorAuth);
     }
 
-    public function test_has_two_factor_enabled()
+    public function test_has_two_factor_enabled(): void
     {
         $this->assertTrue($this->user->hasTwoFactorEnabled());
 
@@ -58,7 +59,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($this->user->hasTwoFactorEnabled());
     }
 
-    public function test_disables_two_factor_authentication()
+    public function test_disables_two_factor_authentication(): void
     {
         $events = Event::fake();
 
@@ -70,7 +71,7 @@ class TwoFactorAuthenticationTest extends TestCase
         });
     }
 
-    public function test_enables_two_factor_authentication()
+    public function test_enables_two_factor_authentication(): void
     {
         $events = Event::fake();
 
@@ -82,13 +83,13 @@ class TwoFactorAuthenticationTest extends TestCase
         });
     }
 
-    public function test_creates_two_factor_authentication()
+    public function test_creates_two_factor_authentication(): void
     {
         $events = Event::fake();
         $user = UserTwoFactorStub::create([
             'name'     => 'bar',
             'email'    => 'bar@test.com',
-            'password' => '$2y$10$EicEv29xyMt/AbuWc0AIkeWb8Ip0fdhAYqgiXUaoG8Klu43521jQW',
+            'password' => UserStub::PASSWORD_SECRET,
         ]);
 
         $this->assertDatabaseMissing('two_factor_authentications', [
@@ -111,7 +112,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $events->assertNotDispatched(TwoFactorEnabled::class);
     }
 
-    public function test_creates_two_factor_flushes_old_auth()
+    public function test_creates_two_factor_flushes_old_auth(): void
     {
         $this->user->twoFactorAuth->safe_devices = collect([1, 2, 3]);
         $this->user->twoFactorAuth->save();
@@ -129,7 +130,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertNull($this->user->twoFactorAuth->enabled_at);
     }
 
-    public function test_rewrites_when_creating_two_factor_authentication()
+    public function test_rewrites_when_creating_two_factor_authentication(): void
     {
         $this->assertDatabaseHas('two_factor_authentications', [
             ['authenticatable_type', UserTwoFactorStub::class],
@@ -147,7 +148,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertNotEquals($old, $this->user->twoFactorAuth->shared_secret);
     }
 
-    public function test_new_user_confirms_two_factor_successfully()
+    public function test_new_user_confirms_two_factor_successfully(): void
     {
         $event = Event::fake();
 
@@ -156,7 +157,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $user = UserTwoFactorStub::create([
             'name'     => 'bar',
             'email'    => 'bar@test.com',
-            'password' => '$2y$10$EicEv29xyMt/AbuWc0AIkeWb8Ip0fdhAYqgiXUaoG8Klu43521jQW',
+            'password' => UserStub::PASSWORD_SECRET,
         ]);
 
         $user->createTwoFactorAuth();
@@ -177,7 +178,7 @@ class TwoFactorAuthenticationTest extends TestCase
         });
     }
 
-    public function test_confirms_twice_but_doesnt_change_the_secret()
+    public function test_confirms_twice_but_doesnt_change_the_secret(): void
     {
         $event = Event::fake();
 
@@ -201,7 +202,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $event->assertNotDispatched(TwoFactorRecoveryCodesGenerated::class);
     }
 
-    public function test_doesnt_confirm_two_factor_auth_with_old_recovery_code()
+    public function test_doesnt_confirm_two_factor_auth_with_old_recovery_code(): void
     {
         $recovery_code = $this->user->twoFactorAuth->recovery_codes->random();
 
@@ -212,7 +213,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($this->user->confirmTwoFactorAuth($code));
     }
 
-    public function test_old_user_confirms_new_two_factor_successfully()
+    public function test_old_user_confirms_new_two_factor_successfully(): void
     {
         $event = Event::fake();
 
@@ -245,7 +246,7 @@ class TwoFactorAuthenticationTest extends TestCase
         });
     }
 
-    public function test_validates_two_factor_code()
+    public function test_validates_two_factor_code(): void
     {
         Carbon::setTestNow($now = Carbon::create(2020, 01, 01, 18, 30));
 
@@ -254,7 +255,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertTrue($this->user->validateTwoFactorCode($code));
     }
 
-    public function test_validates_two_factor_code_with_recovery_code()
+    public function test_validates_two_factor_code_with_recovery_code(): void
     {
         Carbon::setTestNow($now = Carbon::create(2020, 01, 01, 18, 30));
 
@@ -268,7 +269,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($this->user->validateTwoFactorCode($recovery_code));
     }
 
-    public function test_doesnt_validates_if_two_factor_auth_is_disabled()
+    public function test_doesnt_validates_if_two_factor_auth_is_disabled(): void
     {
         Carbon::setTestNow($now = Carbon::create(2020, 01, 01, 18, 30));
 
@@ -284,7 +285,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($this->user->validateTwoFactorCode($recovery_code));
     }
 
-    public function test_fires_recovery_codes_depleted()
+    public function test_fires_recovery_codes_depleted(): void
     {
         $event = Event::fake();
 
@@ -302,7 +303,7 @@ class TwoFactorAuthenticationTest extends TestCase
         });
     }
 
-    public function test_safe_device()
+    public function test_safe_device(): void
     {
         Carbon::setTestNow($now = Carbon::create(2020, 01, 01, 18, 30));
 
@@ -319,7 +320,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertEquals(1577903400, $this->user->safeDevices()->first()['added_at']);
     }
 
-    public function test_oldest_safe_device_discarded_when_adding_maximum()
+    public function test_oldest_safe_device_discarded_when_adding_maximum(): void
     {
         Carbon::setTestNow(Carbon::create(2020, 01, 01, 18));
 
@@ -333,7 +334,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
         $max_devices = config('laraguard.safe_devices.max_devices');
 
-        for ($i = 0 ; $i < $max_devices ; ++$i) {
+        for ($i = 0 ; $i <= $max_devices ; ++$i) {
             Carbon::setTestNow(Carbon::create(2020, 01, 01, 18, 30, $i));
 
             $this->user->addSafeDevice(
@@ -348,7 +349,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($this->user->safeDevices()->contains('ip', $old_request_ip));
     }
 
-    public function test_flushes_safe_devices()
+    public function test_flushes_safe_devices(): void
     {
         $max_devices = config('laraguard.safe_devices.max_devices') + 4;
 
@@ -369,7 +370,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertEmpty($this->user->safeDevices());
     }
 
-    public function test_is_safe_device_and_safe_with_other_ip()
+    public function test_is_safe_device_and_safe_with_other_ip(): void
     {
         $max_devices = config('laraguard.safe_devices.max_devices');
 
@@ -393,7 +394,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($this->user->isNotSafeDevice($request));
     }
 
-    public function test_not_safe_device_if_remember_code_doesnt_match()
+    public function test_not_safe_device_if_remember_code_doesnt_match(): void
     {
         $max_devices = config('laraguard.safe_devices.max_devices');
 
@@ -417,7 +418,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertTrue($this->user->isNotSafeDevice($request));
     }
 
-    public function test_not_safe_device_if_expired()
+    public function test_not_safe_device_if_expired(): void
     {
         $max_devices = config('laraguard.safe_devices.max_devices');
 
@@ -451,7 +452,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($this->user->isSafeDevice($request));
     }
 
-    public function test_unique_code_works_only_one_time()
+    public function test_unique_code_works_only_one_time(): void
     {
         Carbon::setTestNow(Carbon::create(2020, 01, 01, 18, 30, 0));
 
@@ -468,7 +469,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($this->user->validateTwoFactorCode($code));
     }
 
-    public function test_unique_code_works_only_one_time_with_extended_window()
+    public function test_unique_code_works_only_one_time_with_extended_window(): void
     {
         $this->user->twoFactorAuth->window = 5;
         $this->user->twoFactorAuth->save();
@@ -488,7 +489,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($this->user->validateTwoFactorCode($new));
     }
 
-    public function test_unique_code_works_only_one_time_in_extended_time()
+    public function test_unique_code_works_only_one_time_in_extended_time(): void
     {
         Carbon::setTestNow($now = Carbon::create(2020, 01, 01, 18, 30, 20));
 
