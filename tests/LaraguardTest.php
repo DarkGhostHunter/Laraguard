@@ -6,6 +6,7 @@ use DarkGhostHunter\Laraguard\Laraguard;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Validation\ValidationException;
@@ -31,7 +32,7 @@ class LaraguardTest extends TestCase
         $this->afterApplicationCreated([$this, 'createTwoFactorUser']);
         $this->afterApplicationCreated(function (): void {
             app('config')->set('auth.providers.users.model', UserTwoFactorStub::class);
-            $this->travelTo(today());
+            Carbon::setTestNow(today());
         });
         parent::setUp();
     }
