@@ -57,7 +57,7 @@ class LaraguardServiceProvider extends ServiceProvider
      */
     protected function registerMiddleware(Router $router): void
     {
-        $router->aliasMiddleware('2fa.require', Http\Middleware\RequireTwoFactorEnabled::class);
+        $router->aliasMiddleware('2fa.enabled', Http\Middleware\RequireTwoFactorEnabled::class);
         $router->aliasMiddleware('2fa.confirm', Http\Middleware\ConfirmTwoFactorCode::class);
     }
 

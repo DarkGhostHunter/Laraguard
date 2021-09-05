@@ -28,7 +28,7 @@ class RequireTwoFactorEnabledTest extends TestCase
             })->name('login');
             $this->app['router']->get('test', function () {
                 return 'ok';
-            })->middleware('web', 'auth', '2fa.require');
+            })->middleware('web', 'auth', '2fa.enabled');
             $this->app['router']->get('notice', function () {
                 return '2fa.notice';
             })->middleware('web', 'auth')->name('2fa.notice');
