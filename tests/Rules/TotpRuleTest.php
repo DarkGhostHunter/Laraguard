@@ -32,7 +32,7 @@ class TotpRuleTest extends TestCase
         parent::setUp();
     }
 
-    public function test_validation_fails_if_guest()
+    public function test_validation_fails_if_guest(): void
     {
         $fails = validator([
             'totp_code' => '123456'
@@ -43,12 +43,12 @@ class TotpRuleTest extends TestCase
         $this->assertTrue($fails);
     }
 
-    public function test_validation_fails_if_user_is_not_2fa()
+    public function test_validation_fails_if_user_is_not_2fa(): void
     {
         $user = UserStub::create([
             'name'     => 'test',
             'email'    => 'bar@test.com',
-            'password' => '$2y$10$K0WnjWfbVBYcCvoSAh0yRurrgXgWVgQE2JHBJ.zdQdGHXgJofgGKC',
+            'password' => UserStub::PASSWORD_SECRET,
         ]);
 
         $this->app['auth']->guard()->setUser($user);
@@ -62,7 +62,7 @@ class TotpRuleTest extends TestCase
         $this->assertTrue($fails);
     }
 
-    public function test_validator_fails_if_user_is_2fa_but_not_enabled()
+    public function test_validator_fails_if_user_is_2fa_but_not_enabled(): void
     {
         $this->app['auth']->guard()->setUser(tap($this->user)->disableTwoFactorAuth());
 
@@ -75,7 +75,7 @@ class TotpRuleTest extends TestCase
         $this->assertTrue($fails);
     }
 
-    public function test_validator_fails_if_user_is_2fa_but_code_is_invalid()
+    public function test_validator_fails_if_user_is_2fa_but_code_is_invalid(): void
     {
         $this->app['auth']->guard()->setUser($this->user);
 
@@ -88,7 +88,7 @@ class TotpRuleTest extends TestCase
         $this->assertTrue($fails);
     }
 
-    public function test_validator_fails_if_user_is_2fa_but_code_is_expired_over_window()
+    public function test_validator_fails_if_user_is_2fa_but_code_is_expired_over_window(): void
     {
         Date::setTestNow($now = Date::create(2020, 04, 01, 16, 30));
 
@@ -103,7 +103,7 @@ class TotpRuleTest extends TestCase
         $this->assertTrue($fails);
     }
 
-    public function test_validator_succeeds_if_code_valid()
+    public function test_validator_succeeds_if_code_valid(): void
     {
         Date::setTestNow($now = Date::create(2020, 04, 01, 16, 30));
 
@@ -118,7 +118,7 @@ class TotpRuleTest extends TestCase
         $this->assertFalse($fails);
     }
 
-    public function test_validator_succeeds_if_code_is_recovery()
+    public function test_validator_succeeds_if_code_is_recovery(): void
     {
         $this->app['auth']->guard()->setUser($this->user);
 
@@ -131,7 +131,7 @@ class TotpRuleTest extends TestCase
         $this->assertFalse($fails);
     }
 
-    public function test_validator_rule_uses_translation()
+    public function test_validator_rule_uses_translation(): void
     {
         $validator = validator([
             'totp_code' => 'invalid'

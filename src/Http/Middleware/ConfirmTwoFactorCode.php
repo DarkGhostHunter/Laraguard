@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ConfirmTwoFactorCode
 {
@@ -18,7 +19,10 @@ class ConfirmTwoFactorCode
      * @param  \Illuminate\Contracts\Routing\UrlGenerator  $url
      * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
      */
-    public function __construct(protected ResponseFactory $response, protected UrlGenerator $url, protected ?Authenticatable $user = null)
+    public function __construct(
+        protected ResponseFactory $response,
+        protected UrlGenerator $url,
+        protected ?Authenticatable $user = null)
     {
         //
     }
@@ -31,9 +35,9 @@ class ConfirmTwoFactorCode
      * @param  string  $redirectToRoute
      * @return mixed
      */
-    public function handle($request, Closure $next, string $redirectToRoute = '2fa.confirm'): mixed
+    public function handle($request, Closure $next, string $redirectToRoute = '2fa.confirm')
     {
-        if ($this->userHasNotEnabledTwoFactorAuth() || $this->codeAlreadyValidated($request)) {
+        if ($this->userHasNotEnabledTwoFactorAuth() || $this->codeWasValidated($request)) {
             return $next($request);
         }
 
@@ -58,7 +62,7 @@ class ConfirmTwoFactorCode
      * @param  \Illuminate\Http\Request  $request
      * @return bool
      */
-    protected function codeAlreadyValidated(Request $request): bool
+    protected function codeWasValidated(Request $request): bool
     {
         $confirmedAt = now()->timestamp - $request->session()->get('2fa.totp_confirmed_at', 0);
 

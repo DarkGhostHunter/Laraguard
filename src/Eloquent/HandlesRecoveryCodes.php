@@ -14,21 +14,22 @@ trait HandlesRecoveryCodes
      */
     public function containsUnusedRecoveryCodes(): bool
     {
-        return (bool) $this->recovery_codes?->contains('used_at');
+        return (bool) $this->recovery_codes?->contains('used_at', '==', null);
     }
 
     /**
      * Returns the key of the not-used Recovery Code.
      *
      * @param  string  $code
-     * @return int|null
+     *
+     * @return int|bool|null
      */
-    protected function getUnusedRecoveryCodeIndex(string $code): ?int
+    protected function getUnusedRecoveryCodeIndex(string $code): int|null|bool
     {
         return $this->recovery_codes?->search([
             'code'    => $code,
             'used_at' => null,
-        ]);
+        ], true);
     }
 
     /**
@@ -39,11 +40,11 @@ trait HandlesRecoveryCodes
      */
     public function setRecoveryCodeAsUsed(string $code): bool
     {
-        if (null === $index = $this->getUnusedRecoveryCodeIndex($code)) {
+        if (! is_int($index = $this->getUnusedRecoveryCodeIndex($code))) {
             return false;
         }
 
-        $this->recovery_codes->put($index, [
+        $this->recovery_codes = $this->recovery_codes->put($index, [
             'code'    => $code,
             'used_at' => now(),
         ]);

@@ -14,8 +14,7 @@ class TotpCodeRule
      * @param  \Illuminate\Contracts\Translation\Translator  $translator
      * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
      */
-    public function __construct(protected Translator $translator,
-                                protected ?Authenticatable $user = null)
+    public function __construct(protected Translator $translator, protected ?Authenticatable $user = null)
     {
         //
     }
@@ -27,13 +26,10 @@ class TotpCodeRule
      * @param  mixed  $value
      * @return bool
      */
-    public function validate(string $attribute, mixed $value): bool
+    public function validate($attribute, $value): bool
     {
-        if (is_numeric($value) && $this->user instanceof TwoFactorAuthenticatable) {
-            return $this->user->validateTwoFactorCode($value);
-        }
-
-        return false;
+        return is_string($value)
+            && $this->user instanceof TwoFactorAuthenticatable
+            && $this->user->validateTwoFactorCode($value);
     }
-
 }

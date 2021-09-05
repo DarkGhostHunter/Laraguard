@@ -2,14 +2,22 @@
 
 namespace DarkGhostHunter\Laraguard\Eloquent;
 
-use DateTime;
 use DateTimeInterface;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Carbon;
 use ParagonIE\ConstantTime\Base32;
 
-use function config;
 use function cache;
+use function config;
+use function floor;
+use function hash_hmac;
+use function implode;
+use function now;
+use function ord;
+use function pack;
+use function str_pad;
+use function strlen;
+
 
 trait HandlesCodes
 {
@@ -56,12 +64,12 @@ trait HandlesCodes
      * Validates a given code, optionally for a given timestamp and future window.
      *
      * @param  string  $code
-     * @param  string  $at
+     * @param  \DateTimeInterface|int|string  $at
      * @param  int|null  $window
      *
      * @return bool
      */
-    public function validateCode(string $code, $at = 'now', int $window = null): bool
+    public function validateCode(string $code, DateTimeInterface|int|string $at = 'now', int $window = null): bool
     {
         if ($this->codeHasBeenUsed($code)) {
             return false;
@@ -82,12 +90,12 @@ trait HandlesCodes
     /**
      * Creates a Code for a given timestamp, optionally by a given period offset.
      *
-     * @param  int|string|\Illuminate\Support\Carbon|\Datetime  $at
+     * @param  \DateTimeInterface|int|string  $at
      * @param  int  $offset
      *
      * @return string
      */
-    public function makeCode($at = 'now', int $offset = 0): string
+    public function makeCode(DateTimeInterface|int|string $at = 'now', int $offset = 0): string
     {
         return $this->generateCode(
             $this->getTimestampFromPeriod($at, $offset)
@@ -159,12 +167,12 @@ trait HandlesCodes
     /**
      * Get the timestamp from a given elapsed "periods" of seconds.
      *
-     * @param  \DatetimeInterface|int|string  $at
+     * @param  \DateTimeInterface|int|string|null  $at
      * @param  int  $period
      *
      * @return int
      */
-    protected function getTimestampFromPeriod(DatetimeInterface|int|string $at = 'now', int $period = 0): int
+    protected function getTimestampFromPeriod(DatetimeInterface|int|string|null $at, int $period = 0): int
     {
         $periods = ($this->parseTimestamp($at) / $this->seconds) + $period;
 
@@ -178,17 +186,13 @@ trait HandlesCodes
      *
      * @return int
      */
-    protected function parseTimestamp(DatetimeInterface|int|string $at = 'now'): int
+    protected function parseTimestamp(DatetimeInterface|int|string $at): int
     {
-        if (is_string($at)) {
-            $at = date_create($at);
+        if (!is_int($at)) {
+            $at = Carbon::parse($at)->getTimestamp();
         }
 
-        if (is_int($at)) {
-            $at = now()->addSeconds($at);
-        }
-
-        return $at->getTimestamp();
+        return $at;
     }
 
     /**

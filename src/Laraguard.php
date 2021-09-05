@@ -45,7 +45,7 @@ class Laraguard
             }
 
             throw ValidationException::withMessages([
-                config('laraguard.input') => $message ?? trans('laraguard::validation.totp_code'),
+                $input => $message ?? trans('laraguard::validation.totp_code'),
             ]);
         };
     }
@@ -86,7 +86,7 @@ class Laraguard
             }
         }
 
-        return true;
+        return false;
     }
 
     /**

@@ -9,7 +9,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 trait RegistersLoginRoute
 {
-    protected function registerLoginRoute()
+    protected function registerLoginRoute(): void
     {
         Route::post('login', function (Request $request) {
             try {

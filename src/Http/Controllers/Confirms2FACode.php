@@ -56,7 +56,7 @@ trait Confirms2FACode
     protected function rules(): array
     {
         return [
-            config('laraguard.input') => 'required|totp_code',
+            '2fa_code' => 'required|totp_code',
         ];
     }
 

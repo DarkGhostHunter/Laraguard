@@ -31,7 +31,7 @@ class EventsTest extends TestCase
         parent::setUp();
     }
 
-    public function test_fires_two_factor_enabled_event()
+    public function test_fires_two_factor_enabled_event(): void
     {
         $event = Event::fake();
 
@@ -44,7 +44,7 @@ class EventsTest extends TestCase
         });
     }
 
-    public function test_fires_two_factor_disabled_event()
+    public function test_fires_two_factor_disabled_event(): void
     {
         $event = Event::fake();
 
@@ -55,7 +55,7 @@ class EventsTest extends TestCase
         });
     }
 
-    public function test_fires_two_factor_recovery_codes_depleted()
+    public function test_fires_two_factor_recovery_codes_depleted(): void
     {
         $event = Event::fake();
 
@@ -77,7 +77,7 @@ class EventsTest extends TestCase
         });
     }
 
-    public function test_fires_two_factor_recovery_codes_generated()
+    public function test_fires_two_factor_recovery_codes_generated(): void
     {
         $event = Event::fake();
 

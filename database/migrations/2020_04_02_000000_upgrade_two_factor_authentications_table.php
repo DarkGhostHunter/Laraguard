@@ -29,7 +29,7 @@ class UpgradeTwoFactorAuthenticationsTable extends Migration
      */
     public function up(): void
     {
-        Schema::table('two_factor_authentications', function (Blueprint $table) {
+        Schema::table('two_factor_authentications', static function (Blueprint $table): void {
             $table->text('shared_secret')->change();
             $table->text('recovery_codes')->nullable()->change();
         });
@@ -52,14 +52,14 @@ class UpgradeTwoFactorAuthenticationsTable extends Migration
         $query = DB::table('two_factor_authentications');
 
         $query->clone()->select('id', 'shared_secret', 'recovery_codes')
-            ->chunk(
+            ->chunkById(
                 1000,
                 static function (Collection $chunk) use ($encrypter, $query, $call): void {
                     DB::beginTransaction();
                     foreach ($chunk as $item) {
-                        $query->clone()->where('id', $item)->update([
+                        $query->clone()->where('id', $item->id)->update([
                             'shared_secret'  => $encrypter->$call($item->shared_secret),
-                            'recovery_codes' => $encrypter->$call($item->recovery_codes),
+                            'recovery_codes' => $item->recovery_codes ? $encrypter->$call($item->recovery_codes) : null,
                         ]);
                     }
                     DB::commit();
@@ -77,7 +77,7 @@ class UpgradeTwoFactorAuthenticationsTable extends Migration
         // Before changing the shared secret column, we will need to decrypt the shared secret.
         $this->chunkRows(false);
 
-        Schema::table('two_factor_authentications', function (Blueprint $table) {
+        Schema::table('two_factor_authentications', static function (Blueprint $table): void {
             $table->string('shared_secret')->change();
             $table->json('recovery_codes')->nullable()->change();
         });
