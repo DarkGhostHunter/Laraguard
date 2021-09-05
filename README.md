@@ -35,7 +35,7 @@ This package adds a **Contract** to detect if, after the credentials are deemed 
 
 It includes a custom **view** and a **callback** to handle the Two-Factor authentication itself during login attempts.
 
-With works without middleware or new guards, but you can go full manual if you want.
+Works without middleware or new guards, but you can go full manual if you want.
 
 ## Usage
 
