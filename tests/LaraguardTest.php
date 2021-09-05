@@ -93,24 +93,32 @@ class LaraguardTest extends TestCase
         static::assertFalse(Auth::attemptWhen($credentials, Laraguard::hasCode()));
     }
 
-    public function test_non_two_factor_user_doesnt_authenticate(): void
+    public function test_non_two_factor_user_bypasses_checks(): void
     {
-        $user = UserStub::create([
-            'name'     => 'bar',
-            'email'    => 'bar@test.com',
-            'password' => UserStub::PASSWORD_SECRET,
-        ]);
+        config()->set('auth.providers.users.model', UserStub::class);
 
         $credentials = [
-            'email' => $user->email,
+            'email' => $this->user->email,
             'password' => 'secret'
         ];
 
-        $this->instance('request', Request::create('test', 'POST', [
-            '2fa_code' => $this->user->makeTwoFactorCode()
-        ]));
+        $this->instance('request', Request::create('test', 'POST'));
 
-        static::assertFalse(Auth::attemptWhen($credentials, Laraguard::hasCode()));
+        static::assertTrue(Auth::attemptWhen($credentials, Laraguard::hasCode()));
+    }
+
+    public function test_user_without_2fa_enabled_bypasses_check(): void
+    {
+        $credentials = [
+            'email' => $this->user->email,
+            'password' => 'secret'
+        ];
+
+        $this->user->disableTwoFactorAuth();
+
+        $this->instance('request', Request::create('test', 'POST'));
+
+        static::assertTrue(Auth::attemptWhen($credentials, Laraguard::hasCode()));
     }
 
     public function test_validation_exception_when_code_invalid(): void

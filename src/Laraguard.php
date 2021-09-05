@@ -59,10 +59,13 @@ class Laraguard
      */
     public function __construct(protected Repository $config, protected Request $request, protected string $input)
     {
+        //
     }
 
     /**
      * Check if the user uses TOTP and has a valid code.
+     *
+     * If the user does not use TOTP, no checks will be done.
      *
      * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
      *
@@ -70,20 +73,23 @@ class Laraguard
      */
     public function validate(Authenticatable $user): bool
     {
-        if ($user instanceof TwoFactorAuthenticatable && $user->hasTwoFactorEnabled()) {
-            // If safe devices are enabled, and this is a safe device, bypass.
-            if ($this->isSafeDevicesEnabled() && $user->isSafeDevice($this->request)) {
-                return true;
+        // If the user does not use 2FA or is not enabled, don't check.
+        if (! $user instanceof TwoFactorAuthenticatable || ! $user->hasTwoFactorEnabled()) {
+            return true;
+        }
+
+        // If safe devices are enabled, and this is a safe device, bypass.
+        if ($this->isSafeDevicesEnabled() && $user->isSafeDevice($this->request)) {
+            return true;
+        }
+
+        // If the code is valid, return true after it tries to save the device.
+        if ($this->requestHasCode() && $user->validateTwoFactorCode($this->getCode())) {
+            if ($this->isSafeDevicesEnabled() && $this->wantsToAddDevice()) {
+                $user->addSafeDevice($this->request);
             }
 
-            // If the code is valid, save the device if it's enabled.
-            if ($this->requestHasCode() && $user->validateTwoFactorCode($this->getCode())) {
-                if ($this->isSafeDevicesEnabled() && $this->wantsToAddDevice()) {
-                    $user->addSafeDevice($this->request);
-                }
-
-                return true;
-            }
+            return true;
         }
 
         return false;
