@@ -13,9 +13,9 @@ trait HandlesSafeDevices
      * @param  null|string  $token
      * @return null|\Illuminate\Support\Carbon
      */
-    public function getSafeDeviceTimestamp(string $token = null)
+    public function getSafeDeviceTimestamp(string $token = null): ?Carbon
     {
-        if ($token && $device = collect($this->safe_devices)->firstWhere('2fa_remember', $token)) {
+        if ($token && $device = $this->safe_devices?->firstWhere('2fa_remember', $token)) {
             return Carbon::createFromTimestamp($device['added_at']);
         }
 
@@ -23,11 +23,11 @@ trait HandlesSafeDevices
     }
 
     /**
-     * Generates a Device token to bypass Two Factor Authentication.
+     * Generates a Device token to bypass Two-Factor Authentication.
      *
      * @return string
      */
-    public static function generateDefaultTwoFactorRemember()
+    public static function generateDefaultTwoFactorRemember(): string
     {
         return Str::random(100);
     }

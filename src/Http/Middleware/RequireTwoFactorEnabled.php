@@ -10,29 +10,14 @@ use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
 class RequireTwoFactorEnabled
 {
     /**
-     * Current User authenticated.
-     *
-     * @var \Illuminate\Contracts\Auth\Authenticatable|\DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable|null
-     */
-    protected $user;
-
-    /**
-     * Response Factory.
-     *
-     * @var \Illuminate\Contracts\Routing\ResponseFactory
-     */
-    protected $response;
-
-    /**
      * Create a new middleware instance.
      *
      * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
      * @param  \Illuminate\Contracts\Routing\ResponseFactory  $response
      */
-    public function __construct(ResponseFactory $response, Authenticatable $user = null)
+    public function __construct(protected ResponseFactory $response, protected ?Authenticatable $user = null)
     {
-        $this->response = $response;
-        $this->user = $user;
+        //
     }
 
     /**
@@ -43,7 +28,7 @@ class RequireTwoFactorEnabled
      * @param  string  $redirectToRoute
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|mixed
      */
-    public function handle($request, Closure $next, $redirectToRoute = '2fa.notice')
+    public function handle($request, Closure $next, string $redirectToRoute = '2fa.notice')
     {
         if ($this->hasTwoFactorAuthDisabled()) {
             return $request->expectsJson()
@@ -55,11 +40,11 @@ class RequireTwoFactorEnabled
     }
 
     /**
-     * Check if the user has Two Factor Authentication enabled.
+     * Check if the user has Two-Factor Authentication enabled.
      *
      * @return bool
      */
-    protected function hasTwoFactorAuthDisabled()
+    protected function hasTwoFactorAuthDisabled(): bool
     {
         return $this->user instanceof TwoFactorAuthenticatable && ! $this->user->hasTwoFactorEnabled();
     }

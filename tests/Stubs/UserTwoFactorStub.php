@@ -11,15 +11,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 /**
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
-class UserTwoFactorStub extends Model implements TwoFactorAuthenticatable, AuthenticatableContract
+class UserTwoFactorStub extends UserStub implements TwoFactorAuthenticatable
 {
-    use TwoFactorAuthentication, Authenticatable;
-
-    protected $table = 'users';
-
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    use TwoFactorAuthentication;
 }

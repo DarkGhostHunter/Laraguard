@@ -6,18 +6,27 @@ use BaconQrCode\Writer;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use function config;
+use function http_build_query;
+use function strtoupper;
+use function rawurlencode;
+use function array_values;
+use function trim;
+use function chunk_split;
 
 trait SerializesSharedSecret
 {
     /**
-     * Returns the Shared Secret as an URI.
+     * Returns the Shared Secret as a URI.
      *
      * @return string
      */
     public function toUri() : string
     {
+        $issuer = config('laraguard.issuer', config('app.name'));
+
         $query = http_build_query([
-            'issuer'    => $issuer = config('laraguard.issuer') ?? config('app.name'),
+            'issuer'    => $issuer,
             'label'     => $this->attributes['label'],
             'secret'    => $this->shared_secret,
             'algorithm' => strtoupper($this->attributes['algorithm']),
@@ -46,7 +55,7 @@ trait SerializesSharedSecret
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toString();
     }
@@ -74,7 +83,7 @@ trait SerializesSharedSecret
     /**
      * @inheritDoc
      */
-    public function render()
+    public function render(): string
     {
         return $this->toQr();
     }
@@ -82,15 +91,15 @@ trait SerializesSharedSecret
     /**
      * @inheritDoc
      */
-    public function toJson($options = 0)
+    public function toJson($options = 0): string
     {
-        return json_encode($this->toUri(), $options);
+        return json_encode($this->toUri(), JSON_THROW_ON_ERROR | $options);
     }
 
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->toUri();
     }

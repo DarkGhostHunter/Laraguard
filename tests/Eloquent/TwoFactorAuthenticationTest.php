@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Tests\RegistersPackage;
 use Orchestra\Testbench\TestCase;
 use ParagonIE\ConstantTime\Base32;
+use Tests\Stubs\UserStub;
 use Tests\Stubs\UserTwoFactorStub;
 use Tests\RunsPublishableMigrations;
 use Illuminate\Support\Facades\Cache;
@@ -28,12 +29,12 @@ class TwoFactorAuthenticationTest extends TestCase
         parent::setUp();
     }
 
-    public function test_returns_authenticatable()
+    public function test_returns_authenticatable(): void
     {
         $user = UserTwoFactorStub::create([
             'name'     => 'foo',
             'email'    => 'foo@test.com',
-            'password' => '$2y$10$EicEv29xyMt/AbuWc0AIkeWb8Ip0fdhAYqgiXUaoG8Klu43521jQW',
+            'password' => UserStub::PASSWORD_SECRET,
         ]);
 
         $user->twoFactorAuth()->save(
@@ -45,7 +46,7 @@ class TwoFactorAuthenticationTest extends TestCase
     }
 
 
-    public function test_lowercases_algorithm()
+    public function test_lowercases_algorithm(): void
     {
         $tfa = TwoFactorAuthentication::factory()
             ->withRecovery()->withSafeDevices()
@@ -56,7 +57,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertEquals('abcde2', $tfa->algorithm);
     }
 
-    public function test_is_enabled_and_is_disabled()
+    public function test_is_enabled_and_is_disabled(): void
     {
         $tfa = new TwoFactorAuthentication();
 
@@ -69,7 +70,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($tfa->isDisabled());
     }
 
-    public function test_flushes_authentication()
+    public function test_flushes_authentication(): void
     {
         $tfa = TwoFactorAuthentication::factory()
             ->withRecovery()->withSafeDevices()
@@ -102,14 +103,14 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertNull($tfa->safe_devices);
     }
 
-    public function test_generates_random_secret()
+    public function test_generates_random_secret(): void
     {
         $secret = TwoFactorAuthentication::generateRandomSecret();
 
         $this->assertEquals(config('laraguard.secret_length'), strlen(Base32::decodeUpper($secret)));
     }
 
-    public function test_makes_code()
+    public function test_makes_code(): void
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
@@ -138,7 +139,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertEquals('976814', $tfa->makeCode('4th february 2020'));
     }
 
-    public function test_makes_code_for_timestamp()
+    public function test_makes_code_for_timestamp(): void
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
@@ -148,7 +149,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertTrue($tfa->validateCode('566278', 1581300000));
     }
 
-    public function test_validate_code()
+    public function test_validate_code(): void
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
@@ -167,7 +168,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($tfa->validateCode($code));
     }
 
-    public function test_validate_code_with_window()
+    public function test_validate_code_with_window(): void
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
@@ -196,7 +197,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($tfa->validateCode($code));
     }
 
-    public function test_contains_unused_recovery_codes()
+    public function test_contains_unused_recovery_codes(): void
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make();
 
@@ -220,7 +221,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertFalse($tfa->containsUnusedRecoveryCodes());
     }
 
-    public function test_generates_recovery_codes()
+    public function test_generates_recovery_codes(): void
     {
         $codes = TwoFactorAuthentication::generateRecoveryCodes(13, 7);
 
@@ -232,12 +233,12 @@ class TwoFactorAuthenticationTest extends TestCase
         });
     }
 
-    public function test_generates_random_safe_device_remember_token()
+    public function test_generates_random_safe_device_remember_token(): void
     {
         $this->assertEquals(100, strlen(TwoFactorAuthentication::generateDefaultTwoFactorRemember()));
     }
 
-    public function test_serializes_to_string()
+    public function test_serializes_to_string(): void
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
             'shared_secret' => $secret = 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
@@ -248,7 +249,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertEquals($secret, (string)$tfa);
     }
 
-    public function test_serializes_to_grouped_string()
+    public function test_serializes_to_grouped_string(): void
     {
         $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
             'shared_secret' => 'KS72XBTN5PEBGX2IWBMVW44LXHPAQ7L3',
@@ -257,7 +258,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertEquals('KS72 XBTN 5PEB GX2I WBMV W44L XHPA Q7L3', $tfa->toGroupedString());
     }
 
-    public function test_serializes_to_uri()
+    public function test_serializes_to_uri(): void
     {
         config(['laraguard.issuer' => 'quz']);
 
@@ -273,7 +274,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertEquals($uri, $tfa->toUri());
     }
 
-    public function test_serializes_to_qr_and_renders_to_qr()
+    public function test_serializes_to_qr_and_renders_to_qr(): void
     {
         config(['laraguard.issuer' => 'quz']);
 
@@ -288,7 +289,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertStringEqualsFile(__DIR__ . '/../Stubs/QrStub.svg', $tfa->render());
     }
 
-    public function test_serializes_to_qr_and_renders_to_qr_with_custom_values()
+    public function test_serializes_to_qr_and_renders_to_qr_with_custom_values(): void
     {
         config(['laraguard.issuer' => 'quz']);
         config(['laraguard.qr_code' => [
@@ -307,7 +308,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertStringEqualsFile(__DIR__ . '/../Stubs/CustomQrStub.svg', $tfa->render());
     }
 
-    public function test_serializes_uri_to_json()
+    public function test_serializes_uri_to_json(): void
     {
         config(['laraguard.issuer' => 'quz']);
 
@@ -325,7 +326,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $this->assertEquals($uri, json_encode($tfa));
     }
 
-    public function test_changes_issuer()
+    public function test_changes_issuer(): void
     {
         config(['laraguard.issuer' => 'foo bar']);
 

@@ -2,10 +2,11 @@
 
 namespace DarkGhostHunter\Laraguard\Eloquent;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use ParagonIE\ConstantTime\Base32;
-use Illuminate\Database\Eloquent\Model;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorTotp;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use ParagonIE\ConstantTime\Base32;
 
 /**
  * @mixin \Illuminate\Database\Eloquent\Builder
@@ -43,63 +44,57 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
      * @var array
      */
     protected $casts = [
-        'authenticatable_id' => 'int',
-        'digits'             => 'int',
-        'seconds'            => 'int',
-        'window'             => 'int',
-        'recovery_codes'     => 'collection',
-        'safe_devices'       => 'collection',
+        'shared_secret'               => 'encrypted',
+        'authenticatable_id'          => 'int',
+        'digits'                      => 'int',
+        'seconds'                     => 'int',
+        'window'                      => 'int',
+        'recovery_codes'              => 'encrypted:collection',
+        'safe_devices'                => 'collection',
+        'enabled_at'                  => 'datetime',
+        'recovery_codes_generated_at' => 'datetime',
     ];
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = [
-        'enabled_at',
-        'recovery_codes_generated_at',
-    ];
-
-    /**
-     * The model that uses Two Factor Authentication.
+     * The model that uses Two-Factor Authentication.
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function authenticatable()
+    public function authenticatable(): MorphTo
     {
         return $this->morphTo('authenticatable');
     }
-
 
     /**
      * Sets the Algorithm to lowercase.
      *
      * @param $value
+     *
+     * @return void
      */
-    protected function setAlgorithmAttribute($value)
+    protected function setAlgorithmAttribute($value): void
     {
         $this->attributes['algorithm'] = strtolower($value);
     }
 
     /**
-     * Returns if the Two Factor Authentication has been enabled.
+     * Returns if the Two-Factor Authentication has been enabled.
      *
      * @return bool
      */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return $this->enabled_at !== null;
     }
 
     /**
-     * Returns if the Two Factor Authentication is not been enabled.
+     * Returns if the Two-Factor Authentication is not been enabled.
      *
      * @return bool
      */
-    public function isDisabled()
+    public function isDisabled(): bool
     {
-        return ! $this->isEnabled();
+        return !$this->isEnabled();
     }
 
     /**
@@ -107,16 +102,16 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
      *
      * @return $this
      */
-    public function flushAuth()
+    public function flushAuth(): static
     {
-        $this->attributes['recovery_codes'] = null;
-        $this->attributes['recovery_codes_generated_at'] = null;
-        $this->attributes['safe_devices'] = null;
-        $this->attributes['enabled_at'] = null;
+        $this->recovery_codes_generated_at = null;
+        $this->safe_devices = null;
+        $this->enabled_at = null;
 
         $this->attributes = array_merge($this->attributes, config('laraguard.totp'));
 
-        $this->attributes['shared_secret'] = static::generateRandomSecret();
+        $this->shared_secret = static::generateRandomSecret();
+        $this->recovery_codes = null;
 
         return $this;
     }
@@ -126,7 +121,7 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
      *
      * @return string
      */
-    public static function generateRandomSecret()
+    public static function generateRandomSecret(): string
     {
         return Base32::encodeUpper(
             random_bytes(config('laraguard.secret_length'))
