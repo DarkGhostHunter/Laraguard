@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png">
+  <img src="logo.jpg">
 </p>
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/darkghosthunter/laraguard.svg?style=flat-square)](https://packagist.org/packages/darkghosthunter/laraguard) [![License](https://poser.pugx.org/darkghosthunter/laraguard/license)](https://packagist.org/packages/darkghosthunter/laraguard)
 ![](https://img.shields.io/packagist/php-v/darkghosthunter/laraguard.svg)
