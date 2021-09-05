@@ -3,7 +3,6 @@
 namespace Tests;
 
 use DarkGhostHunter\Laraguard\Laraguard;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;

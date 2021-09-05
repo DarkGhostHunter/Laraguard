@@ -20,7 +20,9 @@ class UpgradeTest extends TestCase
     {
         parent::setUp();
 
-        require_once __DIR__ . '/../../database/migrations/2020_04_02_000000_upgrade_two_factor_authentications_table.php';
+        if (!class_exists('UpgradeTwoFactorAuthenticationsTable')) {
+            require_once __DIR__ . '/../../database/migrations/2020_04_02_000000_upgrade_two_factor_authentications_table.php';
+        }
     }
 
     public function test_migrates_old_table_and_records(): void
@@ -41,8 +43,6 @@ class UpgradeTest extends TestCase
             'shared_secret' => $secret,
             'recovery_codes' => null,
         ]);
-
-        require __DIR__ . '/../../database/migrations/2020_04_02_000000_upgrade_two_factor_authentications_table.php';
 
         (new \UpgradeTwoFactorAuthenticationsTable)->up();
 
@@ -79,8 +79,6 @@ class UpgradeTest extends TestCase
             'shared_secret' => Crypt::encryptString($secret),
             'recovery_codes' => null,
         ]);
-
-        require __DIR__ . '/../../database/migrations/2020_04_02_000000_upgrade_two_factor_authentications_table.php';
 
         (new \UpgradeTwoFactorAuthenticationsTable)->down();
 

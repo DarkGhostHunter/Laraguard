@@ -79,7 +79,7 @@ trait HandlesCodes
 
         for ($i = 0; $i <= $window; ++$i) {
             if (hash_equals($this->makeCode($at, -$i), $code)) {
-                $this->setCodeHasUsed($code, $at);
+                $this->setCodeAsUsed($code, $at);
                 return true;
             }
         }
@@ -172,7 +172,7 @@ trait HandlesCodes
      *
      * @return int
      */
-    protected function getTimestampFromPeriod(DatetimeInterface|int|string|null $at, int $period = 0): int
+    protected function getTimestampFromPeriod(DatetimeInterface|int|string|null $at, int $period): int
     {
         $periods = ($this->parseTimestamp($at) / $this->seconds) + $period;
 
@@ -188,11 +188,7 @@ trait HandlesCodes
      */
     protected function parseTimestamp(DatetimeInterface|int|string $at): int
     {
-        if (!is_int($at)) {
-            $at = Carbon::parse($at)->getTimestamp();
-        }
-
-        return $at;
+        return is_int($at) ? $at : Carbon::parse($at)->getTimestamp();
     }
 
     /**
@@ -227,7 +223,7 @@ trait HandlesCodes
      *
      * @return bool
      */
-    protected function setCodeHasUsed(string $code, DateTimeInterface|int|string $at = 'now'): bool
+    protected function setCodeAsUsed(string $code, DateTimeInterface|int|string $at = 'now'): bool
     {
         // We will safely set the cache key for the whole lifetime plus window just to be safe.
         return $this->cache->set($this->cacheKey($code), true,
