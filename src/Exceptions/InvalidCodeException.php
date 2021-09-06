@@ -8,13 +8,6 @@ use Illuminate\Validation\ValidationException;
 class InvalidCodeException extends ValidationException
 {
     /**
-     * A custom validation message.
-     *
-     * @var string
-     */
-    protected string $validationMessage;
-
-    /**
      * Create a new exception instance.
      *
      * @param  \Illuminate\Contracts\Validation\Validator  $validator
