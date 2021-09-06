@@ -52,14 +52,14 @@ return [
     | Safe Devices
     |--------------------------------------------------------------------------
     |
-    | Authenticating with Two Factor Codes can become very obnoxious when the
+    | Authenticating with Two-Factor Codes can become very obnoxious when the
     | user does it every time. To "remember" a device where a 2FA code was
     | validated to not ask again you can enable Safe Device to save it.
     |
     */
 
     'safe_devices' => [
-        'cookie'          => '2fa_remember',
+        'cookie'          => '_2fa_remember',
         'enabled'         => false,
         'max_devices'     => 3,
         'expiration_days' => 14,
@@ -67,7 +67,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Require Two Factor Middleware
+    | Require Two-Factor Middleware
     |--------------------------------------------------------------------------
     |
     | When using the "2fa.confirm" middleware a view with a form will be used

@@ -99,7 +99,7 @@ class ConfirmTwoFactorEnabledTest extends TestCase
 
         $this->getJson('intended')
             ->assertSessionMissing('2fa.totp_confirmed_at')
-            ->assertJson(['message' => 'Two Factor Authentication is required.'])
+            ->assertJson(['message' => 'Two-Factor Authentication is required.'])
             ->assertStatus(403);
 
         $this->postJson('2fa/confirm', [

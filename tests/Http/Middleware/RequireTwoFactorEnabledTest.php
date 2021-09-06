@@ -67,7 +67,7 @@ class RequireTwoFactorEnabledTest extends TestCase
         $this->followingRedirects()->get('test')->assertSee('2fa.notice');
 
         $this->getJson('test')
-            ->assertJson(['message' => 'You need to enable Two Factor Authentication.'])
+            ->assertJson(['message' => 'You need to enable Two-Factor Authentication.'])
             ->assertForbidden();
     }
 
