@@ -7,7 +7,6 @@
 ![](https://github.com/DarkGhostHunter/Laraguard/workflows/PHP%20Composer/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/DarkGhostHunter/Laraguard/badge.svg?branch=master)](https://coveralls.io/github/DarkGhostHunter/Laraguard?branch=master)
 
-
 # Laraguard
 
 Two-Factor Authentication via TOTP for all your users out-of-the-box.
@@ -229,11 +228,11 @@ The following events are fired in addition to the default Authentication events.
 
 Laraguard comes with two middleware for your routes: `2fa.enabled` and `2fa.confirm`.
 
-> To avoid unexpected results, middleware only act on your users models with `TwoFactorAuthenticatable`. If a user model doesn't implement it, the middleware bypass any 2FA logic.
+> To avoid unexpected results, middleware only act on your users models implementing the `TwoFactorAuthenticatable` contract. If a user model doesn't implement it, the middleware will bypass any 2FA logic.
 
 ### Require 2FA
 
-If you need to ensure the User has Two-Factor Authentication enabled before entering a given route, you can use the `2fa.enabled` middleware. This middleware doesn't asks for codes, and doesn't checks for not-2FA-compatible users. It only checks if 2FA is enabled.
+If you need to ensure the User has Two-Factor Authentication enabled before entering a given route, you can use the `2fa.enabled` middleware. This middleware only checks if 2FA is enabled.
 
 ```php
 Route::get('system/settings')
@@ -243,7 +242,7 @@ Route::get('system/settings')
 
 This middleware works much like Laravel's `verified` middleware: if the User has not enabled Two-Factor Authentication, it will be redirected to a route name containing the warning, which is `2fa.notice` by default.
 
-You can implement the view easily with the one included in this package, with a URL to point the user to enable 2FA:
+You can implement the view easily with the one included in this package, optionally with a URL to point the user to enable 2FA:
 
 ```php
 use Illuminate\Support\Facades\Route;
@@ -265,7 +264,7 @@ Route::get('system/settings')
 
 ### Confirm 2FA
 
-Much like the [`password.confirm` middleware](https://laravel.com/docs/authentication#password-confirmation), you can also ask the user to confirm an action using `2fa.confirm`, if it has Two-Factor Authentication enabled.
+Much like the [`password.confirm` middleware](https://laravel.com/docs/authentication#password-confirmation), you can also ask the user to confirm an action using `2fa.confirm` if it has Two-Factor Authentication enabled.
 
 ```php
 Route::get('api/token')
@@ -273,7 +272,7 @@ Route::get('api/token')
     ->middleware('2fa.confirm');
 ```
 
-Since a user without 2FA enabled won't be asked for a code, you can mix with middleware with `2fa.require` to enforce it.
+Since a user without 2FA enabled won't be asked for a code, you use it with `2fa.require` to enforce it.
 
 ```php
 Route::get('api/token')
@@ -281,7 +280,7 @@ Route::get('api/token')
     ->middleware('2fa.require', '2fa.confirm');
 ```
 
-Laraguard automatically uses the [`Confirm2FACodeController`](src/Http/Controllers/Confirm2FACodeController.php) to handle the form view asking for the 2FA code for you. [You can point your own controller actions](#confirmation-middleware) to handle the form view and confirmation. Better yet, you can start with the [`Confirms2FACode`](src/Http/Controllers/Confirms2FACode.php) trait to avoid reinventing the wheel.
+Laraguard uses its [`Confirm2FACodeController`](src/Http/Controllers/Confirm2FACodeController.php) to handle the form view. [You can point your own controller actions](#confirmation-middleware). The [`Confirms2FACode`](src/Http/Controllers/Confirms2FACode.php) trait will aid you in not reinventing the wheel.
 
 ## Validation
 
