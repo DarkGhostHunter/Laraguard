@@ -3,23 +3,13 @@
 namespace DarkGhostHunter\Laraguard\Http\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Contracts\Routing\ResponseFactory;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
+use function response;
+use function trans;
+use function auth;
 
 class RequireTwoFactorEnabled
 {
-    /**
-     * Create a new middleware instance.
-     *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
-     * @param  \Illuminate\Contracts\Routing\ResponseFactory  $response
-     */
-    public function __construct(protected ResponseFactory $response, protected ?Authenticatable $user = null)
-    {
-        //
-    }
-
     /**
      * Handle an incoming request.
      *
@@ -32,8 +22,8 @@ class RequireTwoFactorEnabled
     {
         if ($this->hasTwoFactorAuthDisabled()) {
             return $request->expectsJson()
-                ? $this->response->json(['message' => trans('laraguard::messages.enable')], 403)
-                : $this->response->redirectToRoute($redirectToRoute);
+                ? response()->json(['message' => trans('laraguard::messages.enable')], 403)
+                : response()->redirectToRoute($redirectToRoute);
         }
 
         return $next($request);
@@ -46,6 +36,8 @@ class RequireTwoFactorEnabled
      */
     protected function hasTwoFactorAuthDisabled(): bool
     {
-        return $this->user instanceof TwoFactorAuthenticatable && ! $this->user->hasTwoFactorEnabled();
+        $user = auth()->user();
+
+        return $user instanceof TwoFactorAuthenticatable && ! $user->hasTwoFactorEnabled();
     }
 }
