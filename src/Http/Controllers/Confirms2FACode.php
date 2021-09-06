@@ -8,6 +8,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
+use function view;
+use function response;
+use function redirect;
+use function now;
+
 trait Confirms2FACode
 {
     /**
