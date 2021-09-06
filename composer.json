@@ -1,12 +1,14 @@
 {
     "name": "darkghosthunter/laraguard",
-    "description": "Two-Factor authentication using TOTP the easy way!",
+    "description": "On-premises 2FA Authentication for all your users out-of-the-box",
     "keywords": [
         "darkghosthunter",
         "laraguard",
         "laravel",
         "authentication",
-        "2fa"
+        "2fa",
+        "two-factor",
+        "authentication"
     ],
     "homepage": "https://github.com/darkghosthunter/laraguard",
     "minimum-stability": "dev",
