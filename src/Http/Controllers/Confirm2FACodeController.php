@@ -10,7 +10,7 @@ class Confirm2FACodeController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Confirm Two Factor Code Controller
+    | Confirm Two-Factor Code Controller
     |--------------------------------------------------------------------------
     |
     | This controller handles the 2FA TOTP code confirmation automatically.

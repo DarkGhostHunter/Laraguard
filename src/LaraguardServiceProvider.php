@@ -15,7 +15,7 @@ class LaraguardServiceProvider extends ServiceProvider
      * @var string
      */
     protected const MIGRATION_FILE = __DIR__ . '/../database/migrations/2020_04_02_000000_create_two_factor_authentications_table.php';
-    protected const UPGRADE_FILE = __DIR__ . '/..database/migrations/0000_00_00_000000_upgrade_two_factor_authentications_table.php';
+    protected const UPGRADE_FILE = __DIR__ . '/../database/migrations/2020_04_02_000000_upgrade_two_factor_authentications_table.php';
 
     /**
      * Register the application services.

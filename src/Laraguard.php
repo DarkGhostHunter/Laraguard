@@ -10,8 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 use function app;
-use function config;
 use function trans;
+use function validator;
 
 class Laraguard
 {

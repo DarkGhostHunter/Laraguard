@@ -3,30 +3,15 @@
 namespace DarkGhostHunter\Laraguard\Http\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Routing\UrlGenerator;
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Contracts\Routing\ResponseFactory;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+
+use function response;
+use function url;
+use function auth;
 
 class ConfirmTwoFactorCode
 {
-    /**
-     * Create a new middleware instance.
-     *
-     * @param  \Illuminate\Contracts\Routing\ResponseFactory  $response
-     * @param  \Illuminate\Contracts\Routing\UrlGenerator  $url
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
-     */
-    public function __construct(
-        protected ResponseFactory $response,
-        protected UrlGenerator $url,
-        protected ?Authenticatable $user = null)
-    {
-        //
-    }
-
     /**
      * Handle an incoming request.
      *
@@ -42,8 +27,8 @@ class ConfirmTwoFactorCode
         }
 
         return $request->expectsJson()
-            ? $this->response->json(['message' => trans('laraguard::messages.required')], 403)
-            : $this->response->redirectGuest($this->url->route($redirectToRoute));
+            ? response()->json(['message' => trans('laraguard::messages.required')], 403)
+            : response()->redirectGuest(url()->route($redirectToRoute));
     }
 
     /**
@@ -53,7 +38,9 @@ class ConfirmTwoFactorCode
      */
     protected function userHasNotEnabledTwoFactorAuth(): bool
     {
-        return ! ($this->user instanceof TwoFactorAuthenticatable && $this->user->hasTwoFactorEnabled());
+        $user = auth()->user();
+
+        return ! ($user instanceof TwoFactorAuthenticatable && $user->hasTwoFactorEnabled());
     }
 
     /**

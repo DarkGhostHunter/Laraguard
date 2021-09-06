@@ -304,7 +304,7 @@ trait TwoFactorAuthentication
     }
 
     /**
-     * Returns the Two Factor Remember Token of the request.
+     * Returns the Two-Factor Remember Token of the request.
      *
      * @param  \Illuminate\Http\Request  $request
      *

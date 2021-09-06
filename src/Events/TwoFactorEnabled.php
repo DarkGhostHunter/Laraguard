@@ -7,7 +7,7 @@ use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
 class TwoFactorEnabled
 {
     /**
-     * The User using Two Factor Authentication.
+     * The User using Two-Factor Authentication.
      *
      * @var \DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable
      */

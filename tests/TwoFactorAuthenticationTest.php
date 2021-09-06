@@ -385,7 +385,7 @@ class TwoFactorAuthenticationTest extends TestCase
         }
 
         $request = Request::create('/', 'GET', [], [
-            '2fa_remember' => $this->user->safeDevices()->random()['2fa_remember'],
+            '_2fa_remember' => $this->user->safeDevices()->random()['2fa_remember'],
         ], [], [
             'REMOTE_ADDR' => $this->faker->ipv4,
         ]);
@@ -409,7 +409,7 @@ class TwoFactorAuthenticationTest extends TestCase
         }
 
         $request = Request::create('/', 'GET', [], [
-            '2fa_remember' => 'anything',
+            '_2fa_remember' => 'anything',
         ], [], [
             'REMOTE_ADDR' => $ip,
         ]);
@@ -433,7 +433,7 @@ class TwoFactorAuthenticationTest extends TestCase
         }
 
         $request = Request::create('/', 'GET', [], [
-            '2fa_remember' => $this->user->safeDevices()->random()['2fa_remember'],
+            '_2fa_remember' => $this->user->safeDevices()->random()['2fa_remember'],
         ], [], [
             'REMOTE_ADDR' => $this->faker->ipv4,
         ]);

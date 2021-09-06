@@ -24,12 +24,23 @@ class ConfirmTwoFactorEnabledTest extends TestCase
         $this->afterApplicationCreated([$this, 'createTwoFactorUser']);
 
         $this->afterApplicationCreated(function () {
+            $this->app['router']->get('login', function () {
+                return 'login';
+            })->name('login');
+
             $this->app['router']->get('intended', function () {
                 return 'ok';
-            })->name('intended')->middleware('web', 'auth', '2fa.confirm');
+            })->name('intended')->middleware('web', 'auth:web', '2fa.confirm');
         });
 
         parent::setUp();
+    }
+
+    public function test_guest_cant_access(): void
+    {
+        $this->assertGuest();
+
+        $this->get('intended')->assertRedirect('login');
     }
 
     public function test_continues_if_user_is_not_2fa_instance(): void
@@ -88,7 +99,7 @@ class ConfirmTwoFactorEnabledTest extends TestCase
 
         $this->getJson('intended')
             ->assertSessionMissing('2fa.totp_confirmed_at')
-            ->assertJson(['message' => 'Two Factor Authentication is required.'])
+            ->assertJson(['message' => 'Two-Factor Authentication is required.'])
             ->assertStatus(403);
 
         $this->postJson('2fa/confirm', [

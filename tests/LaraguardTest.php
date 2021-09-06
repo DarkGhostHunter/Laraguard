@@ -168,7 +168,7 @@ class LaraguardTest extends TestCase
         config()->set('laraguard.safe_devices.enabled', true);
 
         Cookie::partialMock()->shouldReceive('queue')
-            ->with('2fa_remember', Mockery::type('string'), 14 * 1440)
+            ->with('_2fa_remember', Mockery::type('string'), 14 * 1440)
             ->once();
 
         $credentials = [
@@ -218,7 +218,7 @@ class LaraguardTest extends TestCase
 
         $token = $this->user->addSafeDevice($request);
 
-        $request->cookies->set('2fa_remember', $token);
+        $request->cookies->set('_2fa_remember', $token);
 
         static::assertTrue(Auth::attemptWhen($credentials, Laraguard::hasCode()));
     }
