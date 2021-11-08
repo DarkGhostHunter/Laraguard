@@ -235,15 +235,13 @@ Laraguard comes with two middleware for your routes: `2fa.enabled` and `2fa.conf
 
 ### Require 2FA
 
-If you need to ensure the User has Two-Factor Authentication enabled before entering a given route, you can use the `2fa.enabled` middleware. This middleware only checks if 2FA is enabled.
+If you need to ensure the User has Two-Factor Authentication enabled before entering a given route, you can use the `2fa.enabled` middleware. Users who implement the `TwoFactorAuthenticatable` contract and have 2FA disabled will be redirected to a route name containing the warning, which is `2fa.notice` by default.
 
 ```php
 Route::get('system/settings')
     ->uses('SystemSettingsController@show')
     ->middleware('2fa.enabled');
 ```
-
-This middleware works much like Laravel's `verified` middleware: if the User has not enabled Two-Factor Authentication, it will be redirected to a route name containing the warning, which is `2fa.notice` by default.
 
 You can implement the view easily with the one included in this package, optionally with a URL to point the user to enable 2FA:
 
