@@ -173,6 +173,9 @@ public function login(Request $request)
 
 Behind the scenes, once the User is retrieved and validated from your guard of choice, it makes an additional check for a valid TOTP code. If it's invalid, it will return false and no authentication will happen.
 
+> For Laravel Breeze, you may need to edit the `LoginRequest::authenticate()` call.
+> For Laravel Fortify and Jetstream, you may need to set a custom callback with the `Fortify::authenticateUsing()` method.
+
 #### Separating the TOTP requirement
 
 In some occasions you will want to tell the user the authentication failed not because the credentials were incorrect, but because of the TOTP code was invalid.
