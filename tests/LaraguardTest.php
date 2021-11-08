@@ -15,6 +15,8 @@ use Orchestra\Testbench\TestCase;
 use Tests\Stubs\UserStub;
 use Tests\Stubs\UserTwoFactorStub;
 
+use function now;
+
 class LaraguardTest extends TestCase
 {
     use DatabaseMigrations;
@@ -63,6 +65,40 @@ class LaraguardTest extends TestCase
         ]));
 
         static::assertTrue(Auth::attemptWhen($credentials, Laraguard::hasCodeOrFails()));
+    }
+
+    public function test_authenticates_with_when_with_recovery_code(): void
+    {
+        $credentials = [
+            'email' => $this->user->email,
+            'password' => 'secret'
+        ];
+
+        $this->instance('request', Request::create('test', 'POST', [
+            '2fa_code' => $this->user->getRecoveryCodes()->first()['code']
+        ]));
+
+        $this->travelTo($now = now());
+
+        static::assertTrue(Auth::attemptWhen($credentials, Laraguard::hasCode()));
+        static::assertEquals($now->toIso8601ZuluString('microsecond'), $this->user->fresh()->getRecoveryCodes()->first()['used_at']);
+    }
+
+    public function test_authenticates_with_when_with_recovery_code_with_no_exceptions(): void
+    {
+        $credentials = [
+            'email' => $this->user->email,
+            'password' => 'secret'
+        ];
+
+        $this->instance('request', Request::create('test', 'POST', [
+            '2fa_code' => $this->user->getRecoveryCodes()->first()['code']
+        ]));
+
+        $this->travelTo($now = now());
+
+        static::assertTrue(Auth::attemptWhen($credentials, Laraguard::hasCodeOrFails()));
+        static::assertEquals($now->toIso8601ZuluString('microsecond'), $this->user->fresh()->getRecoveryCodes()->first()['used_at']);
     }
 
     public function test_authenticates_with_different_input_name(): void
@@ -132,6 +168,27 @@ class LaraguardTest extends TestCase
 
         $this->instance('request', Request::create('test', 'POST', [
             '2fa_code' => 'invalid'
+        ]));
+
+        try {
+            Auth::attemptWhen($credentials, Laraguard::hasCodeOrFails());
+        } catch (ValidationException $exception) {
+            static::assertSame(['2fa_code' => ['The Code is invalid or has expired.']], $exception->errors());
+            throw $exception;
+        }
+    }
+
+    public function test_validation_exception_when_code_empty(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $credentials = [
+            'email' => $this->user->email,
+            'password' => 'secret'
+        ];
+
+        $this->instance('request', Request::create('test', 'POST', [
+            '2fa_code' => ''
         ]));
 
         try {

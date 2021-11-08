@@ -113,7 +113,7 @@ class Laraguard
     protected function requestHasCode(): bool
     {
         return !validator($this->request->only($this->input), [
-            $this->input => 'required|numeric',
+            $this->input => 'required|alpha_num',
         ])->fails();
     }
 
