@@ -6,11 +6,13 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+
+use JetBrains\PhpStorm\Pure;
+
 use function collect;
 use function config;
 use function cookie;
 use function event;
-use function now;
 
 /**
  * @property-read \DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication $twoFactorAuth
@@ -43,6 +45,7 @@ trait TwoFactorAuthentication
      *
      * @return bool
      */
+    #[Pure]
     public function hasTwoFactorEnabled(): bool
     {
         return $this->twoFactorAuth->isEnabled();
@@ -55,13 +58,13 @@ trait TwoFactorAuthentication
      */
     public function enableTwoFactorAuth(): void
     {
-        $this->twoFactorAuth->enabled_at = now();
+        $this->twoFactorAuth->enabled_at = $this->freshTimestamp();
 
         if (config('laraguard.recovery.enabled')) {
             $this->generateRecoveryCodes();
+        } else {
+            $this->twoFactorAuth->save();
         }
-
-        $this->twoFactorAuth->save();
 
         event(new Events\TwoFactorEnabled($this));
     }
@@ -73,7 +76,8 @@ trait TwoFactorAuthentication
      */
     public function disableTwoFactorAuth(): void
     {
-        $this->twoFactorAuth->flushAuth()->delete();
+        // We will preemptively flush the 2FA to disallow any TOTP mechanism onwards.
+        $this->twoFactorAuth->flushAuth(false)->delete();
 
         event(new Events\TwoFactorDisabled($this));
     }
@@ -85,11 +89,7 @@ trait TwoFactorAuthentication
      */
     public function createTwoFactorAuth(): Contracts\TwoFactorTotp
     {
-        $this->twoFactorAuth->flushAuth()->forceFill([
-            'label' => $this->twoFactorLabel()
-        ])->save();
-
-        return $this->twoFactorAuth;
+        return $this->twoFactorAuth->setAttribute('label', $this->twoFactorLabel())->flushAuth();
     }
 
     /**
@@ -127,8 +127,7 @@ trait TwoFactorAuthentication
     /**
      * Verifies the Code against the Shared Secret.
      *
-     * @param  string|int $code
-     *
+     * @param  string|int  $code
      * @return bool
      */
     protected function validateCode(string|int $code): bool
@@ -140,7 +139,6 @@ trait TwoFactorAuthentication
      * Validates the TOTP Code or Recovery Code.
      *
      * @param  string|null  $code
-     *
      * @return bool
      */
     public function validateTwoFactorCode(?string $code = null): bool
@@ -155,7 +153,6 @@ trait TwoFactorAuthentication
      *
      * @param  \DateTimeInterface|int|string  $at
      * @param  int  $offset
-     *
      * @return string
      */
     public function makeTwoFactorCode(DateTimeInterface|int|string $at = 'now', int $offset = 0): string
@@ -168,7 +165,7 @@ trait TwoFactorAuthentication
      *
      * @return bool
      */
-    protected function hasRecoveryCodes(): bool
+    public function hasRecoveryCodes(): bool
     {
         return $this->twoFactorAuth->containsUnusedRecoveryCodes();
     }
@@ -180,22 +177,24 @@ trait TwoFactorAuthentication
      */
     public function getRecoveryCodes(): Collection
     {
-        return $this->twoFactorAuth->recovery_codes ?? collect();
+        return $this->twoFactorAuth->recovery_codes ?? new Collection();
     }
 
     /**
      * Generates a new set of Recovery Codes.
      *
+     * @param  bool  $save
      * @return \Illuminate\Support\Collection
      */
-    public function generateRecoveryCodes(): Collection
+    public function generateRecoveryCodes(bool $save = true): Collection
     {
         [$model, $amount, $length] = array_values(config()->get([
-            'laraguard.model', 'laraguard.recovery.codes', 'laraguard.recovery.length'
+            'laraguard.model', 'laraguard.recovery.codes', 'laraguard.recovery.length',
         ]));
 
         $this->twoFactorAuth->recovery_codes = $model::generateRecoveryCodes($amount, $length);
-        $this->twoFactorAuth->recovery_codes_generated_at = now();
+        $this->twoFactorAuth->recovery_codes_generated_at = $this->freshTimestamp();
+
         $this->twoFactorAuth->save();
 
         event(new Events\TwoFactorRecoveryCodesGenerated($this));
@@ -207,17 +206,18 @@ trait TwoFactorAuthentication
      * Uses a one-time Recovery Code if there is one available.
      *
      * @param  string  $code
-     *
      * @return mixed
      */
     protected function useRecoveryCode(string $code): bool
     {
+        // If the recovery codes are empty, this always returns false.
         if (!$this->twoFactorAuth->setRecoveryCodeAsUsed($code)) {
             return false;
         }
 
         $this->twoFactorAuth->save();
 
+        // If there was a recovery code, and was emptied, fire the event.
         if (!$this->hasRecoveryCodes()) {
             event(new Events\TwoFactorRecoveryCodesDepleted($this));
         }
@@ -229,13 +229,12 @@ trait TwoFactorAuthentication
      * Adds a "safe" Device from the Request, and returns the token used.
      *
      * @param  \Illuminate\Http\Request  $request
-     *
      * @return string
      */
     public function addSafeDevice(Request $request): string
     {
         [$name, $expiration] = array_values(config()->get([
-            'laraguard.safe_devices.cookie', 'laraguard.safe_devices.expiration_days'
+            'laraguard.safe_devices.cookie', 'laraguard.safe_devices.expiration_days',
         ]));
 
         $this->twoFactorAuth->safe_devices = $this->safeDevices()
@@ -262,7 +261,7 @@ trait TwoFactorAuthentication
      */
     protected function generateTwoFactorRemember(): string
     {
-        return config('laraguard.model')::generateDefaultTwoFactorRemember();
+        return (new (config('laraguard.model')))->generateSafeDeviceToken();
     }
 
     /**
@@ -282,7 +281,7 @@ trait TwoFactorAuthentication
      */
     public function safeDevices(): Collection
     {
-        return $this->twoFactorAuth->safe_devices ?? collect();
+        return $this->twoFactorAuth->safe_devices ?? new Collection();
     }
 
     /**
@@ -312,7 +311,7 @@ trait TwoFactorAuthentication
      */
     protected function getTwoFactorRememberFromRequest(Request $request): ?string
     {
-        return $request->cookie(config('laraguard.safe_devices.cookie', '2fa_remember'));
+        return $request->cookie(config('laraguard.safe_devices.cookie', '_2fa_remember'));
     }
 
     /**

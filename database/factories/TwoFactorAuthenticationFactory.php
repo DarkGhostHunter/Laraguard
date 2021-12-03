@@ -4,8 +4,12 @@ namespace Database\Factories\DarkGhostHunter\Laraguard\Eloquent;
 
 use DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
+/**
+ * @method \DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication makeOne($attributes = [], ?Model $parent = null)
+ */
 class TwoFactorAuthenticationFactory extends Factory
 {
     /**
@@ -47,7 +51,9 @@ class TwoFactorAuthenticationFactory extends Factory
      */
     public function withRecovery(): static
     {
-        [$enabled, $amount, $length] = array_values(config('laraguard.recovery'));
+        [$amount, $length] = array_values(config()->get([
+            'laraguard.recovery.codes', 'laraguard.recovery.length'
+        ]));
 
         return $this->state([
             'recovery_codes'              => TwoFactorAuthentication::generateRecoveryCodes($amount, $length),
@@ -74,7 +80,7 @@ class TwoFactorAuthenticationFactory extends Factory
                         now()->subDays($expiration_days));
 
                 return [
-                    '2fa_remember' => TwoFactorAuthentication::generateDefaultTwoFactorRemember(),
+                    '2fa_remember' => (new TwoFactorAuthentication)->generateSafeDeviceToken(),
                     'ip'           => $this->faker->ipv4,
                     'added_at'     => $added_at,
                 ];

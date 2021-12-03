@@ -2,16 +2,15 @@
 
 namespace DarkGhostHunter\Laraguard\Http\Controllers;
 
+use DarkGhostHunter\Laraguard\Http\Requests\TotpConfirmRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 use function view;
 use function response;
 use function redirect;
-use function now;
 
 trait Confirms2FACode
 {
@@ -28,51 +27,14 @@ trait Confirms2FACode
     /**
      * Confirm the given user's TOTP code.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \DarkGhostHunter\Laraguard\Http\Requests\TotpConfirmRequest  $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
-    public function confirm(Request $request): JsonResponse|Response|RedirectResponse
+    public function confirm(TotpConfirmRequest $request): JsonResponse|Response|RedirectResponse
     {
-        $request->validate($this->rules(), $this->validationErrorMessages());
-
-        $this->resetTotpConfirmationTimeout($request);
-
         return $request->wantsJson()
             ? response()->noContent()
             : redirect()->intended($this->redirectPath());
-    }
-
-    /**
-     * Reset the TOTP code timeout.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return void
-     */
-    protected function resetTotpConfirmationTimeout(Request $request): void
-    {
-        $request->session()->put('2fa.totp_confirmed_at', now()->timestamp);
-    }
-
-    /**
-     * Get the TOTP code validation rules.
-     *
-     * @return array
-     */
-    protected function rules(): array
-    {
-        return [
-            '2fa_code' => 'required|totp_code',
-        ];
-    }
-
-    /**
-     * Get the password confirmation validation error messages.
-     *
-     * @return array
-     */
-    protected function validationErrorMessages(): array
-    {
-        return [];
     }
 
     /**

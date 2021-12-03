@@ -4,9 +4,11 @@ namespace DarkGhostHunter\Laraguard\Http\Middleware;
 
 use Closure;
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\Request;
+
 use function response;
 use function trans;
-use function auth;
 
 class RequireTwoFactorEnabled
 {
@@ -16,11 +18,11 @@ class RequireTwoFactorEnabled
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @param  string  $redirectToRoute
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|mixed
+     * @return mixed
      */
-    public function handle($request, Closure $next, string $redirectToRoute = '2fa.notice')
+    public function handle(Request $request, Closure $next, string $redirectToRoute = '2fa.notice'): mixed
     {
-        if ($this->hasTwoFactorAuthDisabled()) {
+        if ($this->hasTwoFactorAuthDisabled($request->user())) {
             return $request->expectsJson()
                 ? response()->json(['message' => trans('laraguard::messages.enable')], 403)
                 : response()->redirectToRoute($redirectToRoute);
@@ -32,12 +34,11 @@ class RequireTwoFactorEnabled
     /**
      * Check if the user has Two-Factor Authentication enabled.
      *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
      * @return bool
      */
-    protected function hasTwoFactorAuthDisabled(): bool
+    protected function hasTwoFactorAuthDisabled(?Authenticatable $user): bool
     {
-        $user = auth()->user();
-
         return $user instanceof TwoFactorAuthenticatable && ! $user->hasTwoFactorEnabled();
     }
 }

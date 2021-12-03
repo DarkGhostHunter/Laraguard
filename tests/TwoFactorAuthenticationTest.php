@@ -18,6 +18,8 @@ use DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthentication;
 use DarkGhostHunter\Laraguard\Events\TwoFactorRecoveryCodesDepleted;
 use DarkGhostHunter\Laraguard\Events\TwoFactorRecoveryCodesGenerated;
 
+use function config;
+
 class TwoFactorAuthenticationTest extends TestCase
 {
     use DatabaseMigrations;
@@ -81,6 +83,18 @@ class TwoFactorAuthenticationTest extends TestCase
         $events->assertDispatched(TwoFactorEnabled::class, function ($event) {
             return $this->user->is($event->user);
         });
+    }
+
+    public function test_enabling_two_factor_auth_doesnt_creates_recovery_codes_if_disabled(): void
+    {
+        $this->user->disableTwoFactorAuth();
+
+        config()->set('laraguard.recovery.enabled', false);
+
+        $this->user->enableTwoFactorAuth();
+
+        $this->assertTrue($this->user->hasTwoFactorEnabled());
+        $this->assertEmpty($this->user->getRecoveryCodes());
     }
 
     public function test_creates_two_factor_authentication(): void

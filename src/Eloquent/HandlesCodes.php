@@ -7,6 +7,7 @@ use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Carbon;
 use ParagonIE\ConstantTime\Base32;
 
+use function array_values;
 use function cache;
 use function config;
 use function floor;
@@ -26,14 +27,14 @@ trait HandlesCodes
      *
      * @var \Illuminate\Contracts\Cache\Repository
      */
-    protected Repository $cache;
+    protected readonly Repository $cache;
 
     /**
      * String to prefix the Cache key.
      *
      * @var string
      */
-    protected string $prefix;
+    protected readonly string $prefix;
 
     /**
      * Initializes the current trait.
@@ -42,22 +43,10 @@ trait HandlesCodes
      */
     protected function initializeHandlesCodes(): void
     {
-        ['store' => $store, 'prefix' => $this->prefix] = config('laraguard.cache');
+        [$store, $this->prefix] = array_values(config('laraguard.cache'));
 
-        $this->cache = $this->useCacheStore($store);
-    }
-
-    /**
-     * Returns the Cache Store to use.
-     *
-     * @param  string|null  $store
-     *
-     * @return \Illuminate\Contracts\Cache\Repository
-     * @throws \Exception
-     */
-    protected function useCacheStore(string $store = null): Repository
-    {
-        return cache()->store($store);
+        // Save the cache store, so we don't have to require it every damn time.
+        $this->cache = cache()->store($store);
     }
 
     /**
@@ -66,7 +55,6 @@ trait HandlesCodes
      * @param  string  $code
      * @param  \DateTimeInterface|int|string  $at
      * @param  int|null  $window
-     *
      * @return bool
      */
     public function validateCode(string $code, DateTimeInterface|int|string $at = 'now', int $window = null): bool
@@ -75,7 +63,7 @@ trait HandlesCodes
             return false;
         }
 
-        $window = $window ?? $this->window;
+        $window ??= $this->window;
 
         for ($i = 0; $i <= $window; ++$i) {
             if (hash_equals($this->makeCode($at, -$i), $code)) {
@@ -92,7 +80,6 @@ trait HandlesCodes
      *
      * @param  \DateTimeInterface|int|string  $at
      * @param  int  $offset
-     *
      * @return string
      */
     public function makeCode(DateTimeInterface|int|string $at = 'now', int $offset = 0): string
@@ -106,7 +93,6 @@ trait HandlesCodes
      * Generates a valid Code for a given timestamp.
      *
      * @param  int  $timestamp
-     *
      * @return string
      */
     protected function generateCode(int $timestamp): string
@@ -134,7 +120,6 @@ trait HandlesCodes
      * Return the periods elapsed from the given Timestamp and seconds.
      *
      * @param  int  $timestamp
-     *
      * @return int
      */
     protected function getPeriodsFromTimestamp(int $timestamp): int
@@ -146,7 +131,6 @@ trait HandlesCodes
      * Creates a 64-bit raw binary string from a timestamp.
      *
      * @param  int  $timestamp
-     *
      * @return string
      */
     protected function timestampToBinary(int $timestamp): string
@@ -195,7 +179,6 @@ trait HandlesCodes
      * Returns the cache key string to save the codes into the cache.
      *
      * @param  string  $code
-     *
      * @return string
      */
     protected function cacheKey(string $code): string
@@ -207,7 +190,6 @@ trait HandlesCodes
      * Checks if the code has been used.
      *
      * @param  string  $code
-     *
      * @return bool
      */
     protected function codeHasBeenUsed(string $code): bool
@@ -220,7 +202,6 @@ trait HandlesCodes
      *
      * @param  string  $code
      * @param  \DateTimeInterface|int|string  $at
-     *
      * @return void
      */
     protected function setCodeAsUsed(string $code, DateTimeInterface|int|string $at = 'now'): void

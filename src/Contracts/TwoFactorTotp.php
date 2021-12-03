@@ -49,4 +49,12 @@ interface TwoFactorTotp extends Renderable, Stringable
      * @return string
      */
     public function toUri(): string;
+
+    /**
+     * Generates a random token to identify a Safe Device.
+     *
+     * @param  mixed|null  $options
+     * @return string
+     */
+    public function generateSafeDeviceToken(mixed $options = null): string;
 }

@@ -13,28 +13,28 @@ interface TwoFactorAuthenticatable
      *
      * @return bool
      */
-    public function hasTwoFactorEnabled() : bool;
+    public function hasTwoFactorEnabled(): bool;
 
     /**
      * Enables Two-Factor Authentication for the given user.
      *
      * @return void
      */
-    public function enableTwoFactorAuth() : void;
+    public function enableTwoFactorAuth(): void;
 
     /**
      * Disables Two-Factor Authentication for the given user.
      *
      * @return void
      */
-    public function disableTwoFactorAuth() : void;
+    public function disableTwoFactorAuth(): void;
 
     /**
      * Recreates the Two-Factor Authentication from the ground up, and returns a new Shared Secret.
      *
      * @return \DarkGhostHunter\Laraguard\Contracts\TwoFactorTotp
      */
-    public function createTwoFactorAuth() : TwoFactorTotp;
+    public function createTwoFactorAuth(): TwoFactorTotp;
 
     /**
      * Confirms the Shared Secret and fully enables the Two-Factor Authentication.
@@ -42,7 +42,7 @@ interface TwoFactorAuthenticatable
      * @param  string  $code
      * @return bool
      */
-    public function confirmTwoFactorAuth(string $code) : bool;
+    public function confirmTwoFactorAuth(string $code): bool;
 
     /**
      * Validates the TOTP Code or Recovery Code.
@@ -50,7 +50,7 @@ interface TwoFactorAuthenticatable
      * @param  string|null  $code
      * @return bool
      */
-    public function validateTwoFactorCode(?string $code = null) : bool;
+    public function validateTwoFactorCode(?string $code = null): bool;
 
     /**
      * Makes a Two-Factor Code for a given time, and period offset.
@@ -59,28 +59,28 @@ interface TwoFactorAuthenticatable
      * @param  int  $offset
      * @return string
      */
-    public function makeTwoFactorCode(DateTimeInterface|int|string $at = 'now', int $offset = 0) : string;
+    public function makeTwoFactorCode(DateTimeInterface|int|string $at = 'now', int $offset = 0): string;
 
     /**
      * Return the current set of Recovery Codes.
      *
      * @return \Illuminate\Support\Collection
      */
-    public function getRecoveryCodes() : Collection;
+    public function getRecoveryCodes(): Collection;
 
     /**
      * Generates a new set of Recovery Codes.
      *
      * @return \Illuminate\Support\Collection
      */
-    public function generateRecoveryCodes() : Collection;
+    public function generateRecoveryCodes(): Collection;
 
     /**
      * Return all the Safe Devices that bypass Two-Factor Authentication.
      *
      * @return \Illuminate\Support\Collection
      */
-    public function safeDevices() : Collection;
+    public function safeDevices(): Collection;
 
     /**
      * Adds a "safe" Device from the Request, and returns the token used to identify it.
@@ -88,7 +88,7 @@ interface TwoFactorAuthenticatable
      * @param  \Illuminate\Http\Request  $request
      * @return string
      */
-    public function addSafeDevice(Request $request) : string;
+    public function addSafeDevice(Request $request): string;
 
     /**
      * Determines if the Request has been made through a previously used "safe" device.
@@ -96,5 +96,5 @@ interface TwoFactorAuthenticatable
      * @param  \Illuminate\Http\Request  $request
      * @return bool
      */
-    public function isSafeDevice(Request $request) : bool;
+    public function isSafeDevice(Request $request): bool;
 }

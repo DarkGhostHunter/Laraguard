@@ -2,17 +2,18 @@
 
 namespace DarkGhostHunter\Laraguard\Eloquent;
 
-use BaconQrCode\Writer;
-use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
+
+use function array_values;
+use function chunk_split;
 use function config;
 use function http_build_query;
-use function strtoupper;
 use function rawurlencode;
-use function array_values;
+use function strtoupper;
 use function trim;
-use function chunk_split;
 
 trait SerializesSharedSecret
 {
@@ -21,19 +22,19 @@ trait SerializesSharedSecret
      *
      * @return string
      */
-    public function toUri() : string
+    public function toUri(): string
     {
         $issuer = config('laraguard.issuer', config('app.name'));
 
         $query = http_build_query([
             'issuer'    => $issuer,
-            'label'     => $this->attributes['label'],
+            'label'     => $this->label,
             'secret'    => $this->shared_secret,
-            'algorithm' => strtoupper($this->attributes['algorithm']),
-            'digits'     => $this->attributes['digits'],
+            'algorithm' => strtoupper($this->algorithm),
+            'digits'    => $this->digits,
         ], null, '&', PHP_QUERY_RFC3986);
 
-        return 'otpauth://totp/' . rawurlencode($issuer) . '%3A' . $this->attributes['label'] . "?$query";
+        return 'otpauth://totp/'.rawurlencode($issuer).'%3A'.$this->label."?$query";
     }
 
     /**
@@ -41,13 +42,12 @@ trait SerializesSharedSecret
      *
      * @return string
      */
-    public function toQr() : string
+    public function toQr(): string
     {
         [$size, $margin] = array_values(config('laraguard.qr_code'));
 
-        return (
-            new Writer((new ImageRenderer(new RendererStyle($size, $margin), new SvgImageBackEnd())))
-        )->writeString($this->toUri());
+        return (new Writer(new ImageRenderer(new RendererStyle($size, $margin), new SvgImageBackEnd)))
+            ->writeString($this->toUri());
     }
 
     /**
@@ -65,7 +65,7 @@ trait SerializesSharedSecret
      *
      * @return string
      */
-    public function toString() : string
+    public function toString(): string
     {
         return $this->shared_secret;
     }
@@ -75,13 +75,15 @@ trait SerializesSharedSecret
      *
      * @return string
      */
-    public function toGroupedString() : string
+    public function toGroupedString(): string
     {
         return trim(chunk_split($this->toString(), 4, ' '));
     }
 
     /**
-     * @inheritDoc
+     * Get the evaluated contents of the object.
+     *
+     * @return string
      */
     public function render(): string
     {
@@ -89,17 +91,22 @@ trait SerializesSharedSecret
     }
 
     /**
-     * @inheritDoc
+     * Convert the object to its JSON representation.
+     *
+     * @param  int  $options
+     * @return string
      */
     public function toJson($options = 0): string
     {
-        return json_encode($this->toUri(), JSON_THROW_ON_ERROR | $options);
+        return json_encode($this->toUri(), $options);
     }
 
     /**
-     * @inheritDoc
+     * Convert the object into something JSON serializable.
+     *
+     * @return string
      */
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): string
     {
         return $this->toUri();
     }

@@ -199,17 +199,22 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_contains_unused_recovery_codes(): void
     {
-        $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make();
+//        $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->makeOne();
+//
+//        $this->assertTrue($tfa->containsUnusedRecoveryCodes());
 
-        $this->assertTrue($tfa->containsUnusedRecoveryCodes());
+        TwoFactorAuthentication::make()
+            ->forceFill([
+                'recovery_codes' => null
+            ]);
 
-        $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
+        $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->makeOne([
             'recovery_codes' => null,
         ]);
 
         $this->assertFalse($tfa->containsUnusedRecoveryCodes());
 
-        $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->make([
+        $tfa = TwoFactorAuthentication::factory()->withRecovery()->withSafeDevices()->makeOne([
             'recovery_codes' => collect([
                 [
                     'code'    => '2G5oP36',
@@ -235,7 +240,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
     public function test_generates_random_safe_device_remember_token(): void
     {
-        $this->assertEquals(100, strlen(TwoFactorAuthentication::generateDefaultTwoFactorRemember()));
+        $this->assertEquals(100, strlen((new TwoFactorAuthentication)->generateSafeDeviceToken()));
     }
 
     public function test_serializes_to_string(): void

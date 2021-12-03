@@ -2,8 +2,10 @@
 
 namespace DarkGhostHunter\Laraguard\Eloquent;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
+use function now;
 
 trait HandlesRecoveryCodes
 {
@@ -14,22 +16,7 @@ trait HandlesRecoveryCodes
      */
     public function containsUnusedRecoveryCodes(): bool
     {
-        return (bool) $this->recovery_codes?->contains('used_at', '==', null);
-    }
-
-    /**
-     * Returns the key of the not-used Recovery Code.
-     *
-     * @param  string  $code
-     *
-     * @return int|bool|null
-     */
-    protected function getUnusedRecoveryCodeIndex(string $code): int|null|bool
-    {
-        return $this->recovery_codes?->search([
-            'code'    => $code,
-            'used_at' => null,
-        ], true);
+        return (bool) $this->recovery_codes?->contains('used_at', '===', null);
     }
 
     /**
@@ -40,16 +27,22 @@ trait HandlesRecoveryCodes
      */
     public function setRecoveryCodeAsUsed(string $code): bool
     {
-        if (! is_int($index = $this->getUnusedRecoveryCodeIndex($code))) {
-            return false;
-        }
-
-        $this->recovery_codes = $this->recovery_codes->put($index, [
-            'code'    => $code,
-            'used_at' => now(),
+        // Find the index of the exact match: same code, and not used.
+        $index = $this->recovery_codes?->search([
+            'code' => $code, 'used_at' => null
         ]);
 
-        return true;
+        // When it's found, an integer is always returned (null or false if not).
+        if (is_int($index)) {
+            $this->recovery_codes->put($index, [
+                'code'    => $code,
+                'used_at' => now(),
+            ]);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -57,7 +50,7 @@ trait HandlesRecoveryCodes
      *
      * @param  int  $amount
      * @param  int  $length
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection<array<string, int|null>
      */
     public static function generateRecoveryCodes(int $amount, int $length): Collection
     {

@@ -39,6 +39,7 @@ return [
     | so users have a way to authenticate without a code generator. The length
     | of the codes, as their quantity, can be configured to tighten security.
     |
+    | If the recovery codes are disabled, an empty list of codes is returned.
     */
 
     'recovery' => [
@@ -77,9 +78,10 @@ return [
     */
 
     'confirm' => [
+        'key' => '_2fa.totp_confirmed_at',
         'timeout' => 10800, // 3 hours
-        'view' => 'DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController@showConfirmForm',
-        'action' => 'DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController@confirm'
+        'view' => [DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController::class, 'showConfirmForm'],
+        'action' => [DarkGhostHunter\Laraguard\Http\Controllers\Confirm2FACodeController::class, 'confirm']
     ],
 
     /*

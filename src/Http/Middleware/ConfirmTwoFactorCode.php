@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 use function response;
 use function url;
-use function auth;
 
 class ConfirmTwoFactorCode
 {
@@ -20,9 +19,9 @@ class ConfirmTwoFactorCode
      * @param  string  $redirectToRoute
      * @return mixed
      */
-    public function handle($request, Closure $next, string $redirectToRoute = '2fa.confirm')
+    public function handle(Request $request, Closure $next, string $redirectToRoute = '2fa.confirm'): mixed
     {
-        if ($this->userHasNotEnabledTwoFactorAuth() || $this->codeWasValidated($request)) {
+        if ($this->userHasNotEnabledTwoFactorAuth($request) || $this->codeWasValidated($request)) {
             return $next($request);
         }
 
@@ -34,13 +33,12 @@ class ConfirmTwoFactorCode
     /**
      * Check if the user is using Two-Factor Authentication.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return bool
      */
-    protected function userHasNotEnabledTwoFactorAuth(): bool
+    protected function userHasNotEnabledTwoFactorAuth(Request $request): bool
     {
-        $user = auth()->user();
-
-        return ! ($user instanceof TwoFactorAuthenticatable && $user->hasTwoFactorEnabled());
+        return ! ($request->user() instanceof TwoFactorAuthenticatable && $request->user()->hasTwoFactorEnabled());
     }
 
     /**
@@ -51,7 +49,7 @@ class ConfirmTwoFactorCode
      */
     protected function codeWasValidated(Request $request): bool
     {
-        $confirmedAt = now()->timestamp - $request->session()->get('2fa.totp_confirmed_at', 0);
+        $confirmedAt = now()->getTimestamp() - $request->session()->get('2fa.totp_confirmed_at', 0);
 
         return $confirmedAt < config('laraguard.confirm.timeout', 10800);
     }

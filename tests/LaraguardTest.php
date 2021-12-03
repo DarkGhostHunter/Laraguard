@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use DarkGhostHunter\Laraguard\Exceptions\InvalidCodeException;
 use DarkGhostHunter\Laraguard\Laraguard;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -159,7 +160,7 @@ class LaraguardTest extends TestCase
 
     public function test_validation_exception_when_code_invalid(): void
     {
-        $this->expectException(ValidationException::class);
+        $this->expectException(InvalidCodeException::class);
 
         $credentials = [
             'email' => $this->user->email,
@@ -180,7 +181,7 @@ class LaraguardTest extends TestCase
 
     public function test_validation_exception_when_code_empty(): void
     {
-        $this->expectException(ValidationException::class);
+        $this->expectException(InvalidCodeException::class);
 
         $credentials = [
             'email' => $this->user->email,
@@ -201,7 +202,7 @@ class LaraguardTest extends TestCase
 
     public function test_validation_exception_with_message_when_code_invalid(): void
     {
-        $this->expectException(ValidationException::class);
+        $this->expectException(InvalidCodeException::class);
 
         $credentials = [
             'email' => $this->user->email,

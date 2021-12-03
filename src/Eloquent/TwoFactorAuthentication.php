@@ -3,9 +3,13 @@
 namespace DarkGhostHunter\Laraguard\Eloquent;
 
 use DarkGhostHunter\Laraguard\Contracts\TwoFactorTotp;
+use Illuminate\Database\Eloquent\Casts\AsCollection;
+use Illuminate\Database\Eloquent\Casts\AsEncryptedCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Collection;
+use JetBrains\PhpStorm\Pure;
 use ParagonIE\ConstantTime\Base32;
 
 /**
@@ -13,7 +17,7 @@ use ParagonIE\ConstantTime\Base32;
  *
  * @property-read int $id
  *
- * @property-read null|\DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable $authenticatable
+ * @property-read \DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable|null $authenticatable
  *
  * @property string $shared_secret
  * @property string $label
@@ -22,13 +26,15 @@ use ParagonIE\ConstantTime\Base32;
  * @property int $window
  * @property string $algorithm
  * @property array $totp_config
- * @property null|\Illuminate\Support\Collection $recovery_codes
- * @property null|\Illuminate\Support\Collection $safe_devices
- * @property null|\Illuminate\Support\Carbon|\DateTime $enabled_at
- * @property null|\Illuminate\Support\Carbon|\DateTime $recovery_codes_generated_at
+ * @property \Illuminate\Support\Collection<array<string,int|null>>|null $recovery_codes
+ * @property \Illuminate\Support\Collection<array<string,string,int>>|null $safe_devices
+ * @property \Illuminate\Support\Carbon|\DateTime|null $enabled_at
+ * @property \Illuminate\Support\Carbon|\DateTime|null $recovery_codes_generated_at
  *
- * @property null|\Illuminate\Support\Carbon|\DateTime $updated_at
- * @property null|\Illuminate\Support\Carbon|\DateTime $created_at
+ * @property \Illuminate\Support\Carbon|\DateTime|null $updated_at
+ * @property \Illuminate\Support\Carbon|\DateTime|null $created_at
+ *
+ * @method static \Database\Factories\DarkGhostHunter\Laraguard\Eloquent\TwoFactorAuthenticationFactory factory(...$parameters)
  */
 class TwoFactorAuthentication extends Model implements TwoFactorTotp
 {
@@ -49,10 +55,11 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
         'digits'                      => 'int',
         'seconds'                     => 'int',
         'window'                      => 'int',
-        'recovery_codes'              => 'encrypted:collection',
-        'safe_devices'                => 'collection',
         'enabled_at'                  => 'datetime',
         'recovery_codes_generated_at' => 'datetime',
+
+        'recovery_codes'              => AsEncryptedCollection::class,
+        'safe_devices'                => AsCollection::class,
     ];
 
     /**
@@ -69,7 +76,6 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
      * Sets the Algorithm to lowercase.
      *
      * @param $value
-     *
      * @return void
      */
     protected function setAlgorithmAttribute($value): void
@@ -84,7 +90,7 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
      */
     public function isEnabled(): bool
     {
-        return $this->enabled_at !== null;
+        return isset($this->attributes['enabled_at']);
     }
 
     /**
@@ -100,18 +106,22 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
     /**
      * Flushes all authentication data and cycles the Shared Secret.
      *
+     * @param  bool  $save  If at flushing should also save the model.
      * @return $this
      */
-    public function flushAuth(): static
+    public function flushAuth(bool $save = true): static
     {
-        $this->recovery_codes_generated_at = null;
+        $this->attributes['recovery_codes_generated_at'] = null;
         $this->safe_devices = null;
-        $this->enabled_at = null;
+        $this->attributes['enabled_at'] = null;
+        $this->shared_secret = static::generateRandomSecret();
+        $this->recovery_codes = null;
 
         $this->attributes = array_merge($this->attributes, config('laraguard.totp'));
 
-        $this->shared_secret = static::generateRandomSecret();
-        $this->recovery_codes = null;
+        if ($save) {
+            $this->save();
+        }
 
         return $this;
     }
@@ -123,8 +133,6 @@ class TwoFactorAuthentication extends Model implements TwoFactorTotp
      */
     public static function generateRandomSecret(): string
     {
-        return Base32::encodeUpper(
-            random_bytes(config('laraguard.secret_length'))
-        );
+        return Base32::encodeUpper(random_bytes(config('laraguard.secret_length')));
     }
 }

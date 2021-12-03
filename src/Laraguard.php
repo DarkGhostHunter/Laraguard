@@ -16,16 +16,34 @@ use function validator;
 class Laraguard
 {
     /**
+     * The default name to check for the 2FA code.
+     *
+     * @var string
+     */
+    public const INPUT = '2fa_code';
+
+    /**
+     * The default name to check for safe-device registration.
+     *
+     * @var string
+     */
+    public const SAFE_DEVICE_INPUT = 'safe_device';
+
+
+    /**
      * Check if the user uses TOTP and has a valid code.
      *
      * @param  string  $input
-     *
+     * @param  string  $safeDeviceInput
      * @return \Closure
      */
-    public static function hasCode(string $input = '2fa_code'): Closure
+    public static function hasCode(
+        string $input = self::INPUT,
+        string $safeDeviceInput = self::SAFE_DEVICE_INPUT
+    ): Closure
     {
-        return static function ($user) use ($input): bool {
-            return app(__CLASS__, ['input' => $input])->validate($user);
+        return static function ($user) use ($input, $safeDeviceInput): bool {
+            return (new static(app('config'), app('request'), $input, $safeDeviceInput))->validate($user);
         };
     }
 
@@ -33,19 +51,23 @@ class Laraguard
      * Check if the user uses TOTP and has a valid code.
      *
      * @param  string  $input
+     * @param  string  $safeDeviceInput
      * @param  string|null  $message
-     *
      * @return \Closure
      */
-    public static function hasCodeOrFails(string $input = '2fa_code', string $message = null): Closure
+    public static function hasCodeOrFails(
+        string $input = self::INPUT,
+        string $safeDeviceInput = self::SAFE_DEVICE_INPUT,
+        string $message = null,
+    ): Closure
     {
-        return static function ($user) use ($input, $message): bool {
-            if (app(__CLASS__, ['input' => $input])->validate($user)) {
+        return static function ($user) use ($input, $safeDeviceInput, $message): bool {
+            if ((static::hasCode($input, $safeDeviceInput))($user)) {
                 return true;
             }
 
-            throw ValidationException::withMessages([
-                $input => $message ?? trans('laraguard::validation.totp_code'),
+            throw Exceptions\InvalidCodeException::withMessages([
+                $input => value($message, $user) ?? trans('laraguard::validation.totp_code'),
             ]);
         };
     }
@@ -56,8 +78,14 @@ class Laraguard
      * @param  \Illuminate\Contracts\Config\Repository  $config
      * @param  \Illuminate\Http\Request  $request
      * @param  string  $input
+     * @param  string  $safeDeviceInput
      */
-    public function __construct(protected Repository $config, protected Request $request, protected string $input)
+    public function __construct(
+        protected readonly Repository $config,
+        protected readonly Request $request,
+        protected readonly string $input,
+        protected readonly string $safeDeviceInput,
+    )
     {
         //
     }
@@ -68,7 +96,6 @@ class Laraguard
      * If the user does not use TOTP, no checks will be done.
      *
      * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
-     *
      * @return bool
      */
     public function validate(Authenticatable $user): bool
@@ -134,6 +161,6 @@ class Laraguard
      */
     protected function wantsToAddDevice(): bool
     {
-        return $this->request->filled('safe_device');
+        return $this->request->filled($this->safeDeviceInput);
     }
 }

@@ -85,7 +85,7 @@ class ConfirmTwoFactorEnabledTest extends TestCase
             ->post('2fa/confirm', [
                 '2fa_code' => $this->user->makeTwoFactorCode(),
             ])
-            ->assertSessionHas('2fa.totp_confirmed_at')
+            ->assertSessionHas('_2fa.totp_confirmed_at')
             ->assertSee('ok');
 
         $this->followingRedirects()
@@ -105,7 +105,7 @@ class ConfirmTwoFactorEnabledTest extends TestCase
         $this->postJson('2fa/confirm', [
             '2fa_code' => $this->user->makeTwoFactorCode(),
         ])
-            ->assertSessionHas('2fa.totp_confirmed_at')
+            ->assertSessionHas('_2fa.totp_confirmed_at')
             ->assertNoContent();
     }
 

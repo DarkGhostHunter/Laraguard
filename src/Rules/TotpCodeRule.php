@@ -14,7 +14,9 @@ class TotpCodeRule
      * @param  \Illuminate\Contracts\Translation\Translator  $translator
      * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
      */
-    public function __construct(protected Translator $translator, protected ?Authenticatable $user = null)
+    public function __construct(
+        protected readonly Translator $translator,
+        protected readonly ?Authenticatable $user = null)
     {
         //
     }
@@ -26,7 +28,7 @@ class TotpCodeRule
      * @param  mixed  $value
      * @return bool
      */
-    public function validate($attribute, $value): bool
+    public function validate(string $attribute, mixed $value): bool
     {
         return is_string($value)
             && $this->user instanceof TwoFactorAuthenticatable
