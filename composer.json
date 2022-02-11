@@ -27,12 +27,12 @@
         "ext-json": "*",
         "bacon/bacon-qr-code": "^2.0",
         "paragonie/constant_time_encoding": "^2.4",
-        "illuminate/config": "^8.39|^9.0",
-        "illuminate/validation": "^8.39|^9.0",
-        "illuminate/database": "^8.39|^9.0",
-        "illuminate/support": "^8.39|^9.0",
-        "illuminate/http": "^8.39|^9.0",
-        "illuminate/auth": "^8.39|^9.0"
+        "illuminate/config": "^8.83|^9.0",
+        "illuminate/validation": "^8.83|^9.0",
+        "illuminate/database": "^8.83|^9.0",
+        "illuminate/support": "^8.83|^9.0",
+        "illuminate/http": "^8.83|^9.0",
+        "illuminate/auth": "^8.83|^9.0"
     },
     "require-dev": {
         "doctrine/dbal": "^3.1",
