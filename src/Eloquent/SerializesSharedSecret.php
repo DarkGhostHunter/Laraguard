@@ -99,8 +99,8 @@ trait SerializesSharedSecret
     /**
      * @inheritDoc
      */
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): array
     {
-        return $this->toUri();
+        return (array) $this->toUri();
     }
 }

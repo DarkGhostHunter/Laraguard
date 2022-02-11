@@ -323,7 +323,7 @@ class TwoFactorAuthenticationTest extends TestCase
 
         $this->assertJson($tfa->toJson());
         $this->assertEquals($uri, $tfa->toJson());
-        $this->assertEquals($uri, json_encode($tfa));
+        $this->assertEquals('[' . $uri . ']', json_encode($tfa));
     }
 
     public function test_changes_issuer(): void
@@ -341,6 +341,6 @@ class TwoFactorAuthenticationTest extends TestCase
 
         $this->assertJson($tfa->toJson());
         $this->assertEquals($uri, $tfa->toJson());
-        $this->assertEquals($uri, json_encode($tfa));
+        $this->assertEquals('[' . $uri . ']', json_encode($tfa));
     }
 }
