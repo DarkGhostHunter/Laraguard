@@ -1,5 +1,12 @@
 # Upgrading
 
+## Upgrade from 4.0
+
+If you're upgrading from Laraguard 4.0, you will need to check your code.
+
+Laraguard 5.0 has removed the ```jsonSerialize()``` method in the trait ```SerializesSharedSecret```. If you need a JSON respresentation you need to use the ```toJson()``` method.
+
+
 ## Upgrade from 3.0
 
 If you're upgrading from Laraguard 3.0, you will need to migrate.

@@ -15,8 +15,8 @@ This package enables authentication using 6 digits codes. No need for external A
 
 ## Requirements
 
-* [Laravel 8.39 or later](https://github.com/laravel/framework/blob/8.x/CHANGELOG-8.x.md#v8390-2021-04-27)
-* PHP 8.0
+* [Laravel 8.83 or later](https://github.com/laravel/framework/blob/8.x/CHANGELOG-8.x.md#v8820-2022-02-01)
+* PHP 8.0 or later.
 
 > For older versions support, consider helping by sponsoring or donating.
 

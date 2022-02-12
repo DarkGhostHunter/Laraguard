@@ -95,12 +95,4 @@ trait SerializesSharedSecret
     {
         return json_encode($this->toUri(), JSON_THROW_ON_ERROR | $options);
     }
-
-    /**
-     * @inheritDoc
-     */
-    public function jsonSerialize(): mixed
-    {
-        return $this->toUri();
-    }
 }
