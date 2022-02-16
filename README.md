@@ -1,6 +1,10 @@
-<p align="center">
-  <img src="logo.jpg">
-</p>
+# Package superseded by [Laragear/TwoFactor](https://github.com/Laragear/TwoFactor)
+
+The new package offers better functionality, testing, and latest Laravel support.
+
+---
+
+![](logo.jpg)
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/darkghosthunter/laraguard.svg?style=flat-square)](https://packagist.org/packages/darkghosthunter/laraguard) [![License](https://poser.pugx.org/darkghosthunter/laraguard/license)](https://packagist.org/packages/darkghosthunter/laraguard)
 ![](https://img.shields.io/packagist/php-v/darkghosthunter/laraguard.svg)
