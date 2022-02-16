@@ -1,11 +1,8 @@
-<p align="center">
-  <img src="logo.jpg">
-</p>
+# Package superseeded by [Laragear/TwoFactor](https://github.com/Laragear/TwoFactor)
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/darkghosthunter/laraguard.svg?style=flat-square)](https://packagist.org/packages/darkghosthunter/laraguard) [![License](https://poser.pugx.org/darkghosthunter/laraguard/license)](https://packagist.org/packages/darkghosthunter/laraguard)
-![](https://img.shields.io/packagist/php-v/darkghosthunter/laraguard.svg)
-![](https://github.com/DarkGhostHunter/Laraguard/workflows/PHP%20Composer/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/DarkGhostHunter/Laraguard/badge.svg?branch=master)](https://coveralls.io/github/DarkGhostHunter/Laraguard?branch=master)
+Please migrate to the new package.
+
+---
 
 # Laraguard
 
